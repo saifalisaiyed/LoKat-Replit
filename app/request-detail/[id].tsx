@@ -195,14 +195,12 @@ export default function RequestDetailScreen() {
           </View>
 
           <View style={styles.chipRow}>
-            <View style={[styles.categoryPill, { backgroundColor: getCatColor(request.category) + "18", borderColor: getCatColor(request.category) + "40" }]}>
-              <View style={[styles.categoryPillIcon, { backgroundColor: getCatColor(request.category) + "30" }]}>
-                <Ionicons
-                  name={(CATEGORIES.find((c) => c.key === request.category)?.icon ?? "pricetag-outline") as any}
-                  size={16}
-                  color={getCatColor(request.category)}
-                />
-              </View>
+            <View style={[styles.categoryPill, { backgroundColor: getCatColor(request.category) + "15", borderColor: getCatColor(request.category) + "40" }]}>
+              <Ionicons
+                name={(CATEGORIES.find((c) => c.key === request.category)?.icon ?? "pricetag-outline") as any}
+                size={15}
+                color={getCatColor(request.category)}
+              />
               <Text style={[styles.categoryPillText, { color: getCatColor(request.category) }]}>
                 {getCategoryLabel(request.category)}
               </Text>
@@ -362,13 +360,10 @@ const styles = StyleSheet.create({
   rewardText: { fontSize: 18, color: "#fff", fontFamily: "Archivo_600SemiBold" },
   chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   categoryPill: {
-    flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 8,
-    paddingLeft: 6, paddingRight: 14, borderRadius: 12, borderWidth: 1,
+    flexDirection: "row", alignItems: "center", gap: 7,
+    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, borderWidth: 1,
   },
-  categoryPillIcon: {
-    width: 30, height: 30, borderRadius: 8, alignItems: "center", justifyContent: "center",
-  },
-  categoryPillText: { fontSize: 14, fontFamily: "Archivo_600SemiBold" },
+  categoryPillText: { fontSize: 13, fontFamily: "Archivo_500Medium" },
   chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#fff", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB" },
   chipText: { fontSize: 13, color: Colors.light.tint, fontFamily: "Archivo_500Medium" },
   chipTextMuted: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
