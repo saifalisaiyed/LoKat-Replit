@@ -32,62 +32,80 @@ export default function MapViewWrapper({
   return (
     <Pressable style={styles.webMap} onPress={handleTap}>
       <View style={styles.grid}>
-        {Array.from({ length: 20 }).map((_, i) => (
+        {Array.from({ length: 30 }).map((_, i) => (
           <View
             key={`h-${i}`}
             style={[
-              styles.line,
-              { top: `${(i + 1) * 5}%`, left: 0, right: 0, height: 1 },
+              styles.lineH,
+              { top: `${(i + 1) * 3.33}%` },
             ]}
           />
         ))}
-        {Array.from({ length: 20 }).map((_, i) => (
+        {Array.from({ length: 30 }).map((_, i) => (
           <View
             key={`v-${i}`}
             style={[
-              styles.line,
-              { left: `${(i + 1) * 5}%`, top: 0, bottom: 0, width: 1 },
+              styles.lineV,
+              { left: `${(i + 1) * 3.33}%` },
             ]}
           />
         ))}
       </View>
 
-      {openRequests.map((req: any, i: number) => (
-        <Pressable
-          key={req.id}
-          style={[
-            styles.marker,
-            { top: `${18 + i * 12}%`, left: `${10 + i * 17}%` },
-          ]}
-          onPress={(e) => {
-            e.stopPropagation();
-            onMarkerPress(req.id);
-          }}
-        >
-          <View style={styles.markerDot}>
-            <Text style={styles.markerPrice}>${req.reward}</Text>
-          </View>
-          <Text style={styles.markerName} numberOfLines={1}>
-            {req.locationName}
-          </Text>
-        </Pressable>
-      ))}
+      <View style={styles.roadH1} />
+      <View style={styles.roadH2} />
+      <View style={styles.roadV1} />
+      <View style={styles.roadV2} />
+      <View style={styles.roadDiag} />
+
+      <View style={styles.labelContainer}>
+        <Text style={styles.areaLabel}>SOHO</Text>
+      </View>
+      <View style={[styles.labelContainer, { top: '25%', left: '30%' }]}>
+        <Text style={styles.areaLabel}>LOWER MANHATTAN</Text>
+      </View>
+      <View style={[styles.labelContainer, { top: '42%', left: '20%' }]}>
+        <Text style={styles.cityLabel}>New York</Text>
+      </View>
+      <View style={[styles.labelContainer, { top: '55%', left: '10%' }]}>
+        <Text style={styles.areaLabel}>FINANCIAL DISTRICT</Text>
+      </View>
+      <View style={[styles.labelContainer, { top: '38%', left: '65%' }]}>
+        <Text style={styles.areaLabel}>CHINATOWN</Text>
+      </View>
+      <View style={[styles.labelContainer, { bottom: '12%', left: '35%' }]}>
+        <Text style={styles.areaLabel}>BROOKLYN HEIGHTS</Text>
+      </View>
+
+      {openRequests.slice(0, 4).map((req: any, i: number) => {
+        const positions = [
+          { top: '28%', left: '55%' },
+          { top: '48%', left: '68%' },
+          { top: '18%', left: '75%' },
+          { top: '65%', left: '25%' },
+        ];
+        const pos = positions[i] || positions[0];
+        return (
+          <Pressable
+            key={req.id}
+            style={[styles.marker, pos as any]}
+            onPress={(e) => {
+              e.stopPropagation();
+              onMarkerPress(req.id);
+            }}
+          >
+            <View style={styles.markerDot}>
+              <Ionicons name="location" size={14} color="#fff" />
+            </View>
+          </Pressable>
+        );
+      })}
 
       {selectedPin && isSeeker && (
         <View style={styles.selectedPin}>
           <Ionicons name="location" size={36} color={Colors.light.tint} />
         </View>
       )}
-
-      <View style={styles.center}>
-        <Ionicons name="map-outline" size={48} color={Colors.light.border} />
-        <Text style={styles.centerText}>
-          {isSeeker
-            ? "Tap to place a pin"
-            : `${openRequests.length} requests nearby`}
-        </Text>
-        <Text style={styles.subText}>Full interactive map on mobile</Text>
-      </View>
     </Pressable>
   );
 }
@@ -95,35 +113,84 @@ export default function MapViewWrapper({
 const styles = StyleSheet.create({
   webMap: {
     flex: 1,
-    backgroundColor: "#D6EEF7",
+    backgroundColor: Colors.palette.mapDark,
     position: "relative",
     overflow: "hidden",
   },
   grid: {
     ...StyleSheet.absoluteFillObject,
   },
-  line: {
+  lineH: {
     position: "absolute",
-    backgroundColor: "rgba(0,174,239,0.06)",
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: "rgba(100, 140, 180, 0.08)",
   },
-  center: {
+  lineV: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: 1,
+    backgroundColor: "rgba(100, 140, 180, 0.08)",
+  },
+  roadH1: {
     position: "absolute",
     top: "35%",
     left: 0,
     right: 0,
-    alignItems: "center",
-    gap: 8,
+    height: 2,
+    backgroundColor: "rgba(0, 200, 220, 0.2)",
   },
-  centerText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: Colors.light.textSecondary,
+  roadH2: {
+    position: "absolute",
+    top: "60%",
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: "rgba(0, 200, 220, 0.15)",
+  },
+  roadV1: {
+    position: "absolute",
+    left: "45%",
+    top: 0,
+    bottom: 0,
+    width: 2,
+    backgroundColor: "rgba(0, 200, 220, 0.18)",
+  },
+  roadV2: {
+    position: "absolute",
+    left: "70%",
+    top: 0,
+    bottom: 0,
+    width: 2,
+    backgroundColor: "rgba(0, 200, 220, 0.12)",
+  },
+  roadDiag: {
+    position: "absolute",
+    top: "50%",
+    left: "40%",
+    width: 150,
+    height: 2,
+    backgroundColor: "rgba(0, 200, 220, 0.15)",
+    transform: [{ rotate: "-35deg" }],
+  },
+  labelContainer: {
+    position: "absolute",
+    top: "15%",
+    left: "55%",
+  },
+  areaLabel: {
+    fontSize: 9,
     fontFamily: "Archivo_500Medium",
+    color: "rgba(180, 200, 220, 0.4)",
+    letterSpacing: 1.5,
   },
-  subText: {
-    fontSize: 13,
-    color: Colors.light.tabIconDefault,
-    fontFamily: "Archivo_400Regular",
+  cityLabel: {
+    fontSize: 18,
+    fontFamily: "Archivo_600SemiBold",
+    color: "rgba(200, 220, 240, 0.35)",
+    letterSpacing: 0.5,
   },
   marker: {
     position: "absolute",
@@ -131,24 +198,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   markerDot: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: Colors.light.tint,
-  },
-  markerPrice: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-    fontFamily: "Archivo_600SemiBold",
-  },
-  markerName: {
-    fontSize: 10,
-    color: Colors.light.textSecondary,
-    marginTop: 2,
-    maxWidth: 80,
-    textAlign: "center",
-    fontFamily: "Archivo_400Regular",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.3)",
   },
   selectedPin: {
     position: "absolute",

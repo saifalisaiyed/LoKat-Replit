@@ -8,6 +8,7 @@ import {
   FlatList,
   Platform,
   Dimensions,
+  TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -19,7 +20,22 @@ import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const MAP_HEIGHT = SCREEN_HEIGHT * 0.38;
+const MAP_HEIGHT = SCREEN_HEIGHT * 0.4;
+
+const CATEGORY_COLORS: Record<string, string> = {
+  landmarks: "#D4A017",
+  nature: "#22C55E",
+  markets: "#EC4899",
+  beaches: "#F97316",
+  cityscapes: "#3B82F6",
+  food: "#EF4444",
+  "hidden-gems": "#8B5CF6",
+  events: "#14B8A6",
+};
+
+function getCategoryColor(key: string): string {
+  return CATEGORY_COLORS[key] || Colors.light.tint;
+}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -32,15 +48,29 @@ function timeAgo(dateStr: string): string {
   return `${days}d ago`;
 }
 
-function getCategoryLabel(key: Category): string {
-  return CATEGORIES.find((c) => c.key === key)?.label ?? key;
-}
-
 function getCategoryIcon(key: Category): string {
   return CATEGORIES.find((c) => c.key === key)?.icon ?? "pricetag-outline";
 }
 
+function getDistanceMi(lat: number, lng: number): string {
+  const userLat = 40.758;
+  const userLng = -73.9855;
+  const R = 3958.8;
+  const dLat = ((lat - userLat) * Math.PI) / 180;
+  const dLng = ((lng - userLng) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((userLat * Math.PI) / 180) *
+      Math.cos((lat * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c;
+  return d < 1 ? `${(d * 5280).toFixed(0)}ft` : `${d.toFixed(1)}mi`;
+}
+
 function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
+  const catColor = getCategoryColor(item.category);
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -49,55 +79,34 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
       ]}
       onPress={onPress}
     >
-      <View style={styles.requestCardTop}>
-        <View style={styles.requestLocationRow}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="location" size={16} color={Colors.light.tint} />
-          </View>
-          <View style={styles.requestLocationInfo}>
-            <Text style={styles.requestLocationName} numberOfLines={1}>
-              {item.locationName}
-            </Text>
-            <Text style={styles.requestAddress} numberOfLines={1}>
-              {item.address}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.requestReward}>
-          <Text style={styles.requestRewardText}>${item.reward}</Text>
-        </View>
-      </View>
-      <View style={styles.requestCardBottom}>
-        <View style={styles.requestMeta}>
-          <View style={styles.categoryChip}>
-            <Ionicons
-              name={getCategoryIcon(item.category) as any}
-              size={12}
-              color={Colors.light.tint}
-            />
-            <Text style={styles.categoryChipText}>
-              {getCategoryLabel(item.category)}
-            </Text>
-          </View>
-          <View style={styles.metaDot} />
-          <Ionicons
-            name={
-              item.orientation === "portrait"
-                ? "phone-portrait-outline"
-                : "phone-landscape-outline"
-            }
-            size={12}
-            color={Colors.light.textSecondary}
-          />
-          <View style={styles.metaDot} />
-          <Text style={styles.requestTime}>{timeAgo(item.createdAt)}</Text>
-        </View>
+      <View style={[styles.cardIconCircle, { backgroundColor: catColor + "18" }]}>
         <Ionicons
-          name="chevron-forward"
-          size={16}
-          color={Colors.light.border}
+          name={getCategoryIcon(item.category) as any}
+          size={20}
+          color={catColor}
         />
       </View>
+
+      <View style={styles.cardContent}>
+        <Text style={styles.cardLocationName} numberOfLines={1}>
+          {item.locationName}, {item.address}
+        </Text>
+        <View style={styles.cardMetaRow}>
+          <Ionicons name="navigate-circle-outline" size={13} color={Colors.light.textSecondary} />
+          <Text style={styles.cardDistance}>
+            {getDistanceMi(item.latitude, item.longitude)}
+          </Text>
+          <Ionicons name="time-outline" size={13} color={Colors.light.orange} />
+          <Text style={styles.cardTime}>{timeAgo(item.createdAt)}</Text>
+        </View>
+      </View>
+
+      <Pressable
+        style={styles.cardArrowBtn}
+        onPress={onPress}
+      >
+        <Ionicons name="arrow-forward" size={18} color="#fff" />
+      </Pressable>
     </Pressable>
   );
 }
@@ -106,9 +115,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { getRequestsByCategory } = useApp();
   const mapRef = useRef<any>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null,
-  );
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
@@ -168,68 +175,83 @@ export default function HomeScreen() {
         <View
           style={[
             styles.mapOverlay,
-            { paddingTop: insets.top + 14 + webInsetTop },
+            { paddingTop: insets.top + 10 + webInsetTop },
           ]}
           pointerEvents="box-none"
         >
-          <View style={styles.glassHeader}>
-            <Text style={styles.mapTitle}>LoKate</Text>
+          <View style={styles.searchBar}>
+            <View style={styles.searchLogoCircle}>
+              <Ionicons name="scan-outline" size={16} color={Colors.light.tint} />
+            </View>
+            <Ionicons name="search" size={16} color="#9CA3AF" style={{ marginLeft: 8 }} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Want to see something?"
+              placeholderTextColor="#9CA3AF"
+              editable={false}
+            />
           </View>
-          <View style={styles.mapBadge}>
-            <Text style={styles.mapBadgeText}>{openRequests.length}</Text>
-            <Text style={styles.mapBadgeLabel}>nearby</Text>
+
+          <View style={styles.mapBottomRow} pointerEvents="box-none">
+            <View />
+            <Pressable style={styles.settingsBtn}>
+              <Ionicons name="settings-outline" size={20} color="#fff" />
+            </Pressable>
           </View>
         </View>
       </View>
 
-      <View style={styles.categoriesSection}>
-        <Text style={styles.sectionTitle}>Explore by Category</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesList}
-        >
-          {CATEGORIES.map((cat) => {
-            const isActive = selectedCategory === cat.key;
-            return (
-              <Pressable
-                key={cat.key}
-                style={[styles.categoryPill, isActive && styles.categoryPillActive]}
-                onPress={() => handleCategoryPress(cat.key)}
-              >
-                <Ionicons
-                  name={cat.icon as any}
-                  size={15}
-                  color={isActive ? "#fff" : Colors.light.tint}
-                />
-                <Text
+      <View style={styles.contentSheet}>
+        <View style={styles.categoriesSection}>
+          <Text style={styles.sectionTitle}>Explore by Category</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesList}
+          >
+            {CATEGORIES.map((cat) => {
+              const isActive = selectedCategory === cat.key;
+              const catColor = getCategoryColor(cat.key);
+              return (
+                <Pressable
+                  key={cat.key}
                   style={[
-                    styles.categoryPillText,
-                    isActive && styles.categoryPillTextActive,
+                    styles.categoryPill,
+                    isActive && { backgroundColor: Colors.light.tint, borderColor: Colors.light.tint },
                   ]}
+                  onPress={() => handleCategoryPress(cat.key)}
                 >
-                  {cat.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-      </View>
+                  <Ionicons
+                    name={cat.icon as any}
+                    size={15}
+                    color={isActive ? "#fff" : catColor}
+                  />
+                  <Text
+                    style={[
+                      styles.categoryPillText,
+                      isActive && { color: "#fff" },
+                    ]}
+                  >
+                    {cat.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
 
-      <View style={styles.feedHeader}>
-        <Text style={styles.sectionTitle}>Incoming Requests</Text>
-        <Text style={styles.feedCount}>{openRequests.length} available</Text>
+        <View style={styles.feedHeader}>
+          <Text style={styles.sectionTitle}>
+            Incoming Requests ({openRequests.length})
+          </Text>
+        </View>
       </View>
     </>
   );
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons
-        name="search-outline"
-        size={36}
-        color={Colors.light.border}
-      />
+      <Ionicons name="search-outline" size={36} color={Colors.light.border} />
       <Text style={styles.emptyTitle}>No requests found</Text>
       <Text style={styles.emptySubtitle}>
         {selectedCategory
@@ -268,67 +290,80 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     height: MAP_HEIGHT,
-    backgroundColor: "#D6EEF7",
+    backgroundColor: Colors.palette.mapDark,
     overflow: "hidden",
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
   },
   mapOverlay: {
     position: "absolute",
     top: 0,
-    left: 16,
-    right: 16,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    borderRadius: 28,
+    paddingHorizontal: 6,
+    paddingVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  searchLogoCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.light.tint + "15",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.light.text,
+    fontFamily: "Archivo_400Regular",
+    marginLeft: 8,
+    paddingVertical: 0,
+  },
+  mapBottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "flex-end",
   },
-  glassHeader: {
-    backgroundColor: "rgba(255, 255, 255, 0.75)",
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
-  },
-  mapTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: Colors.light.tint,
-    fontFamily: "Archivo_600SemiBold",
-    letterSpacing: 0.3,
-  },
-  mapBadge: {
-    backgroundColor: Colors.light.tint,
-    paddingHorizontal: 11,
-    paddingVertical: 6,
-    borderRadius: 14,
-    flexDirection: "row",
-    gap: 4,
+  settingsBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,0,0,0.55)",
     alignItems: "center",
+    justifyContent: "center",
   },
-  mapBadgeText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
-    fontFamily: "Archivo_600SemiBold",
-  },
-  mapBadgeLabel: {
-    fontSize: 11,
-    color: "rgba(255,255,255,0.85)",
-    fontFamily: "Archivo_400Regular",
+  contentSheet: {
+    backgroundColor: Colors.light.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    marginTop: -20,
+    paddingTop: 4,
   },
   categoriesSection: {
     paddingTop: 20,
     paddingBottom: 4,
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: "600",
     color: Colors.light.text,
-    marginBottom: 12,
+    marginBottom: 14,
     paddingHorizontal: 16,
     fontFamily: "Archivo_600SemiBold",
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
   categoriesList: {
     paddingHorizontal: 16,
@@ -337,130 +372,78 @@ const styles = StyleSheet.create({
   categoryPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 7,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "rgba(0, 174, 239, 0.12)",
-  },
-  categoryPillActive: {
-    backgroundColor: Colors.light.tint,
-    borderColor: Colors.light.tint,
+    borderColor: "#E5E7EB",
   },
   categoryPillText: {
     fontSize: 13,
     fontWeight: "500",
-    color: Colors.light.textSecondary,
+    color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
   },
-  categoryPillTextActive: {
-    color: "#fff",
-  },
   feedHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingRight: 16,
-    paddingTop: 16,
-  },
-  feedCount: {
-    fontSize: 13,
-    color: Colors.light.textSecondary,
-    fontFamily: "Archivo_400Regular",
+    paddingTop: 18,
+    paddingBottom: 4,
   },
   requestCard: {
-    marginHorizontal: 16,
-    marginBottom: 10,
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.04)",
-  },
-  requestCardTop: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
+    alignItems: "center",
+    marginHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: "#fff",
     borderRadius: 16,
-    backgroundColor: "rgba(0, 174, 239, 0.08)",
+    paddingVertical: 14,
+    paddingLeft: 14,
+    paddingRight: 10,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.05)",
+    gap: 12,
+  },
+  cardIconCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
   },
-  requestLocationRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
+  cardContent: {
     flex: 1,
-    marginRight: 12,
+    gap: 4,
   },
-  requestLocationInfo: {
-    flex: 1,
-    paddingTop: 2,
-  },
-  requestLocationName: {
-    fontSize: 15,
-    fontWeight: "600",
+  cardLocationName: {
+    fontSize: 14,
+    fontWeight: "500",
     color: Colors.light.text,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
-  requestAddress: {
-    fontSize: 13,
-    color: Colors.light.textSecondary,
-    marginTop: 2,
-    fontFamily: "Archivo_400Regular",
-  },
-  requestReward: {
-    backgroundColor: "rgba(123, 192, 67, 0.1)",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-  },
-  requestRewardText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: Colors.light.accent,
-    fontFamily: "Archivo_600SemiBold",
-  },
-  requestCardBottom: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.04)",
-  },
-  requestMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  categoryChip: {
+  cardMetaRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
   },
-  categoryChipText: {
-    fontSize: 12,
-    color: Colors.light.tint,
-    fontFamily: "Archivo_500Medium",
-  },
-  metaDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: Colors.light.border,
-  },
-  requestTime: {
+  cardDistance: {
     fontSize: 12,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
+    marginRight: 6,
+  },
+  cardTime: {
+    fontSize: 12,
+    color: Colors.light.orange,
+    fontFamily: "Archivo_500Medium",
+  },
+  cardArrowBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: Colors.light.tint,
+    alignItems: "center",
+    justifyContent: "center",
   },
   emptyContainer: {
     alignItems: "center",
