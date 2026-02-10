@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
@@ -17,15 +17,34 @@ interface MapWrapperProps {
 
 export default function MapViewWrapper({
   selectedPin,
-  onPinSelect,
   openRequests,
   isSeeker,
   onMarkerPress,
   initialRegion,
+  onMapPress,
 }: MapWrapperProps) {
   const lat = initialRegion?.latitude ?? 40.758;
   const lng = initialRegion?.longitude ?? -73.9855;
   const zoom = 13;
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    if (!onMapPress) return;
+    const handler = (event: MessageEvent) => {
+      try {
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        if (data.type === "mapClick") {
+          onMapPress({
+            nativeEvent: {
+              coordinate: { latitude: data.lat, longitude: data.lng },
+            },
+          });
+        }
+      } catch {}
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [onMapPress]);
 
   const mapHtml = `
     <!DOCTYPE html>
@@ -36,7 +55,7 @@ export default function MapViewWrapper({
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
       <style>
         * { margin: 0; padding: 0; }
-        #map { width: 100%; height: 100vh; }
+        #map { width: 100%; height: 100vh; cursor: pointer; }
         .leaflet-control-zoom { display: none; }
         .leaflet-control-attribution { display: none; }
       </style>
@@ -68,6 +87,14 @@ export default function MapViewWrapper({
         requests.forEach(function(req) {
           L.marker([req.lat, req.lng], { icon: markerIcon }).addTo(map);
         });
+
+        map.on('click', function(e) {
+          window.parent.postMessage(JSON.stringify({
+            type: 'mapClick',
+            lat: e.latlng.lat,
+            lng: e.latlng.lng
+          }), '*');
+        });
       </script>
     </body>
     </html>
@@ -76,6 +103,7 @@ export default function MapViewWrapper({
   return (
     <View style={styles.webMap}>
       <iframe
+        ref={iframeRef as any}
         srcDoc={mapHtml}
         style={{
           width: "100%",

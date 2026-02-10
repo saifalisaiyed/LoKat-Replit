@@ -108,7 +108,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
 
       <View style={styles.cardContent}>
         <Text style={styles.cardLocationName} numberOfLines={1}>
-          {item.locationName}, {item.address}
+          {item.locationName}
         </Text>
         <View style={styles.cardMetaRow}>
           <Ionicons name="navigate-circle-outline" size={13} color={Colors.light.textSecondary} />
@@ -120,9 +120,9 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
         </View>
       </View>
 
-      <Pressable style={styles.cardArrowBtn} onPress={onPress}>
-        <Ionicons name="arrow-forward" size={18} color="#fff" />
-      </Pressable>
+      <View style={styles.cardReward}>
+        <Text style={styles.cardRewardText}>${item.reward}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -183,6 +183,39 @@ export default function HomeScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedCategory(selectedCategory === cat ? null : cat);
   };
+
+  const handleMapPress = useCallback((e: any) => {
+    if (!e?.nativeEvent?.coordinate) return;
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const closest = POPULAR_LOCATIONS.reduce((best, loc) => {
+      const d = Math.sqrt((loc.lat - latitude) ** 2 + (loc.lng - longitude) ** 2);
+      return d < best.dist ? { loc, dist: d } : best;
+    }, { loc: POPULAR_LOCATIONS[0], dist: Infinity });
+    if (closest.dist < 0.008) {
+      router.push({
+        pathname: "/create-request",
+        params: {
+          lat: closest.loc.lat.toString(),
+          lng: closest.loc.lng.toString(),
+          name: closest.loc.name,
+          addr: closest.loc.address,
+          cat: closest.loc.category,
+        },
+      });
+    } else {
+      router.push({
+        pathname: "/create-request",
+        params: {
+          lat: latitude.toFixed(6),
+          lng: longitude.toFixed(6),
+          name: "Custom Location",
+          addr: `${latitude.toFixed(4)}°N, ${Math.abs(longitude).toFixed(4)}°W`,
+          cat: "landmarks",
+        },
+      });
+    }
+  }, []);
 
   const handleCenterLocation = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -252,7 +285,7 @@ export default function HomeScreen() {
           permissionStatus={permissionStatus}
           initialRegion={initialRegion}
           mapRef={mapRef}
-          onMapPress={() => {}}
+          onMapPress={handleMapPress}
         />
         <View
           style={[
@@ -397,31 +430,56 @@ export default function HomeScreen() {
             </Pressable>
           </View>
 
+          {!searchQuery.trim() && (
+            <View style={styles.searchSectionHeader}>
+              <Ionicons name="star" size={14} color={Colors.light.orange} />
+              <Text style={styles.searchSectionTitle}>Popular Locations</Text>
+            </View>
+          )}
+          {searchQuery.trim().length > 0 && filteredLocations.length > 0 && (
+            <View style={styles.searchSectionHeader}>
+              <Ionicons name="search" size={14} color={Colors.light.tint} />
+              <Text style={styles.searchSectionTitle}>{filteredLocations.length} result{filteredLocations.length !== 1 ? "s" : ""}</Text>
+            </View>
+          )}
           <FlatList
             data={filteredLocations}
             keyExtractor={(item) => item.name}
+            keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: 40 }}
-            renderItem={({ item }) => (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.searchResult,
-                  pressed && { backgroundColor: "#F3F4F6" },
-                ]}
-                onPress={() => handleLocationSelect(item)}
-              >
-                <View style={styles.searchResultIcon}>
-                  <Ionicons name="location" size={18} color={Colors.light.tint} />
-                </View>
-                <View style={styles.searchResultInfo}>
-                  <Text style={styles.searchResultName}>{item.name}</Text>
-                  <Text style={styles.searchResultAddr}>{item.address}</Text>
-                </View>
-                <Ionicons name="arrow-forward" size={16} color={Colors.light.textSecondary} />
-              </Pressable>
-            )}
+            renderItem={({ item }) => {
+              const catColor = getCategoryColor(item.category);
+              return (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.searchResult,
+                    pressed && { backgroundColor: catColor + "08" },
+                  ]}
+                  onPress={() => handleLocationSelect(item)}
+                >
+                  <View style={[styles.searchResultIcon, { backgroundColor: catColor + "14" }]}>
+                    <Ionicons
+                      name={(CATEGORIES.find(c => c.key === item.category)?.icon ?? "location") as any}
+                      size={16}
+                      color={catColor}
+                    />
+                  </View>
+                  <View style={styles.searchResultInfo}>
+                    <Text style={styles.searchResultName}>{item.name}</Text>
+                    <Text style={styles.searchResultAddr}>{item.address}</Text>
+                  </View>
+                  <View style={[styles.searchResultCatDot, { backgroundColor: catColor + "18" }]}>
+                    <Text style={[styles.searchResultCatLabel, { color: catColor }]}>
+                      {CATEGORIES.find(c => c.key === item.category)?.label ?? item.category}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            }}
             ListEmptyComponent={
               <View style={styles.searchEmpty}>
-                <Text style={styles.searchEmptyText}>No locations found</Text>
+                <Ionicons name="location-outline" size={28} color={Colors.light.border} />
+                <Text style={styles.searchEmptyText}>No locations match "{searchQuery}"</Text>
               </View>
             }
           />
@@ -543,9 +601,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cardIconCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -574,13 +632,16 @@ const styles = StyleSheet.create({
     color: Colors.light.orange,
     fontFamily: "Archivo_500Medium",
   },
-  cardArrowBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: Colors.light.tint,
-    alignItems: "center",
-    justifyContent: "center",
+  cardReward: {
+    backgroundColor: Colors.light.accent,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  cardRewardText: {
+    fontSize: 14,
+    color: "#fff",
+    fontFamily: "Archivo_600SemiBold",
   },
   emptyContainer: {
     alignItems: "center",
@@ -636,6 +697,21 @@ const styles = StyleSheet.create({
     color: Colors.light.tint,
     fontFamily: "Archivo_500Medium",
   },
+  searchSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  searchSectionTitle: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_600SemiBold",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
   searchResult: {
     flexDirection: "row",
     alignItems: "center",
@@ -646,10 +722,9 @@ const styles = StyleSheet.create({
     borderBottomColor: "#F9FAFB",
   },
   searchResultIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.light.tint + "12",
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -667,9 +742,19 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
+  searchResultCatDot: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  searchResultCatLabel: {
+    fontSize: 10,
+    fontFamily: "Archivo_600SemiBold",
+  },
   searchEmpty: {
     alignItems: "center",
     paddingVertical: 40,
+    gap: 10,
   },
   searchEmptyText: {
     fontSize: 14,

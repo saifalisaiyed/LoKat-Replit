@@ -23,6 +23,21 @@ import MapViewWrapper from "@/components/MapViewWrapper";
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;
 
+const CATEGORY_COLORS: Record<string, string> = {
+  landmarks: "#D4A017",
+  nature: "#22C55E",
+  markets: "#EC4899",
+  beaches: "#F97316",
+  cityscapes: "#3B82F6",
+  food: "#EF4444",
+  "hidden-gems": "#8B5CF6",
+  events: "#14B8A6",
+};
+
+function getCatColor(key: string): string {
+  return CATEGORY_COLORS[key] || Colors.light.tint;
+}
+
 function getCategoryLabel(key: Category): string {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key;
 }
@@ -180,13 +195,15 @@ export default function RequestDetailScreen() {
           </View>
 
           <View style={styles.chipRow}>
-            <View style={styles.chip}>
-              <Ionicons
-                name={(CATEGORIES.find((c) => c.key === request.category)?.icon ?? "pricetag-outline") as any}
-                size={14}
-                color={Colors.light.tint}
-              />
-              <Text style={styles.chipText}>{getCategoryLabel(request.category)}</Text>
+            <View style={[styles.categoryPill, { backgroundColor: getCatColor(request.category) + "14", borderColor: getCatColor(request.category) + "30" }]}>
+              <View style={[styles.categoryPillIcon, { backgroundColor: getCatColor(request.category) + "20" }]}>
+                <Ionicons
+                  name={(CATEGORIES.find((c) => c.key === request.category)?.icon ?? "pricetag-outline") as any}
+                  size={14}
+                  color={getCatColor(request.category)}
+                />
+              </View>
+              <Text style={[styles.categoryPillText, { color: getCatColor(request.category) }]}>{getCategoryLabel(request.category)}</Text>
             </View>
             <View style={styles.chip}>
               <Ionicons name="navigate-outline" size={14} color={Colors.light.textSecondary} />
@@ -341,8 +358,16 @@ const styles = StyleSheet.create({
   address: { fontSize: 14, color: Colors.light.textSecondary, marginTop: 4, fontFamily: "Archivo_400Regular" },
   rewardBadge: { backgroundColor: Colors.light.accent, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 },
   rewardText: { fontSize: 18, color: "#fff", fontFamily: "Archivo_600SemiBold" },
-  chipRow: { flexDirection: "row", gap: 8 },
-  chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#fff", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+  chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  categoryPill: {
+    flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 8,
+    paddingLeft: 6, paddingRight: 14, borderRadius: 12, borderWidth: 1,
+  },
+  categoryPillIcon: {
+    width: 28, height: 28, borderRadius: 8, alignItems: "center", justifyContent: "center",
+  },
+  categoryPillText: { fontSize: 13, fontFamily: "Archivo_600SemiBold" },
+  chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#fff", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB" },
   chipText: { fontSize: 13, color: Colors.light.tint, fontFamily: "Archivo_500Medium" },
   chipTextMuted: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
   detailsCard: { backgroundColor: "#fff", borderRadius: 18, padding: 4, borderWidth: 1, borderColor: "rgba(0,0,0,0.03)" },
