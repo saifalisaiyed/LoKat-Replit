@@ -16,6 +16,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
+import NavigationMap from "@/components/NavigationMap";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -301,7 +302,7 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
               title="Navigation"
             />
           ) : (
-            <NavigationMapNative
+            <NavigationMap
               userLocation={userLocation}
               destination={{
                 latitude: request.latitude,
@@ -493,55 +494,6 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
       </Modal>
     </View>
   );
-}
-
-function NavigationMapNative({
-  userLocation,
-  destination,
-}: {
-  userLocation: { latitude: number; longitude: number };
-  destination: { latitude: number; longitude: number };
-}) {
-  const mapRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (mapRef.current) {
-      const coords = [userLocation, destination];
-      mapRef.current.fitToCoordinates(coords, {
-        edgePadding: { top: 80, right: 60, bottom: 200, left: 60 },
-        animated: true,
-      });
-    }
-  }, [userLocation.latitude, userLocation.longitude]);
-
-  try {
-    const MapView = require("react-native-maps").default;
-    const { Marker, Polyline } = require("react-native-maps");
-    return (
-      <MapView
-        ref={mapRef}
-        style={StyleSheet.absoluteFill}
-        initialRegion={{
-          latitude: (userLocation.latitude + destination.latitude) / 2,
-          longitude: (userLocation.longitude + destination.longitude) / 2,
-          latitudeDelta: 0.02,
-          longitudeDelta: 0.02,
-        }}
-        showsUserLocation
-        showsMyLocationButton={false}
-      >
-        <Polyline
-          coordinates={[userLocation, destination]}
-          strokeColor={Colors.light.tint}
-          strokeWidth={4}
-          lineDashPattern={[8, 12]}
-        />
-        <Marker coordinate={destination} pinColor={Colors.light.tint} />
-      </MapView>
-    );
-  } catch {
-    return null;
-  }
 }
 
 const navStyles = StyleSheet.create({
