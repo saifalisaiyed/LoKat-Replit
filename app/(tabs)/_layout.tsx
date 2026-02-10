@@ -46,13 +46,13 @@ function ClassicTabLayout() {
           borderTopWidth: 0,
           borderTopLeftRadius: 7,
           borderTopRightRadius: 7,
-          elevation: 0,
+          elevation: 8,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: -3 },
           shadowOpacity: 0.08,
           shadowRadius: 10,
-          overflow: "hidden",
-          ...(isWeb ? { height: 84 } : {}),
+          paddingTop: 6,
+          ...(isWeb ? { height: 84 } : { height: 70 }),
         },
         tabBarBackground: () => (
           <View

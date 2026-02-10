@@ -21,7 +21,7 @@ import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;
+const MAP_HEIGHT = SCREEN_HEIGHT * 0.5;
 
 const CATEGORY_COLORS: Record<string, string> = {
   landmarks: "#D4A017",
@@ -35,21 +35,21 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const POPULAR_LOCATIONS = [
-  { name: "Empire State Building", address: "350 5th Ave, New York, NY", lat: 40.7484, lng: -73.9857 },
-  { name: "Central Park", address: "Central Park, New York, NY", lat: 40.7829, lng: -73.9654 },
-  { name: "Brooklyn Bridge", address: "Brooklyn Bridge, New York, NY", lat: 40.7061, lng: -73.9969 },
-  { name: "Times Square", address: "Times Square, Manhattan, NY", lat: 40.758, lng: -73.9855 },
-  { name: "Statue of Liberty", address: "Liberty Island, New York, NY", lat: 40.6892, lng: -74.0445 },
-  { name: "Grand Central Terminal", address: "89 E 42nd St, New York, NY", lat: 40.7527, lng: -73.9772 },
-  { name: "High Line", address: "New York, NY 10011", lat: 40.748, lng: -74.0048 },
-  { name: "One World Trade Center", address: "285 Fulton St, New York, NY", lat: 40.7127, lng: -74.0134 },
-  { name: "Rockefeller Center", address: "45 Rockefeller Plaza, New York, NY", lat: 40.7587, lng: -73.9787 },
-  { name: "Washington Square Park", address: "Washington Sq, New York, NY", lat: 40.7308, lng: -73.9973 },
-  { name: "DUMBO", address: "DUMBO, Brooklyn, NY", lat: 40.7033, lng: -73.9883 },
-  { name: "Flatiron Building", address: "175 5th Ave, New York, NY", lat: 40.7411, lng: -73.9897 },
-  { name: "Chelsea Market", address: "75 9th Ave, New York, NY", lat: 40.7425, lng: -74.0061 },
-  { name: "SoHo", address: "SoHo, Manhattan, NY", lat: 40.7233, lng: -73.9985 },
-  { name: "Williamsburg", address: "Williamsburg, Brooklyn, NY", lat: 40.7081, lng: -73.9571 },
+  { name: "Empire State Building", address: "350 5th Ave, New York, NY", lat: 40.7484, lng: -73.9857, category: "landmarks" },
+  { name: "Central Park", address: "Central Park, New York, NY", lat: 40.7829, lng: -73.9654, category: "nature" },
+  { name: "Brooklyn Bridge", address: "Brooklyn Bridge, New York, NY", lat: 40.7061, lng: -73.9969, category: "landmarks" },
+  { name: "Times Square", address: "Times Square, Manhattan, NY", lat: 40.758, lng: -73.9855, category: "cityscapes" },
+  { name: "Statue of Liberty", address: "Liberty Island, New York, NY", lat: 40.6892, lng: -74.0445, category: "landmarks" },
+  { name: "Grand Central Terminal", address: "89 E 42nd St, New York, NY", lat: 40.7527, lng: -73.9772, category: "landmarks" },
+  { name: "High Line", address: "New York, NY 10011", lat: 40.748, lng: -74.0048, category: "nature" },
+  { name: "One World Trade Center", address: "285 Fulton St, New York, NY", lat: 40.7127, lng: -74.0134, category: "landmarks" },
+  { name: "Rockefeller Center", address: "45 Rockefeller Plaza, New York, NY", lat: 40.7587, lng: -73.9787, category: "landmarks" },
+  { name: "Washington Square Park", address: "Washington Sq, New York, NY", lat: 40.7308, lng: -73.9973, category: "nature" },
+  { name: "DUMBO", address: "DUMBO, Brooklyn, NY", lat: 40.7033, lng: -73.9883, category: "hidden-gems" },
+  { name: "Flatiron Building", address: "175 5th Ave, New York, NY", lat: 40.7411, lng: -73.9897, category: "landmarks" },
+  { name: "Chelsea Market", address: "75 9th Ave, New York, NY", lat: 40.7425, lng: -74.0061, category: "markets" },
+  { name: "SoHo", address: "SoHo, Manhattan, NY", lat: 40.7233, lng: -73.9985, category: "hidden-gems" },
+  { name: "Williamsburg", address: "Williamsburg, Brooklyn, NY", lat: 40.7081, lng: -73.9571, category: "hidden-gems" },
 ];
 
 function getCategoryColor(key: string): string {
@@ -204,6 +204,7 @@ export default function HomeScreen() {
         lng: loc.lng.toString(),
         name: loc.name,
         addr: loc.address,
+        cat: loc.category,
       },
     });
   };
@@ -455,8 +456,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    marginTop: -20,
+    marginTop: -24,
     paddingTop: 4,
+    marginHorizontal: 0,
   },
   categoriesSection: {
     paddingTop: 20,
