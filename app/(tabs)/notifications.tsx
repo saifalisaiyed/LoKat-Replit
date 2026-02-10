@@ -24,32 +24,32 @@ function getNotifIcon(type: Notification["type"]): {
     case "accepted":
       return {
         name: "checkmark-circle",
-        color: Colors.palette.emerald,
-        bg: Colors.palette.emerald + "14",
+        color: Colors.light.tint,
+        bg: "rgba(0, 174, 239, 0.12)",
       };
     case "submitted":
       return {
         name: "cloud-upload",
         color: "#3B82F6",
-        bg: "#3B82F614",
+        bg: "rgba(59, 130, 246, 0.12)",
       };
     case "completed":
       return {
         name: "cash",
-        color: Colors.palette.amber,
-        bg: Colors.palette.amber + "14",
+        color: Colors.light.accent,
+        bg: "rgba(123, 192, 67, 0.12)",
       };
     case "new_request":
       return {
         name: "location",
-        color: Colors.palette.coral,
-        bg: Colors.palette.coral + "14",
+        color: "#F43F5E",
+        bg: "rgba(244, 63, 94, 0.12)",
       };
     default:
       return {
         name: "notifications",
         color: Colors.light.textSecondary,
-        bg: Colors.light.border + "40",
+        bg: "rgba(0, 0, 0, 0.05)",
       };
   }
 }
@@ -86,7 +86,7 @@ function NotificationItem({
       <View style={[styles.notifIconBg, { backgroundColor: iconConfig.bg }]}>
         <Ionicons
           name={iconConfig.name as any}
-          size={20}
+          size={22}
           color={iconConfig.color}
         />
       </View>
@@ -141,20 +141,22 @@ export default function NotificationsScreen() {
   return (
     <View style={styles.container}>
       <View
-        style={[styles.header, { paddingTop: insets.top + 12 + webInsetTop }]}
+        style={[styles.header, { paddingTop: insets.top + 16 + webInsetTop }]}
       >
-        <Text style={styles.headerTitle}>Notifications</Text>
-        {unreadCount > 0 && (
-          <Pressable
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              markAllNotificationsRead();
-            }}
-            hitSlop={12}
-          >
-            <Text style={styles.markAllRead}>Mark all read</Text>
-          </Pressable>
-        )}
+        <View style={styles.headerTitleRow}>
+          <Text style={styles.headerTitle}>Notifications</Text>
+          {unreadCount > 0 && (
+            <Pressable
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                markAllNotificationsRead();
+              }}
+              hitSlop={12}
+            >
+              <Text style={styles.markAllRead}>Mark all read</Text>
+            </Pressable>
+          )}
+        </View>
       </View>
 
       <FlatList
@@ -165,7 +167,7 @@ export default function NotificationsScreen() {
         )}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={{
-          paddingTop: 8,
+          paddingTop: 12,
           paddingBottom: Platform.OS === "web" ? 84 + 34 : insets.bottom + 90,
         }}
         showsVerticalScrollIndicator={false}
@@ -181,97 +183,108 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#fff",
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  headerTitleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "baseline",
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   markAllRead: {
     fontSize: 14,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_600SemiBold",
-    paddingBottom: 4,
+    color: Colors.light.tint,
+    fontFamily: "Archivo_600SemiBold",
   },
   notifCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 12,
+    gap: 16,
     marginHorizontal: 16,
-    marginTop: 8,
+    marginTop: 10,
     backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: 24,
+    padding: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
   },
   notifCardUnread: {
-    backgroundColor: Colors.palette.emerald + "08",
+    backgroundColor: "rgba(0, 174, 239, 0.03)",
     borderWidth: 1,
-    borderColor: Colors.palette.emerald + "20",
+    borderColor: "rgba(0, 174, 239, 0.1)",
   },
   notifIconBg: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
   },
   notifContent: {
     flex: 1,
-    gap: 2,
+    gap: 4,
   },
   notifTitle: {
-    fontSize: 15,
-    fontWeight: "500" as const,
+    fontSize: 16,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "DMSans_500Medium",
+    fontFamily: "Archivo_600SemiBold",
   },
   notifTitleUnread: {
-    fontWeight: "700" as const,
-    fontFamily: "DMSans_700Bold",
+    fontWeight: "700",
+    fontFamily: "Archivo_700Bold",
   },
   notifBody: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.light.textSecondary,
-    lineHeight: 18,
-    fontFamily: "DMSans_400Regular",
+    lineHeight: 20,
+    fontFamily: "Archivo_400Regular",
   },
   notifTime: {
-    fontSize: 11,
-    color: Colors.light.tabIconDefault,
+    fontSize: 12,
+    color: Colors.light.textSecondary,
     marginTop: 4,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.palette.emerald,
-    marginTop: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.light.tint,
+    marginTop: 8,
   },
   emptyContainer: {
     alignItems: "center",
-    paddingVertical: 60,
-    gap: 8,
+    paddingVertical: 100,
+    gap: 12,
   },
   emptyTitle: {
-    fontSize: 16,
-    fontWeight: "600" as const,
+    fontSize: 18,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_600SemiBold",
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.light.textSecondary,
     textAlign: "center",
     paddingHorizontal: 40,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
 });

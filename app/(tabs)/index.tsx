@@ -51,7 +51,9 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
     >
       <View style={styles.requestCardTop}>
         <View style={styles.requestLocationRow}>
-          <Ionicons name="location" size={18} color={Colors.palette.emerald} />
+          <View style={styles.iconContainer}>
+            <Ionicons name="location" size={18} color={Colors.light.tint} />
+          </View>
           <View style={styles.requestLocationInfo}>
             <Text style={styles.requestLocationName} numberOfLines={1}>
               {item.locationName}
@@ -71,7 +73,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
             <Ionicons
               name={getCategoryIcon(item.category) as any}
               size={12}
-              color={Colors.palette.emerald}
+              color={Colors.light.tint}
             />
             <Text style={styles.categoryChipText}>
               {getCategoryLabel(item.category)}
@@ -166,11 +168,13 @@ export default function HomeScreen() {
         <View
           style={[
             styles.mapOverlay,
-            { paddingTop: insets.top + 12 + webInsetTop },
+            { paddingTop: insets.top + 16 + webInsetTop },
           ]}
           pointerEvents="box-none"
         >
-          <Text style={styles.mapTitle}>LoKate</Text>
+          <View style={styles.glassHeader}>
+            <Text style={styles.mapTitle}>LoKate</Text>
+          </View>
           <View style={styles.mapBadge}>
             <Text style={styles.mapBadgeText}>{openRequests.length}</Text>
             <Text style={styles.mapBadgeLabel}>nearby</Text>
@@ -196,7 +200,7 @@ export default function HomeScreen() {
                 <Ionicons
                   name={cat.icon as any}
                   size={16}
-                  color={isActive ? "#fff" : Colors.palette.emerald}
+                  color={isActive ? "#fff" : Colors.light.tint}
                 />
                 <Text
                   style={[
@@ -266,6 +270,8 @@ const styles = StyleSheet.create({
     height: MAP_HEIGHT,
     backgroundColor: "#E8F4E8",
     overflow: "hidden",
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
   mapOverlay: {
     position: "absolute",
@@ -276,71 +282,86 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
+  glassHeader: {
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.5)",
+  },
   mapTitle: {
-    fontSize: 22,
-    fontWeight: "700" as const,
-    color: "#fff",
-    fontFamily: "DMSans_700Bold",
-    textShadowColor: "rgba(0,0,0,0.5)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 6,
+    fontSize: 24,
+    fontWeight: "700",
+    color: Colors.light.tint,
+    fontFamily: "Archivo_700Bold",
   },
   mapBadge: {
-    backgroundColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.tint,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     flexDirection: "row",
     gap: 4,
     alignItems: "center",
+    shadowColor: Colors.light.tint,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   mapBadgeText: {
-    fontSize: 14,
-    fontWeight: "700" as const,
+    fontSize: 16,
+    fontWeight: "700",
     color: "#fff",
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   mapBadgeLabel: {
-    fontSize: 11,
-    color: "rgba(255,255,255,0.8)",
-    fontFamily: "DMSans_400Regular",
+    fontSize: 12,
+    color: "rgba(255,255,255,0.9)",
+    fontFamily: "Archivo_400Regular",
   },
   categoriesSection: {
-    paddingTop: 20,
-    paddingBottom: 4,
+    paddingTop: 24,
+    paddingBottom: 8,
   },
   sectionTitle: {
-    fontSize: 17,
-    fontWeight: "700" as const,
+    fontSize: 18,
+    fontWeight: "700",
     color: Colors.light.text,
-    marginBottom: 12,
+    marginBottom: 16,
     paddingHorizontal: 16,
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   categoriesList: {
     paddingHorizontal: 16,
-    gap: 8,
+    gap: 10,
   },
   categoryPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 24,
-    backgroundColor: Colors.palette.emerald + "10",
+    gap: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 25,
+    backgroundColor: "#fff",
     borderWidth: 1.5,
-    borderColor: Colors.palette.emerald + "30",
+    borderColor: "rgba(0, 174, 239, 0.1)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   categoryPillActive: {
-    backgroundColor: Colors.palette.emerald,
-    borderColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.tint,
+    borderColor: Colors.light.tint,
   },
   categoryPillText: {
-    fontSize: 13,
-    fontWeight: "600" as const,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_600SemiBold",
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_600SemiBold",
   },
   categoryPillTextActive: {
     color: "#fff",
@@ -350,29 +371,44 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingRight: 16,
-    paddingTop: 16,
+    paddingTop: 20,
   },
   feedCount: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   requestCard: {
     marginHorizontal: 16,
-    marginBottom: 10,
+    marginBottom: 12,
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 24,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.03)",
   },
   requestCardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0, 174, 239, 0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   requestLocationRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 10,
+    gap: 12,
     flex: 1,
     marginRight: 12,
   },
@@ -380,42 +416,42 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   requestLocationName: {
-    fontSize: 16,
-    fontWeight: "600" as const,
+    fontSize: 17,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_700Bold",
   },
   requestAddress: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.light.textSecondary,
     marginTop: 2,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   requestReward: {
-    backgroundColor: Colors.palette.emerald + "14",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
+    backgroundColor: "rgba(123, 192, 67, 0.12)",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
   requestRewardText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_700Bold",
+    fontSize: 18,
+    fontWeight: "700",
+    color: Colors.light.accent,
+    fontFamily: "Archivo_700Bold",
   },
   requestCardBottom: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: 16,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border + "60",
+    borderTopColor: "rgba(0, 0, 0, 0.05)",
   },
   requestMeta: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
   },
   categoryChip: {
     flexDirection: "row",
@@ -423,35 +459,35 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   categoryChipText: {
-    fontSize: 12,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_500Medium",
+    fontSize: 13,
+    color: Colors.light.tint,
+    fontFamily: "Archivo_500Medium",
   },
   metaDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: Colors.light.border,
   },
   requestTime: {
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   emptyContainer: {
     alignItems: "center",
-    paddingVertical: 40,
-    gap: 8,
+    paddingVertical: 60,
+    gap: 12,
   },
   emptyTitle: {
-    fontSize: 16,
-    fontWeight: "600" as const,
+    fontSize: 18,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_600SemiBold",
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
 });

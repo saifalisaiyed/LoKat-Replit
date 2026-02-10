@@ -37,7 +37,7 @@ function DetailRow({
   return (
     <View style={styles.detailRow}>
       <View style={styles.detailIcon}>
-        <Ionicons name={icon as any} size={18} color={Colors.palette.emerald} />
+        <Ionicons name={icon as any} size={20} color={Colors.light.tint} />
       </View>
       <View style={styles.detailInfo}>
         <Text style={styles.detailLabel}>{label}</Text>
@@ -119,22 +119,22 @@ export default function RequestDetailScreen() {
           onMapPress={() => {}}
         />
         <Pressable
-          style={[styles.backBtn, { top: insets.top + 8 + webInsetTop }]}
+          style={[styles.backBtn, { top: insets.top + 16 + webInsetTop }]}
           onPress={() => router.back()}
           hitSlop={12}
         >
-          <Ionicons name="arrow-back" size={22} color={Colors.light.text} />
+          <Ionicons name="arrow-back" size={24} color={Colors.light.tint} />
         </Pressable>
         {isMyRequest && request.status === "open" && (
           <Pressable
-            style={[styles.deleteBtn, { top: insets.top + 8 + webInsetTop }]}
+            style={[styles.deleteBtn, { top: insets.top + 16 + webInsetTop }]}
             onPress={handleDelete}
             hitSlop={12}
           >
             <Ionicons
               name="trash-outline"
-              size={20}
-              color={Colors.palette.coral}
+              size={22}
+              color="#F43F5E"
             />
           </Pressable>
         )}
@@ -143,7 +143,7 @@ export default function RequestDetailScreen() {
       <ScrollView
         style={styles.detailsScroll}
         contentContainerStyle={{
-          paddingBottom: Platform.OS === "web" ? 34 + 80 : insets.bottom + 90,
+          paddingBottom: Platform.OS === "web" ? 34 + 100 : insets.bottom + 110,
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -165,8 +165,8 @@ export default function RequestDetailScreen() {
                   (CATEGORIES.find((c) => c.key === request.category)?.icon ??
                     "pricetag-outline") as any
                 }
-                size={14}
-                color={Colors.palette.emerald}
+                size={16}
+                color={Colors.light.tint}
               />
               <Text style={styles.chipText}>
                 {getCategoryLabel(request.category)}
@@ -175,7 +175,7 @@ export default function RequestDetailScreen() {
             <View style={styles.chip}>
               <Ionicons
                 name="navigate-outline"
-                size={14}
+                size={16}
                 color={Colors.light.textSecondary}
               />
               <Text style={styles.chipTextMuted}>{distanceKm} km away</Text>
@@ -203,12 +203,6 @@ export default function RequestDetailScreen() {
               value={request.angle
                 .replace(/-/g, " ")
                 .replace(/\b\w/g, (c) => c.toUpperCase())}
-            />
-            <View style={styles.detailDivider} />
-            <DetailRow
-              icon="navigate-outline"
-              label="Distance"
-              value={`${distanceKm} km`}
             />
             <View style={styles.detailDivider} />
             <DetailRow
@@ -254,7 +248,7 @@ export default function RequestDetailScreen() {
             styles.actionBar,
             {
               paddingBottom:
-                Platform.OS === "web" ? 34 : insets.bottom + 12,
+                Platform.OS === "web" ? 34 + 12 : insets.bottom + 16,
             },
           ]}
         >
@@ -265,7 +259,7 @@ export default function RequestDetailScreen() {
             ]}
             onPress={handleIgnore}
           >
-            <Ionicons name="close" size={20} color={Colors.light.textSecondary} />
+            <Ionicons name="close" size={22} color={Colors.light.textSecondary} />
             <Text style={styles.ignoreBtnText}>Ignore</Text>
           </Pressable>
           <Pressable
@@ -275,7 +269,7 @@ export default function RequestDetailScreen() {
             ]}
             onPress={handleAccept}
           >
-            <Feather name="check" size={20} color="#fff" />
+            <Feather name="check" size={22} color="#fff" />
             <Text style={styles.acceptBtnText}>Accept</Text>
           </Pressable>
         </View>
@@ -287,7 +281,7 @@ export default function RequestDetailScreen() {
             styles.actionBar,
             {
               paddingBottom:
-                Platform.OS === "web" ? 34 : insets.bottom + 12,
+                Platform.OS === "web" ? 34 + 12 : insets.bottom + 16,
             },
           ]}
         >
@@ -299,7 +293,7 @@ export default function RequestDetailScreen() {
             ]}
             onPress={handleTakePhoto}
           >
-            <Ionicons name="camera" size={20} color="#fff" />
+            <Ionicons name="camera" size={22} color="#fff" />
             <Text style={styles.acceptBtnText}>Take Photo</Text>
           </Pressable>
         </View>
@@ -311,7 +305,7 @@ export default function RequestDetailScreen() {
             styles.actionBar,
             {
               paddingBottom:
-                Platform.OS === "web" ? 34 : insets.bottom + 12,
+                Platform.OS === "web" ? 34 + 12 : insets.bottom + 16,
             },
           ]}
         >
@@ -319,9 +313,9 @@ export default function RequestDetailScreen() {
             <Ionicons
               name="checkmark-circle"
               size={24}
-              color={Colors.palette.emerald}
+              color={Colors.light.accent}
             />
-            <Text style={styles.completedText}>Completed</Text>
+            <Text style={styles.completedText}>Task Completed</Text>
           </View>
         </View>
       )}
@@ -339,56 +333,60 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   notFoundText: {
-    fontSize: 16,
+    fontSize: 18,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   backLink: {
-    fontSize: 16,
-    color: Colors.palette.emerald,
-    marginTop: 12,
-    fontFamily: "DMSans_600SemiBold",
+    fontSize: 18,
+    color: Colors.light.tint,
+    marginTop: 16,
+    fontFamily: "Archivo_600SemiBold",
   },
   mapSection: {
     backgroundColor: "#E8F4E8",
     overflow: "hidden",
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
   },
   backBtn: {
     position: "absolute",
-    left: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.95)",
+    left: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255,255,255,0.85)",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.5)",
   },
   deleteBtn: {
     position: "absolute",
-    right: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.95)",
+    right: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255,255,255,0.85)",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   detailsScroll: {
     flex: 1,
   },
   detailsContent: {
-    padding: 16,
-    gap: 16,
+    padding: 20,
+    gap: 20,
   },
   titleRow: {
     flexDirection: "row",
@@ -400,68 +398,84 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   locationName: {
-    fontSize: 22,
-    fontWeight: "700" as const,
+    fontSize: 26,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   address: {
-    fontSize: 14,
+    fontSize: 16,
     color: Colors.light.textSecondary,
-    marginTop: 4,
-    fontFamily: "DMSans_400Regular",
+    marginTop: 6,
+    fontFamily: "Archivo_400Regular",
   },
   rewardBadge: {
-    backgroundColor: Colors.palette.emerald,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 14,
+    backgroundColor: Colors.light.accent,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 20,
+    shadowColor: Colors.light.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   rewardText: {
-    fontSize: 20,
-    fontWeight: "700" as const,
+    fontSize: 22,
+    fontWeight: "700",
     color: "#fff",
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   chipRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: 12,
   },
   chip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
     backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   chipText: {
-    fontSize: 13,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_500Medium",
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.light.tint,
+    fontFamily: "Archivo_600SemiBold",
   },
   chipTextMuted: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   detailsCard: {
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 4,
+    borderRadius: 28,
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
   },
   detailRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    padding: 14,
+    gap: 16,
+    padding: 16,
   },
   detailIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.palette.emerald + "14",
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "rgba(0, 174, 239, 0.08)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -469,111 +483,126 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   detailLabel: {
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   detailValue: {
-    fontSize: 15,
-    fontWeight: "600" as const,
+    fontSize: 17,
+    fontWeight: "600",
     color: Colors.light.text,
-    marginTop: 1,
-    fontFamily: "DMSans_600SemiBold",
+    marginTop: 2,
+    fontFamily: "Archivo_600SemiBold",
   },
   detailDivider: {
     height: 1,
-    backgroundColor: Colors.light.border,
-    marginHorizontal: 14,
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
+    marginHorizontal: 16,
   },
   instructionsCard: {
-    backgroundColor: Colors.palette.amber + "0A",
-    borderRadius: 14,
-    padding: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.palette.amber,
+    backgroundColor: "rgba(123, 192, 67, 0.05)",
+    borderRadius: 24,
+    padding: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.light.accent,
   },
   instructionsTitle: {
-    fontSize: 14,
-    fontWeight: "600" as const,
+    fontSize: 16,
+    fontWeight: "700",
     color: Colors.light.text,
-    marginBottom: 6,
-    fontFamily: "DMSans_600SemiBold",
+    marginBottom: 8,
+    fontFamily: "Archivo_700Bold",
   },
   instructionsText: {
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.light.text,
-    lineHeight: 20,
-    fontFamily: "DMSans_400Regular",
+    lineHeight: 22,
+    fontFamily: "Archivo_400Regular",
   },
   photoSection: {
-    gap: 8,
+    gap: 12,
   },
   photoContainer: {
-    borderRadius: 16,
+    borderRadius: 28,
     overflow: "hidden",
     backgroundColor: Colors.light.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
   photo: {
     width: "100%",
-    height: 300,
+    height: 400,
   },
   actionBar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
+    gap: 16,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   ignoreBtn: {
     flex: 0.4,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
-    paddingVertical: 16,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: Colors.light.border,
+    gap: 8,
+    paddingVertical: 18,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    borderWidth: 2,
+    borderColor: "rgba(0, 0, 0, 0.08)",
   },
   ignoreBtnText: {
-    fontSize: 16,
-    fontWeight: "600" as const,
+    fontSize: 17,
+    fontWeight: "600",
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_600SemiBold",
   },
   acceptBtn: {
     flex: 0.6,
-    backgroundColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.tint,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    paddingVertical: 16,
-    borderRadius: 14,
+    gap: 10,
+    paddingVertical: 18,
+    borderRadius: 20,
+    shadowColor: Colors.light.tint,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 6,
   },
   acceptBtnText: {
     color: "#fff",
-    fontSize: 16,
-    fontWeight: "600" as const,
-    fontFamily: "DMSans_600SemiBold",
+    fontSize: 18,
+    fontWeight: "700",
+    fontFamily: "Archivo_700Bold",
   },
   completedBanner: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    paddingVertical: 14,
-    backgroundColor: Colors.palette.emerald + "14",
-    borderRadius: 14,
+    gap: 10,
+    paddingVertical: 18,
+    backgroundColor: "rgba(123, 192, 67, 0.1)",
+    borderRadius: 20,
   },
   completedText: {
-    fontSize: 16,
-    fontWeight: "600" as const,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_600SemiBold",
+    fontSize: 18,
+    fontWeight: "700",
+    color: Colors.light.accent,
+    fontFamily: "Archivo_700Bold",
   },
 });

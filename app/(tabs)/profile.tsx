@@ -26,7 +26,7 @@ function StatCard({
   return (
     <View style={styles.statCard}>
       <View style={[styles.statIconBg, { backgroundColor: color + "14" }]}>
-        <Ionicons name={icon as any} size={20} color={color} />
+        <Ionicons name={icon as any} size={22} color={color} />
       </View>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
@@ -39,11 +39,6 @@ export default function ProfileScreen() {
   const { profile, requests } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
-  const myRequests = requests.filter((r) => r.creatorId === "me");
-  const fulfilledByMe = requests.filter(
-    (r) => r.acceptedBy === "me" && r.status === "completed",
-  );
-
   return (
     <ScrollView
       style={styles.container}
@@ -53,23 +48,23 @@ export default function ProfileScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View
-        style={[styles.header, { paddingTop: insets.top + 16 + webInsetTop }]}
+        style={[styles.header, { paddingTop: insets.top + 24 + webInsetTop }]}
       >
         <View style={styles.avatar}>
-          <Ionicons name="person" size={32} color={Colors.palette.emerald} />
+          <Ionicons name="person" size={40} color={Colors.light.tint} />
         </View>
         <Text style={styles.name}>{profile.name}</Text>
         <Text style={styles.subtitle}>LoKate Member</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Your Stats</Text>
+        <Text style={styles.sectionTitle}>Performance</Text>
         <View style={styles.statsGrid}>
           <StatCard
             icon="images"
             label="Requests"
             value={profile.requestsCreated.toString()}
-            color={Colors.palette.emerald}
+            color={Colors.light.tint}
           />
           <StatCard
             icon="camera"
@@ -78,16 +73,16 @@ export default function ProfileScreen() {
             color="#3B82F6"
           />
           <StatCard
-            icon="cash"
-            label="Earned"
-            value={`$${profile.earnings.toFixed(0)}`}
-            color={Colors.palette.amber}
+            icon="sparkles"
+            label="Score"
+            value="98"
+            color={Colors.light.accent}
           />
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Earnings</Text>
+        <Text style={styles.sectionTitle}>Balance</Text>
         <View style={styles.earningsCard}>
           <View style={styles.earningsTop}>
             <Text style={styles.earningsAmount}>
@@ -111,46 +106,31 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <View style={[styles.section, { marginTop: 8 }]}>
-        <Pressable style={styles.menuItem}>
-          <Ionicons
-            name="help-circle-outline"
-            size={22}
-            color={Colors.light.textSecondary}
-          />
-          <Text style={styles.menuItemText}>Help & Support</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={Colors.light.border}
-          />
-        </Pressable>
-        <Pressable style={styles.menuItem}>
-          <Ionicons
-            name="settings-outline"
-            size={22}
-            color={Colors.light.textSecondary}
-          />
-          <Text style={styles.menuItemText}>Settings</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={Colors.light.border}
-          />
-        </Pressable>
-        <Pressable style={styles.menuItem}>
-          <Ionicons
-            name="card-outline"
-            size={22}
-            color={Colors.light.textSecondary}
-          />
-          <Text style={styles.menuItemText}>Payment Methods</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={Colors.light.border}
-          />
-        </Pressable>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Preferences</Text>
+        <View style={styles.menuContainer}>
+          <Pressable style={styles.menuItem}>
+            <View style={[styles.menuIcon, { backgroundColor: "rgba(0, 174, 239, 0.08)" }]}>
+              <Ionicons name="card-outline" size={20} color={Colors.light.tint} />
+            </View>
+            <Text style={styles.menuItemText}>Payment Methods</Text>
+            <Ionicons name="chevron-forward" size={18} color={Colors.light.border} />
+          </Pressable>
+          <Pressable style={styles.menuItem}>
+            <View style={[styles.menuIcon, { backgroundColor: "rgba(123, 192, 67, 0.08)" }]}>
+              <Ionicons name="settings-outline" size={20} color={Colors.light.accent} />
+            </View>
+            <Text style={styles.menuItemText}>Account Settings</Text>
+            <Ionicons name="chevron-forward" size={18} color={Colors.light.border} />
+          </Pressable>
+          <Pressable style={styles.menuItem}>
+            <View style={[styles.menuIcon, { backgroundColor: "rgba(244, 63, 94, 0.08)" }]}>
+              <Ionicons name="help-circle-outline" size={20} color="#F43F5E" />
+            </View>
+            <Text style={styles.menuItemText}>Help & Support</Text>
+            <Ionicons name="chevron-forward" size={18} color={Colors.light.border} />
+          </Pressable>
+        </View>
       </View>
     </ScrollView>
   );
@@ -163,103 +143,119 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    paddingBottom: 20,
+    paddingBottom: 32,
     backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3,
   },
   avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.palette.emerald + "14",
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: "rgba(0, 174, 239, 0.08)",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(0, 174, 239, 0.1)",
   },
   name: {
-    fontSize: 22,
-    fontWeight: "700" as const,
+    fontSize: 24,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.light.textSecondary,
-    marginTop: 2,
-    fontFamily: "DMSans_400Regular",
+    marginTop: 4,
+    fontFamily: "Archivo_400Regular",
   },
   section: {
-    paddingHorizontal: 16,
-    marginTop: 20,
+    paddingHorizontal: 20,
+    marginTop: 28,
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: "600" as const,
-    color: Colors.light.textSecondary,
-    marginBottom: 10,
-    textTransform: "uppercase" as const,
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.light.text,
+    marginBottom: 16,
+    fontFamily: "Archivo_700Bold",
     letterSpacing: 0.5,
-    fontFamily: "DMSans_600SemiBold",
   },
   statsGrid: {
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
   },
   statCard: {
     flex: 1,
     backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: 24,
+    padding: 16,
     alignItems: "center",
-    gap: 6,
+    gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 6,
+    elevation: 1,
   },
   statIconBg: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
   },
   statValue: {
-    fontSize: 20,
-    fontWeight: "700" as const,
+    fontSize: 22,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   statLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   earningsCard: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 28,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
   },
   earningsTop: {
-    padding: 20,
+    padding: 24,
     alignItems: "center",
-    backgroundColor: Colors.palette.emerald + "0A",
+    backgroundColor: "rgba(0, 174, 239, 0.03)",
   },
   earningsAmount: {
-    fontSize: 36,
-    fontWeight: "700" as const,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_700Bold",
+    fontSize: 40,
+    fontWeight: "700",
+    color: Colors.light.tint,
+    fontFamily: "Archivo_700Bold",
   },
   earningsLabel: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.light.textSecondary,
     marginTop: 4,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   earningsDivider: {
     height: 1,
-    backgroundColor: Colors.light.border,
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
   },
   earningsBottom: {
-    padding: 16,
+    padding: 20,
     gap: 12,
   },
   earningsRow: {
@@ -267,29 +263,45 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   earningsRowLabel: {
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   earningsRowValue: {
-    fontSize: 14,
-    fontWeight: "600" as const,
+    fontSize: 15,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_600SemiBold",
+  },
+  menuContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 28,
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    gap: 12,
+    borderRadius: 20,
+    gap: 16,
+  },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
   },
   menuItemText: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16,
+    fontWeight: "500",
     color: Colors.light.text,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_500Medium",
   },
 });

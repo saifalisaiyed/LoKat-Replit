@@ -20,15 +20,15 @@ type Tab = "active" | "past";
 function getStatusConfig(status: RequestStatus) {
   switch (status) {
     case "open":
-      return { color: Colors.palette.emerald, label: "Open", icon: "radio-button-on" };
+      return { color: Colors.light.tint, label: "Open", icon: "radio-button-on" };
     case "accepted":
-      return { color: Colors.palette.amber, label: "Accepted", icon: "time-outline" };
+      return { color: "#F59E0B", label: "Accepted", icon: "time-outline" };
     case "submitted":
-      return { color: "#3B82F6", label: "Submitted", icon: "cloud-upload-outline" };
+      return { color: Colors.light.tint, label: "Submitted", icon: "cloud-upload-outline" };
     case "completed":
-      return { color: Colors.palette.slateLight, label: "Completed", icon: "checkmark-circle" };
+      return { color: Colors.light.accent, label: "Completed", icon: "checkmark-circle" };
     default:
-      return { color: Colors.palette.silver, label: status, icon: "ellipse" };
+      return { color: Colors.light.textSecondary, label: status, icon: "ellipse" };
   }
 }
 
@@ -50,7 +50,9 @@ function OrderCard({ item, onPress }: { item: any; onPress: () => void }) {
     >
       <View style={styles.orderTop}>
         <View style={styles.orderLocationRow}>
-          <Ionicons name="location" size={18} color={Colors.palette.emerald} />
+          <View style={[styles.iconContainer, { backgroundColor: Colors.light.tint + "14" }]}>
+            <Ionicons name="location" size={18} color={Colors.light.tint} />
+          </View>
           <Text style={styles.orderLocationName} numberOfLines={1}>
             {item.locationName}
           </Text>
@@ -65,7 +67,7 @@ function OrderCard({ item, onPress }: { item: any; onPress: () => void }) {
           <View
             style={[
               styles.statusBadge,
-              { backgroundColor: statusConfig.color + "18" },
+              { backgroundColor: statusConfig.color + "14" },
             ]}
           >
             <Ionicons
@@ -137,7 +139,7 @@ export default function OrdersScreen() {
   return (
     <View style={styles.container}>
       <View
-        style={[styles.header, { paddingTop: insets.top + 12 + webInsetTop }]}
+        style={[styles.header, { paddingTop: insets.top + 16 + webInsetTop }]}
       >
         <Text style={styles.headerTitle}>Orders</Text>
         <View style={styles.tabRow}>
@@ -195,7 +197,7 @@ export default function OrdersScreen() {
         )}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={{
-          paddingTop: 12,
+          paddingTop: 16,
           paddingBottom: Platform.OS === "web" ? 84 + 34 : insets.bottom + 90,
         }}
         showsVerticalScrollIndicator={false}
@@ -211,17 +213,21 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#fff",
-    paddingHorizontal: 16,
-    paddingBottom: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.text,
-    marginBottom: 16,
-    fontFamily: "DMSans_700Bold",
+    marginBottom: 20,
+    fontFamily: "Archivo_700Bold",
   },
   tabRow: {
     flexDirection: "row",
@@ -232,132 +238,144 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
-    paddingVertical: 12,
-    borderBottomWidth: 2,
+    gap: 8,
+    paddingVertical: 14,
+    borderBottomWidth: 3,
     borderBottomColor: "transparent",
   },
   tabBtnActive: {
-    borderBottomColor: Colors.palette.emerald,
+    borderBottomColor: Colors.light.tint,
   },
   tabBtnText: {
     fontSize: 15,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_600SemiBold",
   },
   tabBtnTextActive: {
-    color: Colors.palette.emerald,
+    color: Colors.light.tint,
   },
   tabBadge: {
-    backgroundColor: Colors.palette.emerald,
-    paddingHorizontal: 7,
-    paddingVertical: 1,
-    borderRadius: 10,
+    backgroundColor: Colors.light.tint,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
   },
   tabBadgeText: {
     fontSize: 11,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: "#fff",
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   orderCard: {
     marginHorizontal: 16,
-    marginBottom: 10,
+    marginBottom: 12,
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 24,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   orderTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   orderLocationRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
     flex: 1,
     marginRight: 12,
   },
   orderLocationName: {
-    fontSize: 16,
-    fontWeight: "600" as const,
+    fontSize: 17,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_700Bold",
     flex: 1,
   },
   orderReward: {
-    fontSize: 18,
-    fontWeight: "700" as const,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_700Bold",
+    fontSize: 20,
+    fontWeight: "700",
+    color: Colors.light.tint,
+    fontFamily: "Archivo_700Bold",
   },
   orderAddress: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.light.textSecondary,
     marginTop: 4,
-    marginLeft: 26,
-    fontFamily: "DMSans_400Regular",
+    marginLeft: 42,
+    fontFamily: "Archivo_400Regular",
   },
   orderBottom: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: 16,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border + "60",
+    borderTopColor: "rgba(0, 0, 0, 0.05)",
   },
   orderMeta: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
   },
   statusLabel: {
-    fontSize: 12,
-    fontWeight: "600" as const,
-    fontFamily: "DMSans_600SemiBold",
+    fontSize: 13,
+    fontWeight: "600",
+    fontFamily: "Archivo_600SemiBold",
   },
   roleTag: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
+    gap: 4,
   },
   roleTagText: {
-    fontSize: 11,
-    color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
-  },
-  orderCategory: {
     fontSize: 12,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
+  },
+  orderCategory: {
+    fontSize: 13,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
   },
   emptyContainer: {
     alignItems: "center",
-    paddingVertical: 60,
-    gap: 8,
+    paddingVertical: 80,
+    gap: 12,
   },
   emptyTitle: {
-    fontSize: 16,
-    fontWeight: "600" as const,
+    fontSize: 18,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_600SemiBold",
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.light.textSecondary,
     textAlign: "center",
     paddingHorizontal: 40,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
 });

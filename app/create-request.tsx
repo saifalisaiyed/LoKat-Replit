@@ -37,7 +37,7 @@ function OptionButton({
     >
       <Ionicons
         name={icon as any}
-        size={22}
+        size={24}
         color={selected ? "#fff" : Colors.light.textSecondary}
       />
       <Text style={[styles.optionLabel, selected && styles.optionLabelActive]}>
@@ -86,25 +86,28 @@ export default function CreateRequestScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 + webInsetTop }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 + webInsetTop }]}>
+        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.closeBtn}>
           <Ionicons name="close" size={28} color={Colors.light.text} />
         </Pressable>
         <Text style={styles.headerTitle}>New Request</Text>
-        <View style={{ width: 28 }} />
+        <View style={{ width: 44 }} />
       </View>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 100 },
+          { paddingBottom: insets.bottom + 110 },
         ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.locationCard}>
-          <Ionicons name="location" size={20} color={Colors.palette.emerald} />
+          <View style={styles.locationIcon}>
+            <Ionicons name="location" size={20} color={Colors.light.tint} />
+          </View>
           <View style={styles.locationInfo}>
+            <Text style={styles.locationLabel}>Drop Point</Text>
             <Text style={styles.locationCoords}>
               {parseFloat(lat || "0").toFixed(4)},{" "}
               {parseFloat(lng || "0").toFixed(4)}
@@ -113,7 +116,7 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Location Name</Text>
+          <Text style={styles.fieldLabel}>What's the place called?</Text>
           <TextInput
             style={styles.textInput}
             placeholder="e.g. Brooklyn Bridge, Central Park..."
@@ -124,7 +127,7 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Address</Text>
+          <Text style={styles.fieldLabel}>Full Address</Text>
           <TextInput
             style={styles.textInput}
             placeholder="e.g. 123 Main St, New York, NY"
@@ -153,7 +156,7 @@ export default function CreateRequestScreen() {
                   name={cat.icon as any}
                   size={18}
                   color={
-                    category === cat.key ? "#fff" : Colors.light.textSecondary
+                    category === cat.key ? "#fff" : Colors.light.tint
                   }
                 />
                 <Text
@@ -171,7 +174,7 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Orientation</Text>
+          <Text style={styles.fieldLabel}>Frame Style</Text>
           <View style={styles.optionsRow}>
             <OptionButton
               icon="phone-portrait-outline"
@@ -189,23 +192,23 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Angle</Text>
+          <Text style={styles.fieldLabel}>Perspective</Text>
           <View style={styles.optionsRow}>
             <OptionButton
               icon="arrow-up-circle-outline"
-              label="Looking Up"
+              label="Upwards"
               selected={angle === "looking-up"}
               onPress={() => setAngle("looking-up")}
             />
             <OptionButton
               icon="remove-circle-outline"
-              label="Eye Level"
+              label="Straight"
               selected={angle === "eye-level"}
               onPress={() => setAngle("eye-level")}
             />
             <OptionButton
               icon="arrow-down-circle-outline"
-              label="Looking Down"
+              label="Downwards"
               selected={angle === "looking-down"}
               onPress={() => setAngle("looking-down")}
             />
@@ -213,17 +216,17 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Timing</Text>
+          <Text style={styles.fieldLabel}>Timeline</Text>
           <View style={styles.optionsRow}>
             <OptionButton
               icon="flash-outline"
-              label="Now"
+              label="Urgent"
               selected={timing === "now"}
               onPress={() => setTiming("now")}
             />
             <OptionButton
               icon="time-outline"
-              label="Later"
+              label="Scheduled"
               selected={timing === "scheduled"}
               onPress={() => setTiming("scheduled")}
             />
@@ -231,7 +234,7 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Reward</Text>
+          <Text style={styles.fieldLabel}>Set Reward</Text>
           <View style={styles.rewardRow}>
             {REWARD_OPTIONS.map((r) => (
               <Pressable
@@ -259,15 +262,15 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Note (optional)</Text>
+          <Text style={styles.fieldLabel}>Directives (Optional)</Text>
           <TextInput
             style={[styles.textInput, styles.textArea]}
-            placeholder="Any specific instructions for the LoKater..."
+            placeholder="Help the LoKater get the perfect shot..."
             placeholderTextColor={Colors.light.textSecondary}
             value={note}
             onChangeText={setNote}
             multiline
-            numberOfLines={3}
+            numberOfLines={4}
             textAlignVertical="top"
           />
         </View>
@@ -276,12 +279,12 @@ export default function CreateRequestScreen() {
       <View
         style={[
           styles.submitBar,
-          { paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 12 },
+          { paddingBottom: Platform.OS === "web" ? 34 + 12 : insets.bottom + 16 },
         ]}
       >
         <View style={styles.submitSummary}>
           <Text style={styles.submitTotal}>${reward.toFixed(2)}</Text>
-          <Text style={styles.submitLabel}>Total Cost</Text>
+          <Text style={styles.submitLabel}>Grand Total</Text>
         </View>
         <Pressable
           style={({ pressed }) => [
@@ -290,8 +293,8 @@ export default function CreateRequestScreen() {
           ]}
           onPress={handleSubmit}
         >
-          <Feather name="send" size={18} color="#fff" />
-          <Text style={styles.submitBtnText}>Post Request</Text>
+          <Feather name="plus-circle" size={20} color="#fff" />
+          <Text style={styles.submitBtnText}>Launch Request</Text>
         </Pressable>
       </View>
     </View>
@@ -308,75 +311,107 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: 20,
     backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  closeBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: "600" as const,
+    fontSize: 20,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_700Bold",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    gap: 20,
+    padding: 20,
+    gap: 24,
   },
   locationCard: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 16,
     backgroundColor: "#fff",
-    padding: 16,
+    padding: 18,
+    borderRadius: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  locationIcon: {
+    width: 40,
+    height: 40,
     borderRadius: 14,
+    backgroundColor: "rgba(0, 174, 239, 0.08)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   locationInfo: {
     flex: 1,
   },
-  locationCoords: {
-    fontSize: 14,
+  locationLabel: {
+    fontSize: 12,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
+    textTransform: "uppercase",
+  },
+  locationCoords: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Colors.light.text,
+    fontFamily: "Archivo_600SemiBold",
+    marginTop: 2,
   },
   fieldGroup: {
-    gap: 8,
+    gap: 12,
   },
   fieldLabel: {
-    fontSize: 14,
-    fontWeight: "600" as const,
+    fontSize: 16,
+    fontWeight: "700",
     color: Colors.light.text,
-    textTransform: "uppercase" as const,
-    letterSpacing: 0.5,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_700Bold",
+    letterSpacing: 0.2,
   },
   optionsRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: 10,
   },
   optionBtn: {
     flex: 1,
     backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: 20,
+    padding: 18,
     alignItems: "center",
-    gap: 6,
+    gap: 8,
     borderWidth: 2,
-    borderColor: Colors.light.border,
+    borderColor: "rgba(0, 0, 0, 0.05)",
   },
   optionBtnActive: {
-    backgroundColor: Colors.palette.emerald,
-    borderColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.tint,
+    borderColor: Colors.light.tint,
   },
   optionLabel: {
-    fontSize: 12,
-    fontWeight: "600" as const,
+    fontSize: 13,
+    fontWeight: "600",
     color: Colors.light.textSecondary,
     textAlign: "center",
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_600SemiBold",
   },
   optionLabelActive: {
     color: "#fff",
@@ -384,106 +419,116 @@ const styles = StyleSheet.create({
   categoryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 10,
   },
   categoryBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
     backgroundColor: "#fff",
     borderWidth: 1.5,
-    borderColor: Colors.light.border,
+    borderColor: "rgba(0, 174, 239, 0.1)",
   },
   categoryBtnActive: {
-    backgroundColor: Colors.palette.emerald,
-    borderColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.tint,
+    borderColor: Colors.light.tint,
   },
   categoryBtnText: {
-    fontSize: 13,
-    fontWeight: "500" as const,
+    fontSize: 14,
+    fontWeight: "500",
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_500Medium",
+    fontFamily: "Archivo_500Medium",
   },
   categoryBtnTextActive: {
     color: "#fff",
   },
   rewardRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: 10,
   },
   rewardBtn: {
     flex: 1,
     backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderRadius: 16,
+    paddingVertical: 16,
     alignItems: "center",
     borderWidth: 2,
-    borderColor: Colors.light.border,
+    borderColor: "rgba(0, 0, 0, 0.05)",
   },
   rewardBtnActive: {
-    backgroundColor: Colors.palette.emerald,
-    borderColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.tint,
+    borderColor: Colors.light.tint,
   },
   rewardBtnText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
+    fontSize: 18,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   rewardBtnTextActive: {
     color: "#fff",
   },
   textInput: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 15,
+    borderRadius: 16,
+    padding: 18,
+    fontSize: 16,
     color: Colors.light.text,
     borderWidth: 1,
-    borderColor: Colors.light.border,
-    fontFamily: "DMSans_400Regular",
+    borderColor: "rgba(0, 0, 0, 0.08)",
+    fontFamily: "Archivo_400Regular",
   },
   textArea: {
-    minHeight: 80,
+    minHeight: 120,
   },
   submitBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 10,
   },
   submitSummary: {},
   submitTotal: {
-    fontSize: 22,
-    fontWeight: "700" as const,
+    fontSize: 26,
+    fontWeight: "700",
     color: Colors.light.text,
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_700Bold",
   },
   submitLabel: {
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   submitBtn: {
-    backgroundColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.accent,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 14,
+    gap: 10,
+    paddingVertical: 18,
+    paddingHorizontal: 28,
+    borderRadius: 20,
+    shadowColor: Colors.light.accent,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 6,
   },
   submitBtnText: {
     color: "#fff",
-    fontSize: 16,
-    fontWeight: "600" as const,
-    fontFamily: "DMSans_600SemiBold",
+    fontSize: 18,
+    fontWeight: "700",
+    fontFamily: "Archivo_700Bold",
   },
 });
