@@ -79,7 +79,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       if (savedProfile) setProfile(JSON.parse(savedProfile));
       if (savedRequests) {
-        setRequests(JSON.parse(savedRequests));
+        const parsed = JSON.parse(savedRequests) as PhotoRequest[];
+        const migrated = parsed.map((r) => ({
+          ...r,
+          category: r.category || "landmarks" as Category,
+          address: r.address || "New York, NY",
+        }));
+        setRequests(migrated);
+        if (parsed.some((r) => !r.category)) {
+          await AsyncStorage.setItem(REQUESTS_KEY, JSON.stringify(migrated));
+        }
       } else if (!seeded) {
         setRequests(demoRequests);
         await AsyncStorage.setItem(

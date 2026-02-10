@@ -74,6 +74,8 @@ export default function RequestDetailScreen() {
   const request = requests.find((r) => r.id === id);
   const isMyRequest = request?.creatorId === "me";
   const isActiveLoKater = request?.status === "accepted" && request?.acceptedBy === "me";
+  const safeCategory = request?.category || "landmarks";
+  const categoryData = CATEGORIES.find((c) => c.key === safeCategory) || CATEGORIES[0];
 
   if (!request) {
     return (
@@ -202,14 +204,14 @@ export default function RequestDetailScreen() {
           </View>
 
           <View style={styles.chipRow}>
-            <View style={[styles.categoryPill, { backgroundColor: hexToRgba(getCatColor(request.category), 0.08), borderColor: hexToRgba(getCatColor(request.category), 0.25) }]}>
+            <View style={[styles.categoryPill, { backgroundColor: hexToRgba(getCatColor(safeCategory), 0.12), borderColor: hexToRgba(getCatColor(safeCategory), 0.3) }]}>
               <Ionicons
-                name={(CATEGORIES.find((c) => c.key === request.category)?.icon ?? "pricetag-outline") as any}
+                name={categoryData.icon as any}
                 size={15}
-                color={getCatColor(request.category)}
+                color={getCatColor(safeCategory)}
               />
-              <Text style={[styles.categoryPillText, { color: getCatColor(request.category) }]}>
-                {getCategoryLabel(request.category)}
+              <Text style={[styles.categoryPillText, { color: getCatColor(safeCategory) }]}>
+                {categoryData.label}
               </Text>
             </View>
             <View style={styles.chip}>
