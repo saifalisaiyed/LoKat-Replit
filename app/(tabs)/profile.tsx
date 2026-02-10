@@ -7,22 +7,10 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
-
-function StatCard({ icon, label, value, color }: { icon: string; label: string; value: string; color: string }) {
-  return (
-    <View style={styles.statCard}>
-      <View style={[styles.statIconBg, { backgroundColor: color + "14" }]}>
-        <Ionicons name={icon as any} size={20} color={color} />
-      </View>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
-}
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -33,210 +21,353 @@ export default function ProfileScreen() {
     <ScrollView
       style={styles.container}
       contentContainerStyle={{
-        paddingBottom: Platform.OS === "web" ? 84 + 34 : insets.bottom + 90,
+        paddingBottom: Platform.OS === "web" ? 94 + 34 : insets.bottom + 96,
       }}
       showsVerticalScrollIndicator={false}
     >
       <View style={[styles.header, { paddingTop: insets.top + 20 + webInsetTop }]}>
-        <View style={styles.avatar}>
-          <Ionicons name="person" size={32} color={Colors.light.tint} />
+        <View style={styles.headerTop}>
+          <Text style={styles.headerTitle}>Profile</Text>
+          <Pressable style={styles.settingsBtn} hitSlop={8}>
+            <Feather name="settings" size={20} color={Colors.light.text} />
+          </Pressable>
         </View>
-        <Text style={styles.name}>{profile.name}</Text>
-        <Text style={styles.subtitle}>LoKate Member</Text>
+
+        <View style={styles.profileRow}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {profile.name.split(" ").map(n => n[0]).join("").toUpperCase()}
+            </Text>
+          </View>
+          <View style={styles.profileInfo}>
+            <Text style={styles.name}>{profile.name}</Text>
+            <Text style={styles.subtitle}>New York, NY</Text>
+          </View>
+          <Pressable style={styles.editBtn}>
+            <Feather name="edit-2" size={14} color={Colors.light.tint} />
+          </Pressable>
+        </View>
+      </View>
+
+      <View style={styles.statsRow}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{profile.requestsCreated}</Text>
+          <Text style={styles.statDesc}>Requests</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{profile.requestsFulfilled}</Text>
+          <Text style={styles.statDesc}>Fulfilled</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={[styles.statNumber, { color: Colors.light.tint }]}>
+            ${profile.earnings.toFixed(0)}
+          </Text>
+          <Text style={styles.statDesc}>Earned</Text>
+        </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Performance</Text>
-        <View style={styles.statsGrid}>
-          <StatCard icon="images" label="Requests" value={profile.requestsCreated.toString()} color={Colors.light.tint} />
-          <StatCard icon="camera" label="Fulfilled" value={profile.requestsFulfilled.toString()} color="#3B82F6" />
-          <StatCard icon="sparkles" label="Score" value="98" color={Colors.light.accent} />
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Balance</Text>
         <View style={styles.earningsCard}>
-          <View style={styles.earningsTop}>
+          <View style={styles.earningsHeader}>
+            <View style={styles.earningsIconWrap}>
+              <Ionicons name="wallet-outline" size={18} color={Colors.light.tint} />
+            </View>
+            <View style={styles.earningsHeaderText}>
+              <Text style={styles.earningsTitle}>Wallet</Text>
+              <Text style={styles.earningsSubtitle}>Available balance</Text>
+            </View>
             <Text style={styles.earningsAmount}>${profile.earnings.toFixed(2)}</Text>
-            <Text style={styles.earningsLabel}>Total Earned</Text>
           </View>
-          <View style={styles.earningsDivider} />
-          <View style={styles.earningsBottom}>
-            <View style={styles.earningsRow}>
-              <Text style={styles.earningsRowLabel}>Available to withdraw</Text>
-              <Text style={styles.earningsRowValue}>${profile.earnings.toFixed(2)}</Text>
-            </View>
-            <View style={styles.earningsRow}>
-              <Text style={styles.earningsRowLabel}>Pending</Text>
-              <Text style={styles.earningsRowValue}>$0.00</Text>
-            </View>
+          <View style={styles.earningsActions}>
+            <Pressable style={styles.earningsActionBtn}>
+              <Feather name="download" size={16} color={Colors.light.tint} />
+              <Text style={styles.earningsActionText}>Withdraw</Text>
+            </Pressable>
+            <View style={styles.earningsActionDivider} />
+            <Pressable style={styles.earningsActionBtn}>
+              <Feather name="clock" size={16} color={Colors.light.textSecondary} />
+              <Text style={[styles.earningsActionText, { color: Colors.light.textSecondary }]}>History</Text>
+            </Pressable>
           </View>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferences</Text>
-        <Pressable style={styles.menuItem}>
-          <Ionicons name="card-outline" size={20} color={Colors.light.tint} />
-          <Text style={styles.menuItemText}>Payment Methods</Text>
-          <Ionicons name="chevron-forward" size={16} color={Colors.light.border} />
-        </Pressable>
-        <Pressable style={styles.menuItem}>
-          <Ionicons name="settings-outline" size={20} color={Colors.light.textSecondary} />
-          <Text style={styles.menuItemText}>Account Settings</Text>
-          <Ionicons name="chevron-forward" size={16} color={Colors.light.border} />
-        </Pressable>
-        <Pressable style={styles.menuItem}>
-          <Ionicons name="help-circle-outline" size={20} color={Colors.light.textSecondary} />
-          <Text style={styles.menuItemText}>Help & Support</Text>
-          <Ionicons name="chevron-forward" size={16} color={Colors.light.border} />
-        </Pressable>
+        <Text style={styles.sectionLabel}>Account</Text>
+        <View style={styles.menuGroup}>
+          <MenuItem icon="credit-card" label="Payment Methods" />
+          <View style={styles.menuDivider} />
+          <MenuItem icon="bell" label="Notifications" />
+          <View style={styles.menuDivider} />
+          <MenuItem icon="shield" label="Privacy & Security" />
+        </View>
       </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>Support</Text>
+        <View style={styles.menuGroup}>
+          <MenuItem icon="help-circle" label="Help Center" />
+          <View style={styles.menuDivider} />
+          <MenuItem icon="message-circle" label="Contact Us" />
+          <View style={styles.menuDivider} />
+          <MenuItem icon="file-text" label="Terms & Conditions" />
+        </View>
+      </View>
+
+      <Pressable style={styles.logoutBtn}>
+        <Feather name="log-out" size={16} color="#EF4444" />
+        <Text style={styles.logoutText}>Sign Out</Text>
+      </Pressable>
     </ScrollView>
+  );
+}
+
+function MenuItem({ icon, label }: { icon: string; label: string }) {
+  return (
+    <Pressable
+      style={({ pressed }) => [
+        styles.menuItem,
+        pressed && { backgroundColor: "#F8F8FA" },
+      ]}
+    >
+      <View style={styles.menuIconWrap}>
+        <Feather name={icon as any} size={18} color={Colors.light.textSecondary} />
+      </View>
+      <Text style={styles.menuItemText}>{label}</Text>
+      <Feather name="chevron-right" size={16} color="#D0D0D0" />
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: "#F5F5F7",
   },
   header: {
-    alignItems: "center",
+    paddingHorizontal: 20,
     paddingBottom: 24,
     backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
   },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "rgba(0,174,239,0.08)",
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: Colors.light.text,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  settingsBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F5F5F7",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+  },
+  profileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.light.tint,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#fff",
+    fontFamily: "Archivo_700Bold",
+  },
+  profileInfo: {
+    flex: 1,
+    gap: 2,
   },
   name: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
     color: Colors.light.text,
     fontFamily: "Archivo_600SemiBold",
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.light.textSecondary,
-    marginTop: 2,
     fontFamily: "Archivo_400Regular",
   },
-  section: {
-    paddingHorizontal: 16,
-    marginTop: 24,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: Colors.light.textSecondary,
-    marginBottom: 12,
-    textTransform: "uppercase" as const,
-    letterSpacing: 0.6,
-    fontFamily: "Archivo_600SemiBold",
-  },
-  statsGrid: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: "#fff",
+  editBtn: {
+    width: 32,
+    height: 32,
     borderRadius: 16,
-    padding: 14,
-    alignItems: "center",
-    gap: 6,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.03)",
-  },
-  statIconBg: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    borderColor: Colors.light.tint + "30",
     alignItems: "center",
     justifyContent: "center",
   },
-  statValue: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: Colors.light.text,
-    fontFamily: "Archivo_600SemiBold",
+  statsRow: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    marginTop: 1,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
   },
-  statLabel: {
-    fontSize: 11,
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+    gap: 2,
+  },
+  statNumber: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: Colors.light.text,
+    fontFamily: "Archivo_700Bold",
+  },
+  statDesc: {
+    fontSize: 12,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
+  },
+  statDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: "#EBEBEB",
+    alignSelf: "center",
+  },
+  section: {
+    paddingHorizontal: 20,
+    marginTop: 24,
+  },
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: Colors.light.textSecondary,
+    marginBottom: 10,
+    marginLeft: 4,
+    fontFamily: "Archivo_500Medium",
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.6,
   },
   earningsCard: {
     backgroundColor: "#fff",
-    borderRadius: 18,
+    borderRadius: 16,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.03)",
   },
-  earningsTop: {
-    padding: 20,
+  earningsHeader: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(0,174,239,0.03)",
-  },
-  earningsAmount: {
-    fontSize: 32,
-    fontWeight: "600",
-    color: Colors.light.tint,
-    fontFamily: "Archivo_600SemiBold",
-  },
-  earningsLabel: {
-    fontSize: 13,
-    color: Colors.light.textSecondary,
-    marginTop: 4,
-    fontFamily: "Archivo_400Regular",
-  },
-  earningsDivider: {
-    height: 1,
-    backgroundColor: "rgba(0,0,0,0.04)",
-  },
-  earningsBottom: {
     padding: 16,
     gap: 12,
   },
-  earningsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  earningsIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: Colors.light.tint + "10",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  earningsRowLabel: {
-    fontSize: 14,
+  earningsHeaderText: {
+    flex: 1,
+    gap: 1,
+  },
+  earningsTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: Colors.light.text,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  earningsSubtitle: {
+    fontSize: 12,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
-  earningsRowValue: {
-    fontSize: 14,
+  earningsAmount: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: Colors.light.tint,
+    fontFamily: "Archivo_700Bold",
+  },
+  earningsActions: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F2",
+  },
+  earningsActionBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 14,
+  },
+  earningsActionText: {
+    fontSize: 13,
     fontWeight: "500",
-    color: Colors.light.text,
+    color: Colors.light.tint,
     fontFamily: "Archivo_500Medium",
+  },
+  earningsActionDivider: {
+    width: 1,
+    backgroundColor: "#F0F0F2",
+  },
+  menuGroup: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    overflow: "hidden",
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 14,
-    marginBottom: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
     gap: 12,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.03)",
+  },
+  menuIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: "#F5F5F7",
+    alignItems: "center",
+    justifyContent: "center",
   },
   menuItemText: {
     flex: 1,
     fontSize: 15,
     color: Colors.light.text,
     fontFamily: "Archivo_400Regular",
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: "#F0F0F2",
+    marginLeft: 58,
+  },
+  logoutBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 32,
+    marginHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#FEE2E2",
+  },
+  logoutText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#EF4444",
+    fontFamily: "Archivo_500Medium",
   },
 });

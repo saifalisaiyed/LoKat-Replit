@@ -51,8 +51,8 @@ function ClassicTabLayout() {
           shadowOffset: { width: 0, height: -3 },
           shadowOpacity: 0.08,
           shadowRadius: 10,
-          paddingTop: 10,
-          ...(isWeb ? { height: 90 } : { height: 76 }),
+          paddingTop: 14,
+          ...(isWeb ? { height: 94 } : { height: 80 }),
         },
         tabBarBackground: () => (
           <View
@@ -111,15 +111,10 @@ function ClassicTabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={[tabStyles.iconWrap, focused && tabStyles.iconWrapActive]}>
               <Ionicons
-                name={focused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
+                name={focused ? "person" : "person-outline"}
                 size={22}
                 color={focused ? "#fff" : color}
               />
-              {unreadCount > 0 && (
-                <View style={tabStyles.badge}>
-                  <View style={tabStyles.badgeDot} />
-                </View>
-              )}
             </View>
           ),
         }}

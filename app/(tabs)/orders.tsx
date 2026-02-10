@@ -196,7 +196,7 @@ export default function OrdersScreen() {
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={{
           paddingTop: 12,
-          paddingBottom: Platform.OS === "web" ? 84 + 34 : insets.bottom + 90,
+          paddingBottom: Platform.OS === "web" ? 94 + 34 : insets.bottom + 96,
         }}
         showsVerticalScrollIndicator={false}
       />
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#fff",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingBottom: 0,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,

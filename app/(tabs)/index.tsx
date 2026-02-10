@@ -320,7 +320,7 @@ export default function HomeScreen() {
           />
         )}
         contentContainerStyle={{
-          paddingBottom: Platform.OS === "web" ? 90 + 34 : insets.bottom + 96,
+          paddingBottom: Platform.OS === "web" ? 94 + 34 : insets.bottom + 100,
         }}
         showsVerticalScrollIndicator={false}
       />
@@ -469,12 +469,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: Colors.light.text,
     marginBottom: 14,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     fontFamily: "Archivo_500Medium",
     letterSpacing: 0.1,
   },
   categoriesList: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     gap: 8,
   },
   categoryPill: {
