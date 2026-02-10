@@ -8,7 +8,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json({ results: [] });
     }
 
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
     if (apiKey) {
       try {
         const searchBody = {
@@ -41,7 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         if (searchData.error) {
-          console.log("Google Places API not available, using Nominatim fallback");
+          console.log("Google Places fallback to Nominatim:", searchData.error.code || "unknown");
         }
       } catch (e) {
         console.error("Google Places error:", e);

@@ -72,3 +72,8 @@ task = "shell.exec"
 args = "npm run expo:dev"
 waitForPort = 8081
 ensurePreviewReachable = "/status"
+
+[userenv]
+
+[userenv.shared]
+GOOGLE_PLACES_API_KEY = "AIzaSyBiwNrDbCJITRA5ql2Kc8GvO06o1fu_8iQ"
