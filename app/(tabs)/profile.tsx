@@ -159,7 +159,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 22,
-    fontWeight: "600",
     color: Colors.light.text,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -186,7 +185,6 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 20,
-    fontWeight: "700",
     color: "#fff",
     fontFamily: "Archivo_700Bold",
   },
@@ -196,7 +194,6 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: "600",
     color: Colors.light.text,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -228,7 +225,6 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 22,
-    fontWeight: "700",
     color: Colors.light.text,
     fontFamily: "Archivo_700Bold",
   },
@@ -249,11 +245,10 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 13,
-    fontWeight: "500",
     color: Colors.light.textSecondary,
     marginBottom: 10,
     marginLeft: 4,
-    fontFamily: "Archivo_500Medium",
+    fontFamily: "Archivo_600SemiBold",
     textTransform: "uppercase" as const,
     letterSpacing: 0.6,
   },
@@ -282,7 +277,6 @@ const styles = StyleSheet.create({
   },
   earningsTitle: {
     fontSize: 15,
-    fontWeight: "600",
     color: Colors.light.text,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -293,7 +287,6 @@ const styles = StyleSheet.create({
   },
   earningsAmount: {
     fontSize: 22,
-    fontWeight: "700",
     color: Colors.light.tint,
     fontFamily: "Archivo_700Bold",
   },
@@ -312,7 +305,6 @@ const styles = StyleSheet.create({
   },
   earningsActionText: {
     fontSize: 13,
-    fontWeight: "500",
     color: Colors.light.tint,
     fontFamily: "Archivo_500Medium",
   },
@@ -366,7 +358,6 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 14,
-    fontWeight: "500",
     color: "#EF4444",
     fontFamily: "Archivo_500Medium",
   },

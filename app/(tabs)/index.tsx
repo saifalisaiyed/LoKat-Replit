@@ -466,11 +466,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "500",
     color: Colors.light.text,
     marginBottom: 14,
     paddingHorizontal: 20,
-    fontFamily: "Archivo_500Medium",
+    fontFamily: "Archivo_600SemiBold",
     letterSpacing: 0.1,
   },
   categoriesList: {
@@ -490,7 +489,6 @@ const styles = StyleSheet.create({
   },
   categoryPillText: {
     fontSize: 13,
-    fontWeight: "500",
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
   },
@@ -525,7 +523,6 @@ const styles = StyleSheet.create({
   },
   cardLocationName: {
     fontSize: 14,
-    fontWeight: "500",
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
   },
@@ -560,7 +557,6 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: "500",
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
   },
@@ -631,7 +627,6 @@ const styles = StyleSheet.create({
   },
   searchResultName: {
     fontSize: 14,
-    fontWeight: "500",
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
   },

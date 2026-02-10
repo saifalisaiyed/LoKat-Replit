@@ -180,7 +180,7 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Directives</Text>
+          <Text style={styles.sectionLabel}>Notes (Optional)</Text>
           <TextInput
             style={styles.noteInput}
             placeholder="Any specific instructions for the LoKater..."
@@ -232,7 +232,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: "600",
     color: Colors.light.text,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -267,7 +266,6 @@ const styles = StyleSheet.create({
   },
   locationName: {
     fontSize: 15,
-    fontWeight: "500",
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
   },
@@ -281,9 +279,8 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 13,
-    fontWeight: "500",
     color: Colors.light.textSecondary,
-    fontFamily: "Archivo_500Medium",
+    fontFamily: "Archivo_600SemiBold",
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
@@ -309,7 +306,6 @@ const styles = StyleSheet.create({
   },
   chipLabel: {
     fontSize: 13,
-    fontWeight: "500",
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_500Medium",
   },
@@ -348,7 +344,6 @@ const styles = StyleSheet.create({
   submitBtnText: {
     color: "#fff",
     fontSize: 15,
-    fontWeight: "600",
     fontFamily: "Archivo_600SemiBold",
   },
 });

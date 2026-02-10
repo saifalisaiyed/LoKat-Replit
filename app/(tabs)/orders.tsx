@@ -218,7 +218,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 22,
-    fontWeight: "600",
     color: Colors.light.text,
     marginBottom: 16,
     fontFamily: "Archivo_600SemiBold",
@@ -241,13 +240,11 @@ const styles = StyleSheet.create({
   },
   tabBtnText: {
     fontSize: 14,
-    fontWeight: "500",
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_500Medium",
   },
   tabBtnTextActive: {
     color: Colors.light.tint,
-    fontWeight: "600",
     fontFamily: "Archivo_600SemiBold",
   },
   tabBadge: {
@@ -258,7 +255,6 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: {
     fontSize: 11,
-    fontWeight: "600",
     color: "#fff",
     fontFamily: "Archivo_600SemiBold",
   },
@@ -285,14 +281,12 @@ const styles = StyleSheet.create({
   },
   orderLocationName: {
     fontSize: 15,
-    fontWeight: "600",
     color: Colors.light.text,
     fontFamily: "Archivo_600SemiBold",
     flex: 1,
   },
   orderReward: {
     fontSize: 16,
-    fontWeight: "600",
     color: Colors.light.tint,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -327,7 +321,6 @@ const styles = StyleSheet.create({
   },
   statusLabel: {
     fontSize: 12,
-    fontWeight: "500",
     fontFamily: "Archivo_500Medium",
   },
   roleTag: {
@@ -352,7 +345,6 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: "500",
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
   },
