@@ -13,6 +13,7 @@ interface MapWrapperProps {
   initialRegion?: any;
   mapRef?: any;
   onMapPress?: (e: any) => void;
+  onPoiClick?: (e: any) => void;
 }
 
 export default function MapViewWrapper({

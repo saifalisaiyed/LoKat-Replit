@@ -12,6 +12,7 @@ interface MapWrapperProps {
   initialRegion: any;
   mapRef: any;
   onMapPress: (e: any) => void;
+  onPoiClick?: (e: any) => void;
 }
 
 export default function MapViewWrapper({
@@ -23,6 +24,7 @@ export default function MapViewWrapper({
   initialRegion,
   mapRef,
   onMapPress,
+  onPoiClick,
 }: MapWrapperProps) {
   return (
     <MapView
@@ -31,7 +33,10 @@ export default function MapViewWrapper({
       initialRegion={initialRegion}
       showsUserLocation={permissionStatus === "granted"}
       showsMyLocationButton={false}
+      showsCompass={false}
+      showsPointsOfInterest={true}
       onPress={onMapPress}
+      onPoiClick={onPoiClick || onMapPress}
       mapType="standard"
     >
       {selectedPin && isSeeker && (

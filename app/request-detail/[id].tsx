@@ -195,15 +195,17 @@ export default function RequestDetailScreen() {
           </View>
 
           <View style={styles.chipRow}>
-            <View style={[styles.categoryPill, { backgroundColor: getCatColor(request.category) + "14", borderColor: getCatColor(request.category) + "30" }]}>
-              <View style={[styles.categoryPillIcon, { backgroundColor: getCatColor(request.category) + "20" }]}>
+            <View style={[styles.categoryPill, { backgroundColor: getCatColor(request.category) + "18", borderColor: getCatColor(request.category) + "40" }]}>
+              <View style={[styles.categoryPillIcon, { backgroundColor: getCatColor(request.category) + "30" }]}>
                 <Ionicons
                   name={(CATEGORIES.find((c) => c.key === request.category)?.icon ?? "pricetag-outline") as any}
-                  size={14}
+                  size={16}
                   color={getCatColor(request.category)}
                 />
               </View>
-              <Text style={[styles.categoryPillText, { color: getCatColor(request.category) }]}>{getCategoryLabel(request.category)}</Text>
+              <Text style={[styles.categoryPillText, { color: getCatColor(request.category) }]}>
+                {getCategoryLabel(request.category)}
+              </Text>
             </View>
             <View style={styles.chip}>
               <Ionicons name="navigate-outline" size={14} color={Colors.light.textSecondary} />
@@ -364,9 +366,9 @@ const styles = StyleSheet.create({
     paddingLeft: 6, paddingRight: 14, borderRadius: 12, borderWidth: 1,
   },
   categoryPillIcon: {
-    width: 28, height: 28, borderRadius: 8, alignItems: "center", justifyContent: "center",
+    width: 30, height: 30, borderRadius: 8, alignItems: "center", justifyContent: "center",
   },
-  categoryPillText: { fontSize: 13, fontFamily: "Archivo_600SemiBold" },
+  categoryPillText: { fontSize: 14, fontFamily: "Archivo_600SemiBold" },
   chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#fff", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB" },
   chipText: { fontSize: 13, color: Colors.light.tint, fontFamily: "Archivo_500Medium" },
   chipTextMuted: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },

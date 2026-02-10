@@ -50,6 +50,31 @@ const POPULAR_LOCATIONS = [
   { name: "Chelsea Market", address: "75 9th Ave, New York, NY", lat: 40.7425, lng: -74.0061, category: "markets" },
   { name: "SoHo", address: "SoHo, Manhattan, NY", lat: 40.7233, lng: -73.9985, category: "hidden-gems" },
   { name: "Williamsburg", address: "Williamsburg, Brooklyn, NY", lat: 40.7081, lng: -73.9571, category: "hidden-gems" },
+  { name: "Bryant Park", address: "Bryant Park, New York, NY", lat: 40.7536, lng: -73.9832, category: "nature" },
+  { name: "Metropolitan Museum of Art", address: "1000 5th Ave, New York, NY", lat: 40.7794, lng: -73.9632, category: "landmarks" },
+  { name: "Battery Park", address: "Battery Park, New York, NY", lat: 40.7033, lng: -74.0170, category: "nature" },
+  { name: "Union Square", address: "Union Square, New York, NY", lat: 40.7359, lng: -73.9911, category: "cityscapes" },
+  { name: "Madison Square Garden", address: "4 Pennsylvania Plaza, New York, NY", lat: 40.7505, lng: -73.9934, category: "events" },
+  { name: "Brooklyn Botanic Garden", address: "990 Washington Ave, Brooklyn, NY", lat: 40.6694, lng: -73.9625, category: "nature" },
+  { name: "Coney Island Beach", address: "Coney Island, Brooklyn, NY", lat: 40.5749, lng: -73.9859, category: "beaches" },
+  { name: "Smorgasburg", address: "90 Kent Ave, Brooklyn, NY", lat: 40.7216, lng: -73.9614, category: "markets" },
+  { name: "Little Italy", address: "Little Italy, Manhattan, NY", lat: 40.7191, lng: -73.9973, category: "food" },
+  { name: "Chinatown", address: "Chinatown, Manhattan, NY", lat: 40.7158, lng: -73.9970, category: "food" },
+  { name: "Prospect Park", address: "Prospect Park, Brooklyn, NY", lat: 40.6602, lng: -73.9690, category: "nature" },
+  { name: "Wall Street", address: "Wall St, New York, NY", lat: 40.7074, lng: -74.0113, category: "cityscapes" },
+  { name: "Radio City Music Hall", address: "1260 6th Ave, New York, NY", lat: 40.7600, lng: -73.9800, category: "events" },
+  { name: "Brooklyn Flea", address: "80 Pearl St, Brooklyn, NY", lat: 40.7024, lng: -73.9870, category: "markets" },
+  { name: "Governors Island", address: "Governors Island, New York, NY", lat: 40.6892, lng: -74.0167, category: "hidden-gems" },
+  { name: "East Village", address: "East Village, Manhattan, NY", lat: 40.7265, lng: -73.9815, category: "food" },
+  { name: "Hudson Yards", address: "Hudson Yards, New York, NY", lat: 40.7539, lng: -74.0014, category: "cityscapes" },
+  { name: "The Vessel", address: "20 Hudson Yards, New York, NY", lat: 40.7542, lng: -74.0021, category: "landmarks" },
+  { name: "St. Patrick's Cathedral", address: "5th Ave, New York, NY", lat: 40.7585, lng: -73.9760, category: "landmarks" },
+  { name: "Yankee Stadium", address: "1 E 161st St, Bronx, NY", lat: 40.8296, lng: -73.9262, category: "events" },
+  { name: "Roosevelt Island", address: "Roosevelt Island, New York, NY", lat: 40.7620, lng: -73.9510, category: "hidden-gems" },
+  { name: "Bushwick", address: "Bushwick, Brooklyn, NY", lat: 40.6944, lng: -73.9213, category: "hidden-gems" },
+  { name: "Rockaway Beach", address: "Rockaway Beach, Queens, NY", lat: 40.5834, lng: -73.8163, category: "beaches" },
+  { name: "Arthur Avenue", address: "Arthur Ave, Bronx, NY", lat: 40.8554, lng: -73.8876, category: "food" },
+  { name: "The Cloisters", address: "99 Margaret Corbin Dr, New York, NY", lat: 40.8649, lng: -73.9318, category: "landmarks" },
 ];
 
 function getCategoryColor(key: string): string {
@@ -217,6 +242,29 @@ export default function HomeScreen() {
     }
   }, []);
 
+  const handlePoiClick = useCallback((e: any) => {
+    const poi = e?.nativeEvent;
+    if (!poi?.coordinate) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const name = poi.name || "Selected Location";
+    const { latitude, longitude } = poi.coordinate;
+    const closest = POPULAR_LOCATIONS.reduce((best, loc) => {
+      const d = Math.sqrt((loc.lat - latitude) ** 2 + (loc.lng - longitude) ** 2);
+      return d < best.dist ? { loc, dist: d } : best;
+    }, { loc: POPULAR_LOCATIONS[0], dist: Infinity });
+    const cat = closest.dist < 0.005 ? closest.loc.category : "landmarks";
+    router.push({
+      pathname: "/create-request",
+      params: {
+        lat: latitude.toFixed(6),
+        lng: longitude.toFixed(6),
+        name,
+        addr: `${latitude.toFixed(4)}°N, ${Math.abs(longitude).toFixed(4)}°W`,
+        cat,
+      },
+    });
+  }, []);
+
   const handleCenterLocation = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
@@ -250,13 +298,17 @@ export default function HomeScreen() {
     }
   }, []);
 
-  const filteredLocations = searchQuery.trim()
-    ? POPULAR_LOCATIONS.filter(
-        (loc) =>
-          loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          loc.address.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : POPULAR_LOCATIONS;
+  const filteredLocations = (() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return POPULAR_LOCATIONS.slice(0, 15);
+    return POPULAR_LOCATIONS.filter(
+      (loc) =>
+        loc.name.toLowerCase().includes(q) ||
+        loc.address.toLowerCase().includes(q) ||
+        loc.category.toLowerCase().includes(q) ||
+        (CATEGORIES.find(c => c.key === loc.category)?.label ?? "").toLowerCase().includes(q)
+    );
+  })();
 
   const handleLocationSelect = (loc: typeof POPULAR_LOCATIONS[0]) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -286,6 +338,7 @@ export default function HomeScreen() {
           initialRegion={initialRegion}
           mapRef={mapRef}
           onMapPress={handleMapPress}
+          onPoiClick={handlePoiClick}
         />
         <View
           style={[
@@ -303,7 +356,14 @@ export default function HomeScreen() {
           </Pressable>
 
           <View style={styles.mapBottomRow} pointerEvents="box-none">
-            <View />
+            <Pressable style={styles.compassBtn} onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              if (mapRef.current?.animateCamera) {
+                mapRef.current.animateCamera({ heading: 0 }, { duration: 300 });
+              }
+            }}>
+              <Ionicons name="compass-outline" size={22} color="#fff" />
+            </Pressable>
             <Pressable style={styles.locationBtn} onPress={handleCenterLocation}>
               <Ionicons name="locate" size={20} color="#fff" />
             </Pressable>
@@ -533,6 +593,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
+  },
+  compassBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   locationBtn: {
     width: 40,
