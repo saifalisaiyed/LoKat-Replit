@@ -235,7 +235,7 @@ export default function HomeScreen() {
           lat: latitude.toFixed(6),
           lng: longitude.toFixed(6),
           name: "Custom Location",
-          addr: `${latitude.toFixed(4)}°N, ${Math.abs(longitude).toFixed(4)}°W`,
+          addr: "New York, NY",
           cat: "landmarks",
         },
       });
@@ -259,7 +259,7 @@ export default function HomeScreen() {
         lat: latitude.toFixed(6),
         lng: longitude.toFixed(6),
         name,
-        addr: `${latitude.toFixed(4)}°N, ${Math.abs(longitude).toFixed(4)}°W`,
+        addr: closest.dist < 0.005 ? closest.loc.address : "New York, NY",
         cat,
       },
     });
@@ -356,14 +356,7 @@ export default function HomeScreen() {
           </Pressable>
 
           <View style={styles.mapBottomRow} pointerEvents="box-none">
-            <Pressable style={styles.compassBtn} onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              if (mapRef.current?.animateCamera) {
-                mapRef.current.animateCamera({ heading: 0 }, { duration: 300 });
-              }
-            }}>
-              <Ionicons name="compass-outline" size={22} color="#fff" />
-            </Pressable>
+            <View />
             <Pressable style={styles.locationBtn} onPress={handleCenterLocation}>
               <Ionicons name="locate" size={20} color="#fff" />
             </Pressable>
@@ -593,14 +586,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-  },
-  compassBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: "rgba(0,0,0,0.55)",
-    alignItems: "center",
-    justifyContent: "center",
   },
   locationBtn: {
     width: 40,

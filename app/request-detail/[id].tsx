@@ -38,6 +38,13 @@ function getCatColor(key: string): string {
   return CATEGORY_COLORS[key] || Colors.light.tint;
 }
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function getCategoryLabel(key: Category): string {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key;
 }
@@ -195,7 +202,7 @@ export default function RequestDetailScreen() {
           </View>
 
           <View style={styles.chipRow}>
-            <View style={[styles.categoryPill, { backgroundColor: getCatColor(request.category) + "15", borderColor: getCatColor(request.category) + "40" }]}>
+            <View style={[styles.categoryPill, { backgroundColor: hexToRgba(getCatColor(request.category), 0.08), borderColor: hexToRgba(getCatColor(request.category), 0.25) }]}>
               <Ionicons
                 name={(CATEGORIES.find((c) => c.key === request.category)?.icon ?? "pricetag-outline") as any}
                 size={15}
