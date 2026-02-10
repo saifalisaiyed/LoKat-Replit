@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   ScrollView,
   Platform,
   Dimensions,
+  Modal,
+  Alert,
 } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -42,12 +44,14 @@ function DetailRow({ icon, label, value }: { icon: string; label: string; value:
 export default function RequestDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, acceptRequest, deleteRequest } = useApp();
+  const { requests, acceptRequest, abandonRequest, deleteRequest, activeRequestId } = useApp();
   const mapRef = useRef<any>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const request = requests.find((r) => r.id === id);
   const isMyRequest = request?.creatorId === "me";
+  const isActiveLoKater = request?.status === "accepted" && request?.acceptedBy === "me";
 
   if (!request) {
     return (
@@ -70,7 +74,7 @@ export default function RequestDetailScreen() {
   const handleAccept = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     acceptRequest(request.id);
-    router.back();
+    router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
   };
 
   const handleIgnore = () => {
@@ -78,9 +82,35 @@ export default function RequestDetailScreen() {
     router.back();
   };
 
-  const handleTakePhoto = () => {
+  const handleNavigate = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push({ pathname: "/camera/[id]", params: { id: request.id } });
+    router.push({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
+  };
+
+  const handleAbandon = () => {
+    setMenuVisible(false);
+    if (Platform.OS === "web") {
+      abandonRequest(request.id);
+      router.dismissAll();
+      router.replace("/(tabs)");
+    } else {
+      Alert.alert(
+        "Abandon Request",
+        "Are you sure? The request will become available for other LoKaters.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Abandon",
+            style: "destructive",
+            onPress: () => {
+              abandonRequest(request.id);
+              router.dismissAll();
+              router.replace("/(tabs)");
+            },
+          },
+        ]
+      );
+    }
   };
 
   const handleDelete = () => {
@@ -118,6 +148,15 @@ export default function RequestDetailScreen() {
             hitSlop={12}
           >
             <Ionicons name="trash-outline" size={20} color={Colors.light.danger} />
+          </Pressable>
+        )}
+        {isActiveLoKater && (
+          <Pressable
+            style={[styles.deleteBtn, { top: insets.top + 12 + webInsetTop }]}
+            onPress={() => setMenuVisible(true)}
+            hitSlop={12}
+          >
+            <Ionicons name="ellipsis-vertical" size={20} color={Colors.light.text} />
           </Pressable>
         )}
       </View>
@@ -212,14 +251,14 @@ export default function RequestDetailScreen() {
         </View>
       )}
 
-      {request.status === "accepted" && request.acceptedBy === "me" && (
+      {isActiveLoKater && (
         <View style={[styles.actionBar, { paddingBottom: Platform.OS === "web" ? 34 + 8 : insets.bottom + 12 }]}>
           <Pressable
-            style={({ pressed }) => [styles.acceptBtn, { backgroundColor: "#3B82F6", flex: 1 }, pressed && { opacity: 0.85 }]}
-            onPress={handleTakePhoto}
+            style={({ pressed }) => [styles.acceptBtn, { flex: 1 }, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
+            onPress={handleNavigate}
           >
-            <Ionicons name="camera" size={20} color="#fff" />
-            <Text style={styles.acceptBtnText}>Take Photo</Text>
+            <Ionicons name="navigate" size={20} color="#fff" />
+            <Text style={styles.acceptBtnText}>Navigate to Location</Text>
           </Pressable>
         </View>
       )}
@@ -232,6 +271,50 @@ export default function RequestDetailScreen() {
           </View>
         </View>
       )}
+
+      {request.status === "submitted" && (
+        <View style={[styles.actionBar, { paddingBottom: Platform.OS === "web" ? 34 + 8 : insets.bottom + 12 }]}>
+          <View style={styles.completedBanner}>
+            <Ionicons name="checkmark-done" size={22} color={Colors.light.tint} />
+            <Text style={[styles.completedText, { color: Colors.light.tint }]}>Photo Sent</Text>
+          </View>
+        </View>
+      )}
+
+      <Modal
+        visible={menuVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuVisible(false)}
+      >
+        <Pressable
+          style={styles.menuOverlay}
+          onPress={() => setMenuVisible(false)}
+        >
+          <View style={[styles.menuSheet, { paddingBottom: Platform.OS === "web" ? 34 + 16 : insets.bottom + 16 }]}>
+            <View style={styles.menuHandle} />
+            <Text style={styles.menuTitle}>Options</Text>
+            <Pressable
+              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: "#FEE2E2" }]}
+              onPress={handleAbandon}
+            >
+              <View style={styles.menuItemIcon}>
+                <Ionicons name="close-circle-outline" size={20} color="#EF4444" />
+              </View>
+              <View style={styles.menuItemInfo}>
+                <Text style={styles.menuItemText}>Abandon Request</Text>
+                <Text style={styles.menuItemSub}>Release for other LoKaters</Text>
+              </View>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.menuCancelBtn, pressed && { opacity: 0.7 }]}
+              onPress={() => setMenuVisible(false)}
+            >
+              <Text style={styles.menuCancelText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -294,4 +377,27 @@ const styles = StyleSheet.create({
     paddingVertical: 14, backgroundColor: "rgba(123,192,67,0.1)", borderRadius: 16,
   },
   completedText: { fontSize: 15, color: Colors.light.accent, fontFamily: "Archivo_600SemiBold" },
+  menuOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" as const },
+  menuSheet: {
+    backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    paddingHorizontal: 20, paddingTop: 12, gap: 12,
+  },
+  menuHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: "#E5E7EB", alignSelf: "center" as const, marginBottom: 4 },
+  menuTitle: { fontSize: 18, color: Colors.light.text, fontFamily: "Archivo_600SemiBold", marginBottom: 4 },
+  menuItem: {
+    flexDirection: "row" as const, alignItems: "center" as const, gap: 14,
+    paddingVertical: 14, paddingHorizontal: 12, borderRadius: 14,
+  },
+  menuItemIcon: {
+    width: 40, height: 40, borderRadius: 12, backgroundColor: "#FEE2E2",
+    alignItems: "center" as const, justifyContent: "center" as const,
+  },
+  menuItemInfo: { flex: 1, gap: 2 },
+  menuItemText: { fontSize: 15, color: "#EF4444", fontFamily: "Archivo_600SemiBold" },
+  menuItemSub: { fontSize: 12, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
+  menuCancelBtn: {
+    alignItems: "center" as const, paddingVertical: 16, borderRadius: 14,
+    backgroundColor: Colors.light.background, marginTop: 4,
+  },
+  menuCancelText: { fontSize: 15, color: Colors.light.text, fontFamily: "Archivo_500Medium" },
 });

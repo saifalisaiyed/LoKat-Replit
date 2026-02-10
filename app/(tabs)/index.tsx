@@ -129,7 +129,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { getRequestsByCategory } = useApp();
+  const { getRequestsByCategory, activeRequestId } = useApp();
   const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
@@ -137,6 +137,12 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<TextInput>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
+
+  useEffect(() => {
+    if (activeRequestId) {
+      router.replace({ pathname: "/lokater-mode/[id]", params: { id: activeRequestId } });
+    }
+  }, [activeRequestId]);
 
   const initialRegion = {
     latitude: 40.758,
@@ -178,10 +184,36 @@ export default function HomeScreen() {
     setSelectedCategory(selectedCategory === cat ? null : cat);
   };
 
-  const handleCenterLocation = useCallback(() => {
+  const handleCenterLocation = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (mapRef.current && Platform.OS !== "web") {
-      mapRef.current.animateToRegion(initialRegion, 500);
+    try {
+      if (Platform.OS === "web") {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              // Web map is an iframe so we can't pan it easily, but we store for future
+            },
+            () => {},
+            { enableHighAccuracy: true }
+          );
+        }
+      } else {
+        const Location = require("expo-location");
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === "granted") {
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          if (mapRef.current) {
+            mapRef.current.animateToRegion({
+              latitude: loc.coords.latitude,
+              longitude: loc.coords.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }, 500);
+          }
+        }
+      }
+    } catch (e) {
+      console.log("Location center error:", e);
     }
   }, []);
 

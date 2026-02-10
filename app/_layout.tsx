@@ -30,6 +30,10 @@ function RootLayoutNav() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="lokater-mode/[id]"
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
+      <Stack.Screen
         name="camera/[id]"
         options={{ headerShown: false, presentation: "fullScreenModal" }}
       />

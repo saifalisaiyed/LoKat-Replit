@@ -98,7 +98,8 @@ export default function CameraScreen() {
     if (!capturedUri || !id) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     submitPhoto(id, capturedUri);
-    router.dismiss(2);
+    router.dismissAll();
+    router.replace("/(tabs)");
   };
 
   const toggleFacing = () => {
@@ -116,13 +117,13 @@ export default function CameraScreen() {
         />
         <View style={[styles.previewOverlay, { paddingTop: insets.top + 16 + webInsetTop }]}>
           <View style={styles.previewHeader}>
-            <Pressable
-              style={styles.previewBtn}
-              onPress={handleRetake}
-            >
-              <Ionicons name="refresh" size={22} color="#fff" />
-              <Text style={styles.previewBtnText}>Retake</Text>
-            </Pressable>
+            {request && (
+              <View style={styles.requestHint}>
+                <Text style={styles.hintText}>
+                  {request.orientation} / {request.angle.replace(/-/g, " ")}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
         <View
@@ -131,16 +132,25 @@ export default function CameraScreen() {
             { paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 16 },
           ]}
         >
-          <Pressable
-            style={({ pressed }) => [
-              styles.submitPhotoBtn,
-              pressed && { opacity: 0.85 },
-            ]}
-            onPress={handleSubmit}
-          >
-            <Ionicons name="send" size={20} color="#fff" />
-            <Text style={styles.submitPhotoBtnText}>Submit Photo</Text>
-          </Pressable>
+          <View style={styles.previewActionRow}>
+            <Pressable
+              style={({ pressed }) => [styles.retakeBtn, pressed && { opacity: 0.7 }]}
+              onPress={handleRetake}
+            >
+              <Ionicons name="refresh" size={20} color="#fff" />
+              <Text style={styles.retakeBtnText}>Retake</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                styles.submitPhotoBtn,
+                pressed && { opacity: 0.85 },
+              ]}
+              onPress={handleSubmit}
+            >
+              <Ionicons name="send" size={20} color="#fff" />
+              <Text style={styles.submitPhotoBtnText}>Send</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     );
@@ -370,8 +380,29 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     backgroundColor: "rgba(0,0,0,0.4)",
   },
+  previewActionRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  retakeBtn: {
+    flex: 0.4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 16,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.5)",
+  },
+  retakeBtnText: {
+    color: "#fff",
+    fontSize: 15,
+    fontFamily: "Archivo_500Medium",
+  },
   submitPhotoBtn: {
-    backgroundColor: Colors.light.tint,
+    flex: 0.6,
+    backgroundColor: Colors.light.accent,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -382,7 +413,6 @@ const styles = StyleSheet.create({
   submitPhotoBtnText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "600" as const,
     fontFamily: "Archivo_600SemiBold",
   },
 });
