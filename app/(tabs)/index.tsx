@@ -19,7 +19,7 @@ import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const MAP_HEIGHT = SCREEN_HEIGHT * 0.4;
+const MAP_HEIGHT = SCREEN_HEIGHT * 0.38;
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -52,7 +52,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
       <View style={styles.requestCardTop}>
         <View style={styles.requestLocationRow}>
           <View style={styles.iconContainer}>
-            <Ionicons name="location" size={18} color={Colors.light.tint} />
+            <Ionicons name="location" size={16} color={Colors.light.tint} />
           </View>
           <View style={styles.requestLocationInfo}>
             <Text style={styles.requestLocationName} numberOfLines={1}>
@@ -86,7 +86,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
                 ? "phone-portrait-outline"
                 : "phone-landscape-outline"
             }
-            size={13}
+            size={12}
             color={Colors.light.textSecondary}
           />
           <View style={styles.metaDot} />
@@ -94,7 +94,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
         </View>
         <Ionicons
           name="chevron-forward"
-          size={18}
+          size={16}
           color={Colors.light.border}
         />
       </View>
@@ -104,7 +104,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { requests, getRequestsByCategory } = useApp();
+  const { getRequestsByCategory } = useApp();
   const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
@@ -154,7 +154,7 @@ export default function HomeScreen() {
 
   const renderHeader = () => (
     <>
-      <View style={[styles.mapContainer, { marginTop: 0 }]}>
+      <View style={styles.mapContainer}>
         <MapViewWrapper
           selectedPin={null}
           openRequests={openRequests}
@@ -168,7 +168,7 @@ export default function HomeScreen() {
         <View
           style={[
             styles.mapOverlay,
-            { paddingTop: insets.top + 16 + webInsetTop },
+            { paddingTop: insets.top + 14 + webInsetTop },
           ]}
           pointerEvents="box-none"
         >
@@ -199,7 +199,7 @@ export default function HomeScreen() {
               >
                 <Ionicons
                   name={cat.icon as any}
-                  size={16}
+                  size={15}
                   color={isActive ? "#fff" : Colors.light.tint}
                 />
                 <Text
@@ -227,7 +227,7 @@ export default function HomeScreen() {
     <View style={styles.emptyContainer}>
       <Ionicons
         name="search-outline"
-        size={40}
+        size={36}
         color={Colors.light.border}
       />
       <Text style={styles.emptyTitle}>No requests found</Text>
@@ -268,10 +268,10 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     height: MAP_HEIGHT,
-    backgroundColor: "#E8F4E8",
+    backgroundColor: "#D6EEF7",
     overflow: "hidden",
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
   mapOverlay: {
     position: "absolute",
@@ -283,85 +283,77 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   glassHeader: {
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.75)",
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.5)",
+    borderColor: "rgba(255, 255, 255, 0.4)",
   },
   mapTitle: {
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: 20,
+    fontWeight: "600",
     color: Colors.light.tint,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
+    letterSpacing: 0.3,
   },
   mapBadge: {
     backgroundColor: Colors.light.tint,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 14,
     flexDirection: "row",
     gap: 4,
     alignItems: "center",
-    shadowColor: Colors.light.tint,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
   mapBadgeText: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "600",
     color: "#fff",
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   mapBadgeLabel: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.9)",
+    fontSize: 11,
+    color: "rgba(255,255,255,0.85)",
     fontFamily: "Archivo_400Regular",
   },
   categoriesSection: {
-    paddingTop: 24,
-    paddingBottom: 8,
+    paddingTop: 20,
+    paddingBottom: 4,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "600",
     color: Colors.light.text,
-    marginBottom: 16,
+    marginBottom: 12,
     paddingHorizontal: 16,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
+    letterSpacing: 0.2,
   },
   categoriesList: {
     paddingHorizontal: 16,
-    gap: 10,
+    gap: 8,
   },
   categoryPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 25,
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
     backgroundColor: "#fff",
-    borderWidth: 1.5,
-    borderColor: "rgba(0, 174, 239, 0.1)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    borderWidth: 1,
+    borderColor: "rgba(0, 174, 239, 0.12)",
   },
   categoryPillActive: {
     backgroundColor: Colors.light.tint,
     borderColor: Colors.light.tint,
   },
   categoryPillText: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "500",
     color: Colors.light.textSecondary,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   categoryPillTextActive: {
     color: "#fff",
@@ -371,26 +363,21 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingRight: 16,
-    paddingTop: 20,
+    paddingTop: 16,
   },
   feedCount: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
   requestCard: {
     marginHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 10,
     backgroundColor: "#fff",
-    borderRadius: 24,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    borderRadius: 18,
+    padding: 16,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.03)",
+    borderColor: "rgba(0, 0, 0, 0.04)",
   },
   requestCardTop: {
     flexDirection: "row",
@@ -398,9 +385,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: "rgba(0, 174, 239, 0.08)",
     alignItems: "center",
     justifyContent: "center",
@@ -408,50 +395,51 @@ const styles = StyleSheet.create({
   requestLocationRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 12,
+    gap: 10,
     flex: 1,
     marginRight: 12,
   },
   requestLocationInfo: {
     flex: 1,
+    paddingTop: 2,
   },
   requestLocationName: {
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   requestAddress: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.light.textSecondary,
     marginTop: 2,
     fontFamily: "Archivo_400Regular",
   },
   requestReward: {
-    backgroundColor: "rgba(123, 192, 67, 0.12)",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
+    backgroundColor: "rgba(123, 192, 67, 0.1)",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
   requestRewardText: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "600",
     color: Colors.light.accent,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   requestCardBottom: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.05)",
+    borderTopColor: "rgba(0, 0, 0, 0.04)",
   },
   requestMeta: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   categoryChip: {
     flexDirection: "row",
@@ -459,34 +447,34 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   categoryChipText: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.light.tint,
     fontFamily: "Archivo_500Medium",
   },
   metaDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
     backgroundColor: Colors.light.border,
   },
   requestTime: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
   emptyContainer: {
     alignItems: "center",
-    paddingVertical: 60,
-    gap: 12,
+    paddingVertical: 48,
+    gap: 10,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "500",
     color: Colors.light.text,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   emptySubtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },

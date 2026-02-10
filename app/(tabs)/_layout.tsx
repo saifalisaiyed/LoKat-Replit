@@ -4,7 +4,6 @@ import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 import { Platform, StyleSheet, useColorScheme, View, Text } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import React from "react";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
@@ -44,8 +43,12 @@ function ClassicTabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.palette.emerald,
+        tabBarActiveTintColor: Colors.light.tint,
         tabBarInactiveTintColor: Colors.light.tabIconDefault,
+        tabBarLabelStyle: {
+          fontFamily: "Archivo_500Medium",
+          fontSize: 11,
+        },
         tabBarStyle: {
           position: "absolute",
           backgroundColor: isIOS ? "transparent" : isDark ? "#000" : "#fff",
@@ -76,7 +79,7 @@ function ClassicTabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
@@ -85,7 +88,7 @@ function ClassicTabLayout() {
         options={{
           title: "Orders",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="document-text" size={size} color={color} />
+            <Ionicons name="document-text-outline" size={size} color={color} />
           ),
         }}
       />
@@ -95,7 +98,7 @@ function ClassicTabLayout() {
           title: "Notifications",
           tabBarIcon: ({ color, size }) => (
             <View>
-              <Ionicons name="notifications" size={size} color={color} />
+              <Ionicons name="notifications-outline" size={size} color={color} />
               {unreadCount > 0 && (
                 <View style={tabStyles.badge}>
                   <Text style={tabStyles.badgeText}>
@@ -112,7 +115,7 @@ function ClassicTabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
@@ -125,7 +128,7 @@ const tabStyles = StyleSheet.create({
     position: "absolute",
     top: -4,
     right: -8,
-    backgroundColor: Colors.palette.coral,
+    backgroundColor: Colors.light.danger,
     minWidth: 16,
     height: 16,
     borderRadius: 8,
@@ -136,8 +139,8 @@ const tabStyles = StyleSheet.create({
   badgeText: {
     color: "#fff",
     fontSize: 10,
-    fontWeight: "700" as const,
-    fontFamily: "DMSans_700Bold",
+    fontWeight: "600",
+    fontFamily: "Archivo_600SemiBold",
   },
 });
 

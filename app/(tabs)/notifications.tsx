@@ -22,35 +22,15 @@ function getNotifIcon(type: Notification["type"]): {
 } {
   switch (type) {
     case "accepted":
-      return {
-        name: "checkmark-circle",
-        color: Colors.light.tint,
-        bg: "rgba(0, 174, 239, 0.12)",
-      };
+      return { name: "checkmark-circle", color: Colors.light.tint, bg: "rgba(0,174,239,0.1)" };
     case "submitted":
-      return {
-        name: "cloud-upload",
-        color: "#3B82F6",
-        bg: "rgba(59, 130, 246, 0.12)",
-      };
+      return { name: "cloud-upload", color: "#3B82F6", bg: "rgba(59,130,246,0.1)" };
     case "completed":
-      return {
-        name: "cash",
-        color: Colors.light.accent,
-        bg: "rgba(123, 192, 67, 0.12)",
-      };
+      return { name: "cash", color: Colors.light.accent, bg: "rgba(123,192,67,0.1)" };
     case "new_request":
-      return {
-        name: "location",
-        color: "#F43F5E",
-        bg: "rgba(244, 63, 94, 0.12)",
-      };
+      return { name: "location", color: "#F43F5E", bg: "rgba(244,63,94,0.1)" };
     default:
-      return {
-        name: "notifications",
-        color: Colors.light.textSecondary,
-        bg: "rgba(0, 0, 0, 0.05)",
-      };
+      return { name: "notifications", color: Colors.light.textSecondary, bg: "rgba(0,0,0,0.05)" };
   }
 }
 
@@ -65,15 +45,8 @@ function timeAgo(dateStr: string): string {
   return `${days}d ago`;
 }
 
-function NotificationItem({
-  item,
-  onPress,
-}: {
-  item: Notification;
-  onPress: () => void;
-}) {
+function NotificationItem({ item, onPress }: { item: Notification; onPress: () => void }) {
   const iconConfig = getNotifIcon(item.type);
-
   return (
     <Pressable
       style={({ pressed }) => [
@@ -84,19 +57,13 @@ function NotificationItem({
       onPress={onPress}
     >
       <View style={[styles.notifIconBg, { backgroundColor: iconConfig.bg }]}>
-        <Ionicons
-          name={iconConfig.name as any}
-          size={22}
-          color={iconConfig.color}
-        />
+        <Ionicons name={iconConfig.name as any} size={20} color={iconConfig.color} />
       </View>
       <View style={styles.notifContent}>
         <Text style={[styles.notifTitle, !item.read && styles.notifTitleUnread]}>
           {item.title}
         </Text>
-        <Text style={styles.notifBody} numberOfLines={2}>
-          {item.body}
-        </Text>
+        <Text style={styles.notifBody} numberOfLines={2}>{item.body}</Text>
         <Text style={styles.notifTime}>{timeAgo(item.createdAt)}</Text>
       </View>
       {!item.read && <View style={styles.unreadDot} />}
@@ -106,8 +73,7 @@ function NotificationItem({
 
 export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
-  const { notifications, markNotificationRead, markAllNotificationsRead, unreadCount } =
-    useApp();
+  const { notifications, markNotificationRead, markAllNotificationsRead, unreadCount } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const handlePress = useCallback(
@@ -115,10 +81,7 @@ export default function NotificationsScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       markNotificationRead(item.id);
       if (item.requestId) {
-        router.push({
-          pathname: "/request-detail/[id]",
-          params: { id: item.requestId },
-        });
+        router.push({ pathname: "/request-detail/[id]", params: { id: item.requestId } });
       }
     },
     [markNotificationRead],
@@ -126,11 +89,7 @@ export default function NotificationsScreen() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons
-        name="notifications-off-outline"
-        size={40}
-        color={Colors.light.border}
-      />
+      <Ionicons name="notifications-off-outline" size={36} color={Colors.light.border} />
       <Text style={styles.emptyTitle}>No notifications yet</Text>
       <Text style={styles.emptySubtitle}>
         You'll be notified when there's activity on your requests
@@ -140,23 +99,19 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
-      <View
-        style={[styles.header, { paddingTop: insets.top + 16 + webInsetTop }]}
-      >
-        <View style={styles.headerTitleRow}>
-          <Text style={styles.headerTitle}>Notifications</Text>
-          {unreadCount > 0 && (
-            <Pressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                markAllNotificationsRead();
-              }}
-              hitSlop={12}
-            >
-              <Text style={styles.markAllRead}>Mark all read</Text>
-            </Pressable>
-          )}
-        </View>
+      <View style={[styles.header, { paddingTop: insets.top + 14 + webInsetTop }]}>
+        <Text style={styles.headerTitle}>Notifications</Text>
+        {unreadCount > 0 && (
+          <Pressable
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              markAllNotificationsRead();
+            }}
+            hitSlop={12}
+          >
+            <Text style={styles.markAllRead}>Mark all read</Text>
+          </Pressable>
+        )}
       </View>
 
       <FlatList
@@ -167,7 +122,7 @@ export default function NotificationsScreen() {
         )}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={{
-          paddingTop: 12,
+          paddingTop: 8,
           paddingBottom: Platform.OS === "web" ? 84 + 34 : insets.bottom + 90,
         }}
         showsVerticalScrollIndicator={false}
@@ -183,105 +138,95 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#fff",
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  headerTitleRow: {
+    paddingHorizontal: 16,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "baseline",
+    alignItems: "flex-end",
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   markAllRead: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.light.tint,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
+    paddingBottom: 3,
   },
   notifCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 16,
+    gap: 12,
     marginHorizontal: 16,
-    marginTop: 10,
+    marginTop: 8,
     backgroundColor: "#fff",
-    borderRadius: 24,
-    padding: 18,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 1,
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.03)",
   },
   notifCardUnread: {
-    backgroundColor: "rgba(0, 174, 239, 0.03)",
-    borderWidth: 1,
-    borderColor: "rgba(0, 174, 239, 0.1)",
+    backgroundColor: "rgba(0,174,239,0.03)",
+    borderColor: "rgba(0,174,239,0.1)",
   },
   notifIconBg: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
   },
   notifContent: {
     flex: 1,
-    gap: 4,
+    gap: 2,
   },
   notifTitle: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "500",
     color: Colors.light.text,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   notifTitleUnread: {
-    fontWeight: "700",
-    fontFamily: "Archivo_700Bold",
+    fontWeight: "600",
+    fontFamily: "Archivo_600SemiBold",
   },
   notifBody: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.light.textSecondary,
-    lineHeight: 20,
+    lineHeight: 18,
     fontFamily: "Archivo_400Regular",
   },
   notifTime: {
-    fontSize: 12,
-    color: Colors.light.textSecondary,
-    marginTop: 4,
+    fontSize: 11,
+    color: Colors.light.tabIconDefault,
+    marginTop: 3,
     fontFamily: "Archivo_400Regular",
   },
   unreadDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: Colors.light.tint,
-    marginTop: 8,
+    marginTop: 6,
   },
   emptyContainer: {
     alignItems: "center",
-    paddingVertical: 100,
-    gap: 12,
+    paddingVertical: 60,
+    gap: 10,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "500",
     color: Colors.light.text,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   emptySubtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: Colors.light.textSecondary,
     textAlign: "center",
     paddingHorizontal: 40,

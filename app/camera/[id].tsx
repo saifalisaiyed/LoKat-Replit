@@ -32,7 +32,7 @@ export default function CameraScreen() {
   if (!permission) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color={Colors.palette.emerald} />
+        <ActivityIndicator size="large" color={Colors.light.tint} />
       </View>
     );
   }
@@ -236,16 +236,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700" as const,
     color: Colors.light.text,
-    fontFamily: "DMSans_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   permSubtitle: {
     fontSize: 14,
     color: Colors.light.textSecondary,
     textAlign: "center",
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   permBtn: {
-    backgroundColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.tint,
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 14,
@@ -255,12 +255,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600" as const,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   backLink: {
     fontSize: 15,
-    color: Colors.palette.emerald,
-    fontFamily: "DMSans_600SemiBold",
+    color: Colors.light.tint,
+    fontFamily: "Archivo_500Medium",
   },
   cameraOverlay: {
     position: "absolute",
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600" as const,
     textTransform: "capitalize" as const,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   guideOverlay: {
     position: "absolute",
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   guideText: {
     color: "rgba(255,255,255,0.5)",
     fontSize: 14,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   cameraBottomBar: {
     position: "absolute",
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "600" as const,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   previewActions: {
     position: "absolute",
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
   },
   submitPhotoBtn: {
-    backgroundColor: Colors.palette.emerald,
+    backgroundColor: Colors.light.tint,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -383,6 +383,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600" as const,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_600SemiBold",
   },
 });

@@ -64,16 +64,7 @@ export default function MapViewWrapper({
             onMarkerPress(req.id);
           }}
         >
-          <View
-            style={[
-              styles.markerDot,
-              {
-                backgroundColor: isSeeker
-                  ? Colors.palette.amber
-                  : Colors.palette.emerald,
-              },
-            ]}
-          >
+          <View style={styles.markerDot}>
             <Text style={styles.markerPrice}>${req.reward}</Text>
           </View>
           <Text style={styles.markerName} numberOfLines={1}>
@@ -84,7 +75,7 @@ export default function MapViewWrapper({
 
       {selectedPin && isSeeker && (
         <View style={styles.selectedPin}>
-          <Ionicons name="location" size={36} color={Colors.palette.emerald} />
+          <Ionicons name="location" size={36} color={Colors.light.tint} />
         </View>
       )}
 
@@ -104,7 +95,7 @@ export default function MapViewWrapper({
 const styles = StyleSheet.create({
   webMap: {
     flex: 1,
-    backgroundColor: "#E8F4E8",
+    backgroundColor: "#D6EEF7",
     position: "relative",
     overflow: "hidden",
   },
@@ -113,7 +104,7 @@ const styles = StyleSheet.create({
   },
   line: {
     position: "absolute",
-    backgroundColor: "rgba(0,0,0,0.04)",
+    backgroundColor: "rgba(0,174,239,0.06)",
   },
   center: {
     position: "absolute",
@@ -124,15 +115,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   centerText: {
-    fontSize: 16,
-    fontWeight: "600" as const,
+    fontSize: 15,
+    fontWeight: "500",
     color: Colors.light.textSecondary,
-    fontFamily: "DMSans_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   subText: {
     fontSize: 13,
     color: Colors.light.tabIconDefault,
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   marker: {
     position: "absolute",
@@ -143,12 +134,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
+    backgroundColor: Colors.light.tint,
   },
   markerPrice: {
     color: "#fff",
     fontSize: 12,
-    fontWeight: "700" as const,
-    fontFamily: "DMSans_700Bold",
+    fontWeight: "600",
+    fontFamily: "Archivo_600SemiBold",
   },
   markerName: {
     fontSize: 10,
@@ -156,7 +148,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     maxWidth: 80,
     textAlign: "center",
-    fontFamily: "DMSans_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   selectedPin: {
     position: "absolute",

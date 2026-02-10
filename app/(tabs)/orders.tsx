@@ -50,9 +50,7 @@ function OrderCard({ item, onPress }: { item: any; onPress: () => void }) {
     >
       <View style={styles.orderTop}>
         <View style={styles.orderLocationRow}>
-          <View style={[styles.iconContainer, { backgroundColor: Colors.light.tint + "14" }]}>
-            <Ionicons name="location" size={18} color={Colors.light.tint} />
-          </View>
+          <Ionicons name="location" size={16} color={Colors.light.tint} />
           <Text style={styles.orderLocationName} numberOfLines={1}>
             {item.locationName}
           </Text>
@@ -72,7 +70,7 @@ function OrderCard({ item, onPress }: { item: any; onPress: () => void }) {
           >
             <Ionicons
               name={statusConfig.icon as any}
-              size={12}
+              size={11}
               color={statusConfig.color}
             />
             <Text style={[styles.statusLabel, { color: statusConfig.color }]}>
@@ -82,7 +80,7 @@ function OrderCard({ item, onPress }: { item: any; onPress: () => void }) {
           <View style={styles.roleTag}>
             <Ionicons
               name={isMyRequest ? "arrow-up-outline" : "arrow-down-outline"}
-              size={11}
+              size={10}
               color={Colors.light.textSecondary}
             />
             <Text style={styles.roleTagText}>
@@ -122,7 +120,7 @@ export default function OrdersScreen() {
     <View style={styles.emptyContainer}>
       <Ionicons
         name={activeTab === "active" ? "document-outline" : "archive-outline"}
-        size={40}
+        size={36}
         color={Colors.light.border}
       />
       <Text style={styles.emptyTitle}>
@@ -139,7 +137,7 @@ export default function OrdersScreen() {
   return (
     <View style={styles.container}>
       <View
-        style={[styles.header, { paddingTop: insets.top + 16 + webInsetTop }]}
+        style={[styles.header, { paddingTop: insets.top + 14 + webInsetTop }]}
       >
         <Text style={styles.headerTitle}>Orders</Text>
         <View style={styles.tabRow}>
@@ -197,7 +195,7 @@ export default function OrdersScreen() {
         )}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={{
-          paddingTop: 16,
+          paddingTop: 12,
           paddingBottom: Platform.OS === "web" ? 84 + 34 : insets.bottom + 90,
         }}
         showsVerticalScrollIndicator={false}
@@ -213,166 +211,153 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#fff",
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    paddingHorizontal: 16,
+    paddingBottom: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "600",
     color: Colors.light.text,
-    marginBottom: 20,
-    fontFamily: "Archivo_700Bold",
+    marginBottom: 16,
+    fontFamily: "Archivo_600SemiBold",
   },
   tabRow: {
     flexDirection: "row",
-    gap: 0,
   },
   tabBtn: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    paddingVertical: 14,
-    borderBottomWidth: 3,
+    gap: 6,
+    paddingVertical: 12,
+    borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
   tabBtnActive: {
     borderBottomColor: Colors.light.tint,
   },
   tabBtnText: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "500",
     color: Colors.light.textSecondary,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   tabBtnTextActive: {
     color: Colors.light.tint,
+    fontWeight: "600",
+    fontFamily: "Archivo_600SemiBold",
   },
   tabBadge: {
     backgroundColor: Colors.light.tint,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 8,
   },
   tabBadgeText: {
     fontSize: 11,
-    fontWeight: "700",
+    fontWeight: "600",
     color: "#fff",
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   orderCard: {
     marginHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 10,
     backgroundColor: "#fff",
-    borderRadius: 24,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.04)",
   },
   orderTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   orderLocationRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
     flex: 1,
     marginRight: 12,
   },
   orderLocationName: {
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
     flex: 1,
   },
   orderReward: {
-    fontSize: 20,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "600",
     color: Colors.light.tint,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   orderAddress: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.light.textSecondary,
-    marginTop: 4,
-    marginLeft: 42,
+    marginTop: 3,
+    marginLeft: 24,
     fontFamily: "Archivo_400Regular",
   },
   orderBottom: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.05)",
+    borderTopColor: "rgba(0, 0, 0, 0.04)",
   },
   orderMeta: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   statusLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    fontFamily: "Archivo_600SemiBold",
+    fontSize: 12,
+    fontWeight: "500",
+    fontFamily: "Archivo_500Medium",
   },
   roleTag: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 3,
   },
   roleTagText: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
   orderCategory: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
   emptyContainer: {
     alignItems: "center",
-    paddingVertical: 80,
-    gap: 12,
+    paddingVertical: 60,
+    gap: 10,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "500",
     color: Colors.light.text,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
   },
   emptySubtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: Colors.light.textSecondary,
     textAlign: "center",
     paddingHorizontal: 40,

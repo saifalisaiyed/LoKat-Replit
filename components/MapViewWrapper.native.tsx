@@ -35,13 +35,13 @@ export default function MapViewWrapper({
       mapType="standard"
     >
       {selectedPin && isSeeker && (
-        <Marker coordinate={selectedPin} pinColor={Colors.palette.emerald} />
+        <Marker coordinate={selectedPin} pinColor={Colors.light.tint} />
       )}
       {openRequests.map((req: any) => (
         <Marker
           key={req.id}
           coordinate={{ latitude: req.latitude, longitude: req.longitude }}
-          pinColor={isSeeker ? Colors.palette.amber : Colors.palette.emerald}
+          pinColor={Colors.light.tint}
           onPress={() => onMarkerPress(req.id)}
         />
       ))}

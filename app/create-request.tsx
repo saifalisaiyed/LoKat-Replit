@@ -329,10 +329,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
+    fontSize: 17,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   scrollView: {
     flex: 1,
@@ -372,20 +372,20 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   locationCoords: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "500",
     color: Colors.light.text,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
     marginTop: 2,
   },
   fieldGroup: {
     gap: 12,
   },
   fieldLabel: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
     letterSpacing: 0.2,
   },
   optionsRow: {
@@ -463,10 +463,10 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.tint,
   },
   rewardBtnText: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   rewardBtnTextActive: {
     color: "#fff",
@@ -501,10 +501,10 @@ const styles = StyleSheet.create({
   },
   submitSummary: {},
   submitTotal: {
-    fontSize: 26,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "600",
     color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
+    fontFamily: "Archivo_600SemiBold",
   },
   submitLabel: {
     fontSize: 13,
@@ -527,8 +527,8 @@ const styles = StyleSheet.create({
   },
   submitBtnText: {
     color: "#fff",
-    fontSize: 18,
-    fontWeight: "700",
-    fontFamily: "Archivo_700Bold",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "Archivo_600SemiBold",
   },
 });
