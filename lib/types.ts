@@ -1,7 +1,7 @@
 export type Orientation = "portrait" | "landscape";
 export type Angle = "looking-up" | "eye-level" | "looking-down";
 export type Timing = "now" | "scheduled";
-export type RequestStatus = "open" | "accepted" | "submitted" | "completed";
+export type RequestStatus = "open" | "accepted" | "submitted" | "completed" | "abandoned";
 
 export type Category =
   | "landmarks"

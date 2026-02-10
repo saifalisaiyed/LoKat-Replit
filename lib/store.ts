@@ -23,6 +23,7 @@ const REQUESTS_KEY = "@lokate_requests";
 const PROFILE_KEY = "@lokate_profile";
 const NOTIFS_KEY = "@lokate_notifications";
 const SEEDED_KEY = "@lokate_seeded_v2";
+const ACTIVE_REQUEST_KEY = "@lokate_active_request";
 
 const defaultProfile: UserProfile = {
   name: "Alex",
@@ -36,10 +37,12 @@ interface AppContextValue {
   requests: PhotoRequest[];
   notifications: Notification[];
   isLoading: boolean;
+  activeRequestId: string | null;
   createRequest: (
     req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">,
   ) => void;
   acceptRequest: (id: string) => void;
+  abandonRequest: (id: string) => void;
   submitPhoto: (id: string, photoUri: string) => void;
   completeRequest: (id: string) => void;
   deleteRequest: (id: string) => void;
@@ -55,6 +58,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
   const [requests, setRequests] = useState<PhotoRequest[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [activeRequestId, setActiveRequestId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -63,13 +67,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const loadData = async () => {
     try {
-      const [savedProfile, savedRequests, savedNotifs, seeded] =
+      const [savedProfile, savedRequests, savedNotifs, seeded, savedActiveReq] =
         await Promise.all([
           AsyncStorage.getItem(PROFILE_KEY),
           AsyncStorage.getItem(REQUESTS_KEY),
           AsyncStorage.getItem(NOTIFS_KEY),
           AsyncStorage.getItem(SEEDED_KEY),
+          AsyncStorage.getItem(ACTIVE_REQUEST_KEY),
         ]);
+      if (savedActiveReq) setActiveRequestId(savedActiveReq);
 
       if (savedProfile) setProfile(JSON.parse(savedProfile));
       if (savedRequests) {
@@ -163,11 +169,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
           : r,
       );
       saveRequests(updated);
+      setActiveRequestId(id);
+      AsyncStorage.setItem(ACTIVE_REQUEST_KEY, id);
       const req = requests.find((r) => r.id === id);
       if (req) {
         addNotification(
           "Request accepted",
           `You accepted the request for ${req.locationName}`,
+          "accepted",
+          id,
+        );
+      }
+    },
+    [requests, notifications],
+  );
+
+  const abandonRequest = useCallback(
+    (id: string) => {
+      const updated = requests.map((r) =>
+        r.id === id
+          ? { ...r, status: "open" as RequestStatus, acceptedBy: undefined }
+          : r,
+      );
+      saveRequests(updated);
+      setActiveRequestId(null);
+      AsyncStorage.removeItem(ACTIVE_REQUEST_KEY);
+      const req = requests.find((r) => r.id === id);
+      if (req) {
+        addNotification(
+          "Request abandoned",
+          `You abandoned the request for ${req.locationName}`,
           "accepted",
           id,
         );
@@ -189,6 +220,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           : r,
       );
       saveRequests(updated);
+      setActiveRequestId(null);
+      AsyncStorage.removeItem(ACTIVE_REQUEST_KEY);
       const req = requests.find((r) => r.id === id);
       if (req) {
         addNotification(
@@ -271,8 +304,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       requests,
       notifications,
       isLoading,
+      activeRequestId,
       createRequest,
       acceptRequest,
+      abandonRequest,
       submitPhoto,
       completeRequest,
       deleteRequest,
@@ -286,8 +321,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       requests,
       notifications,
       isLoading,
+      activeRequestId,
       createRequest,
       acceptRequest,
+      abandonRequest,
       submitPhoto,
       completeRequest,
       deleteRequest,
