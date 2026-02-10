@@ -11,17 +11,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (apiKey) {
       try {
-        const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        const results = (data.results || []).slice(0, 10).map((place: any) => ({
-          name: place.name || query,
-          address: place.formatted_address || "",
-          lat: place.geometry?.location?.lat || 0,
-          lng: place.geometry?.location?.lng || 0,
-          types: place.types || [],
-        }));
-        return res.json({ results, source: "google" });
+        const searchBody = {
+          textQuery: query,
+          maxResultCount: 10,
+        };
+        const searchRes = await fetch(
+          "https://places.googleapis.com/v1/places:searchText",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Goog-Api-Key": apiKey,
+              "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location,places.types",
+            },
+            body: JSON.stringify(searchBody),
+          }
+        );
+        const searchData = await searchRes.json();
+
+        if (searchData.places && searchData.places.length > 0) {
+          const results = searchData.places.map((place: any) => ({
+            name: place.displayName?.text || query,
+            address: place.formattedAddress || "",
+            lat: place.location?.latitude || 0,
+            lng: place.location?.longitude || 0,
+            types: place.types || [],
+          }));
+          return res.json({ results, source: "google" });
+        }
+
+        if (searchData.error) {
+          console.log("Google Places API not available, using Nominatim fallback");
+        }
       } catch (e) {
         console.error("Google Places error:", e);
       }
