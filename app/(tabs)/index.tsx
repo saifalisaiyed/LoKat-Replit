@@ -17,6 +17,7 @@ import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useApp } from "@/lib/store";
+import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
@@ -326,30 +327,25 @@ export default function HomeScreen() {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     searchTimerRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=8&addressdetails=1`,
-          { headers: { "User-Agent": "LoKateApp/1.0" } }
-        );
+        const baseUrl = getApiUrl();
+        const url = new URL(`/api/places/autocomplete?q=${encodeURIComponent(q)}`, baseUrl);
+        const res = await fetch(url.toString());
         const data = await res.json();
-        const mapped = data.map((item: any) => {
-          const parts = (item.display_name || "").split(", ");
-          const name = parts[0] || item.name || q;
-          const addr = parts.slice(1, 4).join(", ") || item.display_name || "";
+        const mapped = (data.results || []).map((item: any) => {
           let cat: string = "landmarks";
-          const type = (item.type || "").toLowerCase();
-          const cls = (item.class || "").toLowerCase();
-          if (["park", "garden", "forest", "wood", "nature_reserve", "beach"].includes(type)) cat = "nature";
-          else if (["beach", "coastline"].includes(type)) cat = "beaches";
-          else if (["restaurant", "cafe", "fast_food", "bar", "food_court", "bakery"].includes(type)) cat = "food";
-          else if (["marketplace", "supermarket", "mall", "shop"].includes(type)) cat = "markets";
-          else if (["festival", "theatre", "stadium", "cinema"].includes(type)) cat = "events";
-          else if (cls === "building" || ["monument", "memorial", "castle", "museum", "attraction", "viewpoint"].includes(type)) cat = "landmarks";
-          else if (["city", "town", "village", "suburb", "neighbourhood", "administrative"].includes(type)) cat = "cityscapes";
+          const types = (item.types || []).map((t: string) => t.toLowerCase());
+          if (types.some((t: string) => ["park", "garden", "natural_feature", "campground"].includes(t))) cat = "nature";
+          else if (types.some((t: string) => ["beach"].includes(t))) cat = "beaches";
+          else if (types.some((t: string) => ["restaurant", "cafe", "bakery", "bar", "meal_takeaway", "meal_delivery", "food", "fast_food"].includes(t))) cat = "food";
+          else if (types.some((t: string) => ["shopping_mall", "store", "supermarket", "marketplace", "shop", "clothing_store", "grocery_or_supermarket"].includes(t))) cat = "markets";
+          else if (types.some((t: string) => ["stadium", "movie_theater", "night_club", "amusement_park", "festival", "theatre"].includes(t))) cat = "events";
+          else if (types.some((t: string) => ["museum", "church", "synagogue", "mosque", "hindu_temple", "tourist_attraction", "point_of_interest", "monument", "memorial", "castle", "attraction", "viewpoint"].includes(t))) cat = "landmarks";
+          else if (types.some((t: string) => ["locality", "administrative_area_level_1", "administrative_area_level_2", "political", "city", "town", "village", "suburb", "neighbourhood", "administrative"].includes(t))) cat = "cityscapes";
           return {
-            name,
-            address: addr,
-            lat: parseFloat(item.lat),
-            lng: parseFloat(item.lon),
+            name: item.name || q,
+            address: item.address || "",
+            lat: item.lat,
+            lng: item.lng,
             category: cat,
           };
         });
