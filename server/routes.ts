@@ -11,37 +11,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
     if (apiKey) {
       try {
-        const searchBody = {
-          textQuery: query,
-          maxResultCount: 10,
-        };
-        const searchRes = await fetch(
-          "https://places.googleapis.com/v1/places:searchText",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Goog-Api-Key": apiKey,
-              "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location,places.types",
-            },
-            body: JSON.stringify(searchBody),
-          }
-        );
-        const searchData = await searchRes.json();
+        const tsUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
+        const tsResponse = await fetch(tsUrl);
+        const tsData = await tsResponse.json();
 
-        if (searchData.places && searchData.places.length > 0) {
-          const results = searchData.places.map((place: any) => ({
-            name: place.displayName?.text || query,
-            address: place.formattedAddress || "",
-            lat: place.location?.latitude || 0,
-            lng: place.location?.longitude || 0,
+        if (tsData.status === "OK" && tsData.results?.length > 0) {
+          const results = tsData.results.slice(0, 10).map((place: any) => ({
+            name: place.name || query,
+            address: place.formatted_address || "",
+            lat: place.geometry?.location?.lat || 0,
+            lng: place.geometry?.location?.lng || 0,
             types: place.types || [],
           }));
           return res.json({ results, source: "google" });
         }
 
-        if (searchData.error) {
-          console.log("Google Places fallback to Nominatim:", searchData.error.code || "unknown");
+        if (tsData.status !== "OK" && tsData.status !== "ZERO_RESULTS") {
+          console.log("Google Places:", tsData.status, tsData.error_message || "");
         }
       } catch (e) {
         console.error("Google Places error:", e);
