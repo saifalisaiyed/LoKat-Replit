@@ -320,7 +320,7 @@ export default function HomeScreen() {
           />
         )}
         contentContainerStyle={{
-          paddingBottom: Platform.OS === "web" ? 84 + 34 : insets.bottom + 90,
+          paddingBottom: Platform.OS === "web" ? 90 + 34 : insets.bottom + 96,
         }}
         showsVerticalScrollIndicator={false}
       />

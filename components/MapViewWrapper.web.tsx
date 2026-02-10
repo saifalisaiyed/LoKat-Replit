@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Pressable, Text } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 
@@ -21,68 +21,76 @@ export default function MapViewWrapper({
   openRequests,
   isSeeker,
   onMarkerPress,
+  initialRegion,
 }: MapWrapperProps) {
-  const handleTap = () => {
-    if (!isSeeker || !onPinSelect) return;
-    const lat = 40.758 + (Math.random() - 0.5) * 0.03;
-    const lng = -73.9855 + (Math.random() - 0.5) * 0.03;
-    onPinSelect(lat, lng);
-  };
+  const lat = initialRegion?.latitude ?? 40.758;
+  const lng = initialRegion?.longitude ?? -73.9855;
+  const zoom = 13;
+
+  const tileUrl = `https://tile.openstreetmap.org/{z}/{x}/{y}.png`;
+
+  const mapHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <style>
+        * { margin: 0; padding: 0; }
+        #map { width: 100%; height: 100vh; }
+        .leaflet-tile-pane { filter: saturate(0.3) brightness(0.25) contrast(1.2) hue-rotate(180deg); }
+        .leaflet-control-zoom { display: none; }
+        .leaflet-control-attribution { display: none; }
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        var map = L.map('map', {
+          center: [${lat}, ${lng}],
+          zoom: ${zoom},
+          zoomControl: false,
+          attributionControl: false,
+          dragging: true,
+          scrollWheelZoom: true,
+        });
+        L.tileLayer('${tileUrl}', { maxZoom: 19 }).addTo(map);
+
+        var markerIcon = L.divIcon({
+          html: '<div style="width:24px;height:24px;border-radius:12px;background:${Colors.light.tint};border:2px solid rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(124,58,237,0.4)"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>',
+          className: '',
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        });
+
+        var requests = ${JSON.stringify(openRequests.map(r => ({ id: r.id, lat: r.latitude, lng: r.longitude })))};
+        requests.forEach(function(req) {
+          L.marker([req.lat, req.lng], { icon: markerIcon }).addTo(map);
+        });
+      </script>
+    </body>
+    </html>
+  `;
 
   return (
-    <Pressable style={styles.webMap} onPress={handleTap}>
-      <View style={styles.grid}>
-        {Array.from({ length: 30 }).map((_, i) => (
-          <View
-            key={`h-${i}`}
-            style={[
-              styles.lineH,
-              { top: `${(i + 1) * 3.33}%` },
-            ]}
-          />
-        ))}
-        {Array.from({ length: 30 }).map((_, i) => (
-          <View
-            key={`v-${i}`}
-            style={[
-              styles.lineV,
-              { left: `${(i + 1) * 3.33}%` },
-            ]}
-          />
-        ))}
-      </View>
-
-      <View style={styles.roadH1} />
-      <View style={styles.roadH2} />
-      <View style={styles.roadV1} />
-      <View style={styles.roadV2} />
-      <View style={styles.roadDiag} />
-
-      <View style={styles.labelContainer}>
-        <Text style={styles.areaLabel}>SOHO</Text>
-      </View>
-      <View style={[styles.labelContainer, { top: '25%', left: '30%' }]}>
-        <Text style={styles.areaLabel}>LOWER MANHATTAN</Text>
-      </View>
-      <View style={[styles.labelContainer, { top: '42%', left: '20%' }]}>
-        <Text style={styles.cityLabel}>New York</Text>
-      </View>
-      <View style={[styles.labelContainer, { top: '55%', left: '10%' }]}>
-        <Text style={styles.areaLabel}>FINANCIAL DISTRICT</Text>
-      </View>
-      <View style={[styles.labelContainer, { top: '38%', left: '65%' }]}>
-        <Text style={styles.areaLabel}>CHINATOWN</Text>
-      </View>
-      <View style={[styles.labelContainer, { bottom: '12%', left: '35%' }]}>
-        <Text style={styles.areaLabel}>BROOKLYN HEIGHTS</Text>
-      </View>
+    <View style={styles.webMap}>
+      <iframe
+        srcDoc={mapHtml}
+        style={{
+          width: "100%",
+          height: "100%",
+          border: "none",
+        }}
+        title="Map"
+      />
 
       {openRequests.slice(0, 4).map((req: any, i: number) => {
         const positions = [
-          { top: '28%', left: '55%' },
-          { top: '48%', left: '68%' },
-          { top: '18%', left: '75%' },
-          { top: '65%', left: '25%' },
+          { top: "28%", left: "55%" },
+          { top: "48%", left: "68%" },
+          { top: "18%", left: "75%" },
+          { top: "65%", left: "25%" },
         ];
         const pos = positions[i] || positions[0];
         return (
@@ -106,7 +114,7 @@ export default function MapViewWrapper({
           <Ionicons name="location" size={36} color={Colors.light.tint} />
         </View>
       )}
-    </Pressable>
+    </View>
   );
 }
 
@@ -116,81 +124,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.palette.mapDark,
     position: "relative",
     overflow: "hidden",
-  },
-  grid: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  lineH: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: "rgba(100, 140, 180, 0.08)",
-  },
-  lineV: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: 1,
-    backgroundColor: "rgba(100, 140, 180, 0.08)",
-  },
-  roadH1: {
-    position: "absolute",
-    top: "35%",
-    left: 0,
-    right: 0,
-    height: 2,
-    backgroundColor: "rgba(0, 200, 220, 0.2)",
-  },
-  roadH2: {
-    position: "absolute",
-    top: "60%",
-    left: 0,
-    right: 0,
-    height: 2,
-    backgroundColor: "rgba(0, 200, 220, 0.15)",
-  },
-  roadV1: {
-    position: "absolute",
-    left: "45%",
-    top: 0,
-    bottom: 0,
-    width: 2,
-    backgroundColor: "rgba(0, 200, 220, 0.18)",
-  },
-  roadV2: {
-    position: "absolute",
-    left: "70%",
-    top: 0,
-    bottom: 0,
-    width: 2,
-    backgroundColor: "rgba(0, 200, 220, 0.12)",
-  },
-  roadDiag: {
-    position: "absolute",
-    top: "50%",
-    left: "40%",
-    width: 150,
-    height: 2,
-    backgroundColor: "rgba(0, 200, 220, 0.15)",
-    transform: [{ rotate: "-35deg" }],
-  },
-  labelContainer: {
-    position: "absolute",
-    top: "15%",
-    left: "55%",
-  },
-  areaLabel: {
-    fontSize: 9,
-    fontFamily: "Archivo_500Medium",
-    color: "rgba(180, 200, 220, 0.4)",
-    letterSpacing: 1.5,
-  },
-  cityLabel: {
-    fontSize: 18,
-    fontFamily: "Archivo_600SemiBold",
-    color: "rgba(200, 220, 240, 0.35)",
-    letterSpacing: 0.5,
   },
   marker: {
     position: "absolute",
