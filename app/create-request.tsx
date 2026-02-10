@@ -51,7 +51,12 @@ const REWARD_OPTIONS = [3, 5, 7, 10, 15];
 
 export default function CreateRequestScreen() {
   const insets = useSafeAreaInsets();
-  const { lat, lng } = useLocalSearchParams<{ lat: string; lng: string }>();
+  const { lat, lng, name: paramName, addr: paramAddr } = useLocalSearchParams<{
+    lat: string;
+    lng: string;
+    name: string;
+    addr: string;
+  }>();
   const { createRequest } = useApp();
 
   const [orientation, setOrientation] = useState<Orientation>("portrait");
@@ -59,8 +64,8 @@ export default function CreateRequestScreen() {
   const [timing, setTiming] = useState<Timing>("now");
   const [reward, setReward] = useState(5);
   const [note, setNote] = useState("");
-  const [locationName, setLocationName] = useState("");
-  const [address, setAddress] = useState("");
+  const [locationName, setLocationName] = useState(paramName || "");
+  const [address, setAddress] = useState(paramAddr || "");
   const [category, setCategory] = useState<Category>("landmarks");
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
@@ -358,7 +363,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 14,
-    backgroundColor: "rgba(0, 174, 239, 0.08)",
+    backgroundColor: Colors.light.tint + "14",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -430,7 +435,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "#fff",
     borderWidth: 1.5,
-    borderColor: "rgba(0, 174, 239, 0.1)",
+    borderColor: Colors.light.tint + "18",
   },
   categoryBtnActive: {
     backgroundColor: Colors.light.tint,

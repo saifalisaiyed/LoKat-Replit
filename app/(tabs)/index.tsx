@@ -9,6 +9,7 @@ import {
   Platform,
   Dimensions,
   TextInput,
+  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -20,7 +21,7 @@ import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const MAP_HEIGHT = SCREEN_HEIGHT * 0.4;
+const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;
 
 const CATEGORY_COLORS: Record<string, string> = {
   landmarks: "#D4A017",
@@ -32,6 +33,24 @@ const CATEGORY_COLORS: Record<string, string> = {
   "hidden-gems": "#8B5CF6",
   events: "#14B8A6",
 };
+
+const POPULAR_LOCATIONS = [
+  { name: "Empire State Building", address: "350 5th Ave, New York, NY", lat: 40.7484, lng: -73.9857 },
+  { name: "Central Park", address: "Central Park, New York, NY", lat: 40.7829, lng: -73.9654 },
+  { name: "Brooklyn Bridge", address: "Brooklyn Bridge, New York, NY", lat: 40.7061, lng: -73.9969 },
+  { name: "Times Square", address: "Times Square, Manhattan, NY", lat: 40.758, lng: -73.9855 },
+  { name: "Statue of Liberty", address: "Liberty Island, New York, NY", lat: 40.6892, lng: -74.0445 },
+  { name: "Grand Central Terminal", address: "89 E 42nd St, New York, NY", lat: 40.7527, lng: -73.9772 },
+  { name: "High Line", address: "New York, NY 10011", lat: 40.748, lng: -74.0048 },
+  { name: "One World Trade Center", address: "285 Fulton St, New York, NY", lat: 40.7127, lng: -74.0134 },
+  { name: "Rockefeller Center", address: "45 Rockefeller Plaza, New York, NY", lat: 40.7587, lng: -73.9787 },
+  { name: "Washington Square Park", address: "Washington Sq, New York, NY", lat: 40.7308, lng: -73.9973 },
+  { name: "DUMBO", address: "DUMBO, Brooklyn, NY", lat: 40.7033, lng: -73.9883 },
+  { name: "Flatiron Building", address: "175 5th Ave, New York, NY", lat: 40.7411, lng: -73.9897 },
+  { name: "Chelsea Market", address: "75 9th Ave, New York, NY", lat: 40.7425, lng: -74.0061 },
+  { name: "SoHo", address: "SoHo, Manhattan, NY", lat: 40.7233, lng: -73.9985 },
+  { name: "Williamsburg", address: "Williamsburg, Brooklyn, NY", lat: 40.7081, lng: -73.9571 },
+];
 
 function getCategoryColor(key: string): string {
   return CATEGORY_COLORS[key] || Colors.light.tint;
@@ -101,10 +120,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
         </View>
       </View>
 
-      <Pressable
-        style={styles.cardArrowBtn}
-        onPress={onPress}
-      >
+      <Pressable style={styles.cardArrowBtn} onPress={onPress}>
         <Ionicons name="arrow-forward" size={18} color="#fff" />
       </Pressable>
     </Pressable>
@@ -117,6 +133,9 @@ export default function HomeScreen() {
   const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<TextInput>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const initialRegion = {
@@ -159,6 +178,36 @@ export default function HomeScreen() {
     setSelectedCategory(selectedCategory === cat ? null : cat);
   };
 
+  const handleCenterLocation = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (mapRef.current && Platform.OS !== "web") {
+      mapRef.current.animateToRegion(initialRegion, 500);
+    }
+  }, []);
+
+  const filteredLocations = searchQuery.trim()
+    ? POPULAR_LOCATIONS.filter(
+        (loc) =>
+          loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          loc.address.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : POPULAR_LOCATIONS;
+
+  const handleLocationSelect = (loc: typeof POPULAR_LOCATIONS[0]) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSearchVisible(false);
+    setSearchQuery("");
+    router.push({
+      pathname: "/create-request",
+      params: {
+        lat: loc.lat.toString(),
+        lng: loc.lng.toString(),
+        name: loc.name,
+        addr: loc.address,
+      },
+    });
+  };
+
   const renderHeader = () => (
     <>
       <View style={styles.mapContainer}>
@@ -179,23 +228,18 @@ export default function HomeScreen() {
           ]}
           pointerEvents="box-none"
         >
-          <View style={styles.searchBar}>
-            <View style={styles.searchLogoCircle}>
-              <Ionicons name="scan-outline" size={16} color={Colors.light.tint} />
-            </View>
-            <Ionicons name="search" size={16} color="#9CA3AF" style={{ marginLeft: 8 }} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Want to see something?"
-              placeholderTextColor="#9CA3AF"
-              editable={false}
-            />
-          </View>
+          <Pressable
+            style={styles.searchBar}
+            onPress={() => setSearchVisible(true)}
+          >
+            <Ionicons name="search" size={18} color="#9CA3AF" style={{ marginLeft: 10 }} />
+            <Text style={styles.searchPlaceholder}>Want to see something?</Text>
+          </Pressable>
 
           <View style={styles.mapBottomRow} pointerEvents="box-none">
             <View />
-            <Pressable style={styles.settingsBtn}>
-              <Ionicons name="settings-outline" size={20} color="#fff" />
+            <Pressable style={styles.locationBtn} onPress={handleCenterLocation}>
+              <Ionicons name="locate" size={20} color="#fff" />
             </Pressable>
           </View>
         </View>
@@ -279,6 +323,77 @@ export default function HomeScreen() {
         }}
         showsVerticalScrollIndicator={false}
       />
+
+      <Modal
+        visible={searchVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          setSearchVisible(false);
+          setSearchQuery("");
+        }}
+      >
+        <View style={[styles.searchModal, { paddingTop: insets.top + 12 + webInsetTop }]}>
+          <View style={styles.searchModalHeader}>
+            <View style={styles.searchModalBar}>
+              <Ionicons name="search" size={18} color="#9CA3AF" />
+              <TextInput
+                ref={searchInputRef}
+                style={styles.searchModalInput}
+                placeholder="Search for a location..."
+                placeholderTextColor="#9CA3AF"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus
+                returnKeyType="search"
+              />
+              {searchQuery.length > 0 && (
+                <Pressable onPress={() => setSearchQuery("")}>
+                  <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+                </Pressable>
+              )}
+            </View>
+            <Pressable
+              onPress={() => {
+                setSearchVisible(false);
+                setSearchQuery("");
+              }}
+              style={styles.searchCancelBtn}
+            >
+              <Text style={styles.searchCancelText}>Cancel</Text>
+            </Pressable>
+          </View>
+
+          <FlatList
+            data={filteredLocations}
+            keyExtractor={(item) => item.name}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            renderItem={({ item }) => (
+              <Pressable
+                style={({ pressed }) => [
+                  styles.searchResult,
+                  pressed && { backgroundColor: "#F3F4F6" },
+                ]}
+                onPress={() => handleLocationSelect(item)}
+              >
+                <View style={styles.searchResultIcon}>
+                  <Ionicons name="location" size={18} color={Colors.light.tint} />
+                </View>
+                <View style={styles.searchResultInfo}>
+                  <Text style={styles.searchResultName}>{item.name}</Text>
+                  <Text style={styles.searchResultAddr}>{item.address}</Text>
+                </View>
+                <Ionicons name="arrow-forward" size={16} color={Colors.light.textSecondary} />
+              </Pressable>
+            )}
+            ListEmptyComponent={
+              <View style={styles.searchEmpty}>
+                <Text style={styles.searchEmptyText}>No locations found</Text>
+              </View>
+            }
+          />
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -301,43 +416,34 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingBottom: 40,
+    paddingBottom: 36,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.95)",
     borderRadius: 28,
-    paddingHorizontal: 6,
-    paddingVertical: 10,
+    paddingHorizontal: 4,
+    paddingVertical: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 6,
   },
-  searchLogoCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.light.tint + "15",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  searchInput: {
+  searchPlaceholder: {
     flex: 1,
     fontSize: 14,
-    color: Colors.light.text,
+    color: "#9CA3AF",
     fontFamily: "Archivo_400Regular",
-    marginLeft: 8,
-    paddingVertical: 0,
+    marginLeft: 10,
   },
   mapBottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
   },
-  settingsBtn: {
+  locationBtn: {
     width: 40,
     height: 40,
     borderRadius: 12,
@@ -357,12 +463,12 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   sectionTitle: {
-    fontSize: 17,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "500",
     color: Colors.light.text,
     marginBottom: 14,
     paddingHorizontal: 16,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_500Medium",
     letterSpacing: 0.1,
   },
   categoriesList: {
@@ -457,6 +563,86 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_500Medium",
   },
   emptySubtitle: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+  },
+  searchModal: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  searchModalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    gap: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  searchModalBar: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  searchModalInput: {
+    flex: 1,
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_400Regular",
+    paddingVertical: 0,
+  },
+  searchCancelBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  searchCancelText: {
+    fontSize: 14,
+    color: Colors.light.tint,
+    fontFamily: "Archivo_500Medium",
+  },
+  searchResult: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    gap: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F9FAFB",
+  },
+  searchResultIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.light.tint + "12",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchResultInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  searchResultName: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
+  },
+  searchResultAddr: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+  },
+  searchEmpty: {
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  searchEmptyText: {
     fontSize: 14,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
