@@ -14,7 +14,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
-import type { Orientation, Angle, Timing } from "@/lib/types";
+import { CATEGORIES, type Orientation, type Angle, type Timing, type Category } from "@/lib/types";
 
 function OptionButton({
   icon,
@@ -60,6 +60,8 @@ export default function CreateRequestScreen() {
   const [reward, setReward] = useState(5);
   const [note, setNote] = useState("");
   const [locationName, setLocationName] = useState("");
+  const [address, setAddress] = useState("");
+  const [category, setCategory] = useState<Category>("landmarks");
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
@@ -68,7 +70,11 @@ export default function CreateRequestScreen() {
     createRequest({
       latitude: parseFloat(lat || "40.7580"),
       longitude: parseFloat(lng || "-73.9855"),
-      locationName: locationName || `${parseFloat(lat || "0").toFixed(3)}, ${parseFloat(lng || "0").toFixed(3)}`,
+      locationName:
+        locationName ||
+        `${parseFloat(lat || "0").toFixed(3)}, ${parseFloat(lng || "0").toFixed(3)}`,
+      address: address || "New York, NY",
+      category,
       orientation,
       angle,
       timing,
@@ -100,7 +106,8 @@ export default function CreateRequestScreen() {
           <Ionicons name="location" size={20} color={Colors.palette.emerald} />
           <View style={styles.locationInfo}>
             <Text style={styles.locationCoords}>
-              {parseFloat(lat || "0").toFixed(4)}, {parseFloat(lng || "0").toFixed(4)}
+              {parseFloat(lat || "0").toFixed(4)},{" "}
+              {parseFloat(lng || "0").toFixed(4)}
             </Text>
           </View>
         </View>
@@ -114,6 +121,53 @@ export default function CreateRequestScreen() {
             value={locationName}
             onChangeText={setLocationName}
           />
+        </View>
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.fieldLabel}>Address</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="e.g. 123 Main St, New York, NY"
+            placeholderTextColor={Colors.light.textSecondary}
+            value={address}
+            onChangeText={setAddress}
+          />
+        </View>
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.fieldLabel}>Category</Text>
+          <View style={styles.categoryGrid}>
+            {CATEGORIES.map((cat) => (
+              <Pressable
+                key={cat.key}
+                style={[
+                  styles.categoryBtn,
+                  category === cat.key && styles.categoryBtnActive,
+                ]}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setCategory(cat.key);
+                }}
+              >
+                <Ionicons
+                  name={cat.icon as any}
+                  size={18}
+                  color={
+                    category === cat.key ? "#fff" : Colors.light.textSecondary
+                  }
+                />
+                <Text
+                  style={[
+                    styles.categoryBtnText,
+                    category === cat.key && styles.categoryBtnTextActive,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {cat.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
         <View style={styles.fieldGroup}>
@@ -325,6 +379,35 @@ const styles = StyleSheet.create({
     fontFamily: "DMSans_600SemiBold",
   },
   optionLabelActive: {
+    color: "#fff",
+  },
+  categoryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  categoryBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    borderWidth: 1.5,
+    borderColor: Colors.light.border,
+  },
+  categoryBtnActive: {
+    backgroundColor: Colors.palette.emerald,
+    borderColor: Colors.palette.emerald,
+  },
+  categoryBtnText: {
+    fontSize: 13,
+    fontWeight: "500" as const,
+    color: Colors.light.textSecondary,
+    fontFamily: "DMSans_500Medium",
+  },
+  categoryBtnTextActive: {
     color: "#fff",
   },
   rewardRow: {
