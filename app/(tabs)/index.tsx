@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   View,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
   Dimensions,
   TextInput,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -298,7 +299,11 @@ export default function HomeScreen() {
     }
   }, []);
 
-  const filteredLocations = (() => {
+  const [remoteResults, setRemoteResults] = useState<typeof POPULAR_LOCATIONS>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const localResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return POPULAR_LOCATIONS.slice(0, 15);
     return POPULAR_LOCATIONS.filter(
@@ -308,7 +313,66 @@ export default function HomeScreen() {
         loc.category.toLowerCase().includes(q) ||
         (CATEGORIES.find(c => c.key === loc.category)?.label ?? "").toLowerCase().includes(q)
     );
-  })();
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2) {
+      setRemoteResults([]);
+      setIsSearching(false);
+      return;
+    }
+    setIsSearching(true);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=8&addressdetails=1`,
+          { headers: { "User-Agent": "LoKateApp/1.0" } }
+        );
+        const data = await res.json();
+        const mapped = data.map((item: any) => {
+          const parts = (item.display_name || "").split(", ");
+          const name = parts[0] || item.name || q;
+          const addr = parts.slice(1, 4).join(", ") || item.display_name || "";
+          let cat: string = "landmarks";
+          const type = (item.type || "").toLowerCase();
+          const cls = (item.class || "").toLowerCase();
+          if (["park", "garden", "forest", "wood", "nature_reserve", "beach"].includes(type)) cat = "nature";
+          else if (["beach", "coastline"].includes(type)) cat = "beaches";
+          else if (["restaurant", "cafe", "fast_food", "bar", "food_court", "bakery"].includes(type)) cat = "food";
+          else if (["marketplace", "supermarket", "mall", "shop"].includes(type)) cat = "markets";
+          else if (["festival", "theatre", "stadium", "cinema"].includes(type)) cat = "events";
+          else if (cls === "building" || ["monument", "memorial", "castle", "museum", "attraction", "viewpoint"].includes(type)) cat = "landmarks";
+          else if (["city", "town", "village", "suburb", "neighbourhood", "administrative"].includes(type)) cat = "cityscapes";
+          return {
+            name,
+            address: addr,
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+            category: cat,
+          };
+        });
+        setRemoteResults(mapped);
+      } catch (e) {
+        console.log("Search error:", e);
+        setRemoteResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 350);
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, [searchQuery]);
+
+  const filteredLocations = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return POPULAR_LOCATIONS.slice(0, 15);
+    const localNames = new Set(localResults.map(l => l.name.toLowerCase()));
+    const dedupedRemote = remoteResults.filter(r => !localNames.has(r.name.toLowerCase()));
+    return [...localResults, ...dedupedRemote];
+  }, [searchQuery, localResults, remoteResults]);
 
   const handleLocationSelect = (loc: typeof POPULAR_LOCATIONS[0]) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -489,19 +553,23 @@ export default function HomeScreen() {
               <Text style={styles.searchSectionTitle}>Popular Locations</Text>
             </View>
           )}
-          {searchQuery.trim().length > 0 && filteredLocations.length > 0 && (
+          {searchQuery.trim().length > 0 && (filteredLocations.length > 0 || isSearching) && (
             <View style={styles.searchSectionHeader}>
               <Ionicons name="search" size={14} color={Colors.light.tint} />
-              <Text style={styles.searchSectionTitle}>{filteredLocations.length} result{filteredLocations.length !== 1 ? "s" : ""}</Text>
+              <Text style={styles.searchSectionTitle}>
+                {isSearching && filteredLocations.length === 0 ? "Searching..." : `${filteredLocations.length} result${filteredLocations.length !== 1 ? "s" : ""}`}
+              </Text>
+              {isSearching && <ActivityIndicator size="small" color={Colors.light.tint} style={{ marginLeft: 6 }} />}
             </View>
           )}
           <FlatList
             data={filteredLocations}
-            keyExtractor={(item) => item.name}
+            keyExtractor={(item, index) => `${item.name}-${item.lat}-${index}`}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: 40 }}
             renderItem={({ item }) => {
               const catColor = getCategoryColor(item.category);
+              const isRemote = !POPULAR_LOCATIONS.some(p => p.name === item.name);
               return (
                 <Pressable
                   style={({ pressed }) => [
@@ -512,14 +580,14 @@ export default function HomeScreen() {
                 >
                   <View style={[styles.searchResultIcon, { backgroundColor: catColor + "14" }]}>
                     <Ionicons
-                      name={(CATEGORIES.find(c => c.key === item.category)?.icon ?? "location") as any}
+                      name={isRemote ? "globe-outline" : ((CATEGORIES.find(c => c.key === item.category)?.icon ?? "location") as any)}
                       size={16}
                       color={catColor}
                     />
                   </View>
                   <View style={styles.searchResultInfo}>
-                    <Text style={styles.searchResultName}>{item.name}</Text>
-                    <Text style={styles.searchResultAddr}>{item.address}</Text>
+                    <Text style={styles.searchResultName} numberOfLines={1}>{item.name}</Text>
+                    <Text style={styles.searchResultAddr} numberOfLines={1}>{item.address}</Text>
                   </View>
                   <View style={[styles.searchResultCatDot, { backgroundColor: catColor + "18" }]}>
                     <Text style={[styles.searchResultCatLabel, { color: catColor }]}>
@@ -530,10 +598,17 @@ export default function HomeScreen() {
               );
             }}
             ListEmptyComponent={
-              <View style={styles.searchEmpty}>
-                <Ionicons name="location-outline" size={28} color={Colors.light.border} />
-                <Text style={styles.searchEmptyText}>No locations match "{searchQuery}"</Text>
-              </View>
+              isSearching ? (
+                <View style={styles.searchEmpty}>
+                  <ActivityIndicator size="large" color={Colors.light.tint} />
+                  <Text style={styles.searchEmptyText}>Searching worldwide...</Text>
+                </View>
+              ) : searchQuery.trim().length > 0 ? (
+                <View style={styles.searchEmpty}>
+                  <Ionicons name="location-outline" size={28} color={Colors.light.border} />
+                  <Text style={styles.searchEmptyText}>No locations match "{searchQuery}"</Text>
+                </View>
+              ) : null
             }
           />
         </View>
