@@ -1,16 +1,37 @@
-export type Role = "seeker" | "lokater";
-
 export type Orientation = "portrait" | "landscape";
 export type Angle = "looking-up" | "eye-level" | "looking-down";
 export type Timing = "now" | "scheduled";
-export type RequestStatus = "open" | "claimed" | "submitted" | "completed";
+export type RequestStatus = "open" | "accepted" | "submitted" | "completed";
+
+export type Category =
+  | "landmarks"
+  | "nature"
+  | "markets"
+  | "beaches"
+  | "cityscapes"
+  | "food"
+  | "hidden-gems"
+  | "events";
+
+export const CATEGORIES: { key: Category; label: string; icon: string }[] = [
+  { key: "landmarks", label: "Landmarks", icon: "business-outline" },
+  { key: "nature", label: "Nature", icon: "leaf-outline" },
+  { key: "markets", label: "Markets", icon: "storefront-outline" },
+  { key: "beaches", label: "Beaches & Water", icon: "water-outline" },
+  { key: "cityscapes", label: "Cityscapes", icon: "grid-outline" },
+  { key: "food", label: "Food & Drink", icon: "restaurant-outline" },
+  { key: "hidden-gems", label: "Hidden Gems", icon: "diamond-outline" },
+  { key: "events", label: "Events", icon: "calendar-outline" },
+];
 
 export interface PhotoRequest {
   id: string;
-  seekerId: string;
+  creatorId: string;
   latitude: number;
   longitude: number;
   locationName: string;
+  address: string;
+  category: Category;
   orientation: Orientation;
   angle: Angle;
   timing: Timing;
@@ -18,14 +39,23 @@ export interface PhotoRequest {
   reward: number;
   status: RequestStatus;
   createdAt: string;
-  claimedBy?: string;
+  acceptedBy?: string;
   photoUri?: string;
   submittedAt?: string;
   note?: string;
 }
 
+export interface Notification {
+  id: string;
+  title: string;
+  body: string;
+  type: "accepted" | "submitted" | "completed" | "new_request";
+  requestId?: string;
+  createdAt: string;
+  read: boolean;
+}
+
 export interface UserProfile {
-  role: Role;
   name: string;
   earnings: number;
   requestsCreated: number;
