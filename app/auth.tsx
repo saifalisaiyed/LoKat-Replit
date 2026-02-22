@@ -17,7 +17,7 @@ import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
 
-function GoogleIcon() {
+function GoogleLogo() {
   return (
     <View style={{ width: 20, height: 20, alignItems: "center", justifyContent: "center" }}>
       <Text style={{ fontSize: 16, fontWeight: "700" }}>
@@ -96,11 +96,13 @@ export default function AuthScreen() {
           <View style={styles.logoContainer}>
             <View style={styles.logoGlow} />
             <View style={styles.logoCircle}>
-              <Ionicons name="location" size={30} color="#fff" />
+              <Ionicons name="location" size={28} color="#fff" />
             </View>
           </View>
           <Text style={styles.appName}>LoKat</Text>
-          <Text style={styles.tagline}>Photo requests, anywhere</Text>
+          <Text style={styles.tagline}>
+            {mode === "register" ? "Create your account" : "Welcome back"}
+          </Text>
         </View>
 
         <View style={styles.formCard}>
@@ -121,25 +123,6 @@ export default function AuthScreen() {
                 Log In
               </Text>
             </Pressable>
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.googleBtn,
-              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
-            ]}
-            onPress={handleGoogleSignIn}
-          >
-            <GoogleIcon />
-            <Text style={styles.googleBtnText}>
-              Continue with Google
-            </Text>
-          </Pressable>
-
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
           </View>
 
           {mode === "register" && (
@@ -205,18 +188,37 @@ export default function AuthScreen() {
               </Text>
             )}
           </Pressable>
-        </View>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.skipBtn,
-            pressed && { opacity: 0.7 },
-          ]}
-          onPress={handleSkip}
-        >
-          <Text style={styles.skipText}>Skip for now</Text>
-          <Ionicons name="arrow-forward" size={16} color={Colors.light.textSecondary} />
-        </Pressable>
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.googleBtn,
+              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+            ]}
+            onPress={handleGoogleSignIn}
+          >
+            <GoogleLogo />
+            <Text style={styles.googleBtnText}>
+              {mode === "register" ? "Sign up with Google" : "Log in with Google"}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.guestBtn,
+              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+            ]}
+            onPress={handleSkip}
+          >
+            <Ionicons name="eye-outline" size={18} color={Colors.light.textSecondary} />
+            <Text style={styles.guestBtnText}>Continue as Guest</Text>
+          </Pressable>
+        </View>
 
         <Text style={styles.termsText}>
           By continuing, you agree to our{" "}
@@ -241,25 +243,25 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 28,
   },
   logoContainer: {
     position: "relative",
-    marginBottom: 14,
+    marginBottom: 12,
     alignItems: "center",
     justifyContent: "center",
   },
   logoGlow: {
     position: "absolute",
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: "rgba(124, 58, 237, 0.1)",
   },
   logoCircle: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
@@ -270,22 +272,22 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   appName: {
-    fontSize: 30,
+    fontSize: 28,
     color: Colors.light.text,
     fontFamily: "Archivo_700Bold",
     letterSpacing: -0.5,
   },
   tagline: {
-    fontSize: 15,
+    fontSize: 14,
     color: Colors.light.textSecondary,
-    marginTop: 4,
+    marginTop: 2,
     fontFamily: "Archivo_400Regular",
   },
   formCard: {
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 22,
-    gap: 16,
+    gap: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -297,6 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F7",
     borderRadius: 12,
     padding: 3,
+    marginBottom: 2,
   },
   tab: {
     flex: 1,
@@ -321,40 +324,8 @@ const styles = StyleSheet.create({
     color: Colors.light.tint,
     fontFamily: "Archivo_600SemiBold",
   },
-  googleBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    backgroundColor: "#fff",
-    borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    borderRadius: 12,
-    paddingVertical: 14,
-  },
-  googleBtnText: {
-    fontSize: 15,
-    color: Colors.light.text,
-    fontFamily: "Archivo_500Medium",
-  },
-  dividerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#EBEBEB",
-  },
-  dividerText: {
-    fontSize: 12,
-    color: Colors.light.textSecondary,
-    fontFamily: "Archivo_400Regular",
-    textTransform: "lowercase",
-  },
   inputGroup: {
-    gap: 6,
+    gap: 5,
   },
   inputLabel: {
     fontSize: 13,
@@ -405,15 +376,48 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
   },
-  skipBtn: {
+  dividerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginVertical: 2,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#EBEBEB",
+  },
+  dividerText: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+  },
+  googleBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
-    paddingVertical: 18,
-    alignSelf: "center",
+    gap: 10,
+    backgroundColor: "#fff",
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingVertical: 14,
   },
-  skipText: {
+  googleBtnText: {
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
+  },
+  guestBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: "#F5F5F7",
+  },
+  guestBtnText: {
     fontSize: 15,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_500Medium",
@@ -425,6 +429,7 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_400Regular",
     lineHeight: 16,
     paddingHorizontal: 20,
+    marginTop: 16,
   },
   termsLink: {
     color: Colors.light.tint,
