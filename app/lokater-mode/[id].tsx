@@ -419,19 +419,28 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
           </View>
         )}
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.photoBtn,
-            isCloseEnough && styles.photoBtnActive,
-            pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
-          ]}
-          onPress={handleTakePhoto}
-        >
-          <Ionicons name="camera" size={22} color="#fff" />
-          <Text style={styles.photoBtnText}>
-            {isCloseEnough ? "Take Photo" : "Take Photo"}
-          </Text>
-        </Pressable>
+        <View style={styles.actionRow}>
+          <Pressable
+            style={({ pressed }) => [styles.chatFloatBtn, pressed && { opacity: 0.7 }]}
+            onPress={() => router.push({ pathname: "/chat/[id]", params: { id: id! } })}
+          >
+            <Ionicons name="chatbubble-outline" size={20} color={Colors.light.tint} />
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.photoBtn,
+              { flex: 1 },
+              isCloseEnough && styles.photoBtnActive,
+              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+            ]}
+            onPress={handleTakePhoto}
+          >
+            <Ionicons name="camera" size={22} color="#fff" />
+            <Text style={styles.photoBtnText}>
+              {isCloseEnough ? "Take Photo" : "Take Photo"}
+            </Text>
+          </Pressable>
+        </View>
 
         {!isCloseEnough && distance !== null && (
           <Text style={styles.distanceHint}>
@@ -684,6 +693,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.accent,
     fontFamily: "Archivo_600SemiBold",
+  },
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  chatFloatBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: Colors.light.tint,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(124,58,237,0.06)",
   },
   photoBtn: {
     flexDirection: "row",

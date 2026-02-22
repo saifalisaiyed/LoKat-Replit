@@ -372,6 +372,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (request.creatorId !== req.session.userId && request.acceptedBy !== req.session.userId) {
         return res.status(403).json({ message: "Not authorized to view messages" });
       }
+      if (request.status !== "accepted") {
+        return res.status(403).json({ message: "Chat is only available while the request is active" });
+      }
       const msgs = await storage.getMessages(paramId(req));
       return res.json(msgs);
     } catch (e) {
@@ -387,17 +390,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const request = await storage.getRequestById(paramId(req));
       if (!request) return res.status(404).json({ message: "Request not found" });
+      if (request.status !== "accepted") {
+        return res.status(403).json({ message: "Chat is only available while the request is active" });
+      }
       if (request.creatorId !== req.session.userId && request.acceptedBy !== req.session.userId) {
         return res.status(403).json({ message: "Not authorized to send messages" });
       }
       const msg = await storage.createMessage(paramId(req), req.session.userId!, text.trim());
       const recipientId = req.session.userId === request.creatorId ? request.acceptedBy : request.creatorId;
       if (recipientId) {
-        const sender = await storage.getUser(req.session.userId!);
+        const senderLabel = req.session.userId === request.creatorId ? "Seeker" : "LoKater";
         await storage.createNotification(
           recipientId,
           "New message",
-          `${sender?.displayName || "Someone"}: ${text.trim().substring(0, 50)}`,
+          `${senderLabel}: ${text.trim().substring(0, 50)}`,
           "message",
           request.id,
         );

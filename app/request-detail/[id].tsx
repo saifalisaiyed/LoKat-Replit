@@ -284,12 +284,33 @@ export default function RequestDetailScreen() {
       {isActiveLoKater && (
         <View style={[styles.actionBar, { paddingBottom: Platform.OS === "web" ? 34 + 8 : insets.bottom + 12 }]}>
           <Pressable
+            style={({ pressed }) => [styles.chatBtn, pressed && { opacity: 0.7 }]}
+            onPress={() => router.push({ pathname: "/chat/[id]", params: { id: request.id } })}
+          >
+            <Ionicons name="chatbubble-outline" size={20} color={Colors.light.tint} />
+          </Pressable>
+          <Pressable
             style={({ pressed }) => [styles.acceptBtn, { flex: 1 }, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={handleNavigate}
           >
             <Ionicons name="navigate" size={20} color="#fff" />
             <Text style={styles.acceptBtnText}>Navigate to Location</Text>
           </Pressable>
+        </View>
+      )}
+
+      {request.status === "accepted" && isMyRequest && (
+        <View style={[styles.actionBar, { paddingBottom: Platform.OS === "web" ? 34 + 8 : insets.bottom + 12 }]}>
+          <Pressable
+            style={({ pressed }) => [styles.chatBtn, pressed && { opacity: 0.7 }]}
+            onPress={() => router.push({ pathname: "/chat/[id]", params: { id: request.id } })}
+          >
+            <Ionicons name="chatbubble-outline" size={20} color={Colors.light.tint} />
+          </Pressable>
+          <View style={styles.activeBanner}>
+            <Ionicons name="walk-outline" size={20} color={Colors.light.tint} />
+            <Text style={styles.activeText}>LoKater is on the way</Text>
+          </View>
         </View>
       )}
 
@@ -441,4 +462,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background, marginTop: 4,
   },
   menuCancelText: { fontSize: 15, color: Colors.light.text, fontFamily: "Archivo_500Medium" },
+  chatBtn: {
+    width: 52, height: 52, borderRadius: 16, borderWidth: 1.5, borderColor: Colors.light.tint,
+    alignItems: "center" as const, justifyContent: "center" as const, backgroundColor: "rgba(124,58,237,0.06)",
+  },
+  activeBanner: {
+    flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const, gap: 8,
+    paddingVertical: 14, backgroundColor: "rgba(124,58,237,0.08)", borderRadius: 16,
+  },
+  activeText: { fontSize: 15, color: Colors.light.tint, fontFamily: "Archivo_600SemiBold" },
 });
