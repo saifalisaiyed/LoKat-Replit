@@ -300,7 +300,7 @@ export default function RequestDetailScreen() {
             onPress={handleNavigate}
           >
             <Ionicons name="navigate" size={20} color="#fff" />
-            <Text style={styles.acceptBtnText}>Navigate to Location</Text>
+            <Text style={styles.acceptBtnText}>Enter LoKater Mode</Text>
           </Pressable>
         </View>
       )}
