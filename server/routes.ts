@@ -118,7 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/auth/profile", requireAuth, async (req: Request, res: Response) => {
     try {
-      const { displayName, email } = req.body;
+      const { displayName, email, phone } = req.body;
       const updates: Record<string, string> = {};
       if (displayName && displayName.trim()) updates.displayName = displayName.trim();
       if (email && email.trim()) {
@@ -131,6 +131,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(409).json({ message: "This email is already in use" });
         }
         updates.email = email.toLowerCase().trim();
+      }
+      if (phone && phone.trim()) {
+        const cleanPhone = phone.trim().replace(/[^0-9+\-() ]/g, "");
+        const existingPhone = await storage.getUserByPhone(cleanPhone);
+        if (existingPhone && existingPhone.id !== req.session.userId) {
+          return res.status(409).json({ message: "This phone number is already in use" });
+        }
+        updates.phone = cleanPhone;
       }
       if (Object.keys(updates).length === 0) {
         return res.status(400).json({ message: "No updates provided" });

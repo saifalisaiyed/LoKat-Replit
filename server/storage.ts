@@ -27,7 +27,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   getUserByPhone(phone: string): Promise<User | undefined>;
-  updateUserProfile(id: string, data: { displayName?: string; email?: string }): Promise<User | undefined>;
+  updateUserProfile(id: string, data: { displayName?: string; email?: string; phone?: string }): Promise<User | undefined>;
   incrementUserStat(id: string, field: "requestsCreated" | "requestsFulfilled", amount?: number): Promise<void>;
   addUserEarnings(id: string, amount: number): Promise<void>;
 
@@ -86,7 +86,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUserProfile(id: string, data: { displayName?: string; email?: string }): Promise<User | undefined> {
+  async updateUserProfile(id: string, data: { displayName?: string; email?: string; phone?: string }): Promise<User | undefined> {
     const [user] = await db
       .update(users)
       .set(data)

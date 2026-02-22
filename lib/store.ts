@@ -22,6 +22,8 @@ interface AuthUser {
   id: string;
   username: string;
   displayName: string;
+  email: string;
+  phone: string;
   earnings: number;
   requestsCreated: number;
   requestsFulfilled: number;
@@ -37,7 +39,7 @@ interface AppContextValue {
   activeRequestId: string | null;
   login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   register: (phone: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  updateProfile: (data: { displayName?: string; email?: string }) => Promise<{ ok: boolean; error?: string }>;
+  updateProfile: (data: { displayName?: string; email?: string; phone?: string }) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
   createRequest: (req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">) => void;
   acceptRequest: (id: string) => void;
@@ -79,9 +81,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!user;
 
   const profile: UserProfile = useMemo(() => {
-    if (!user) return { name: "Guest", earnings: 0, requestsCreated: 0, requestsFulfilled: 0 };
+    if (!user) return { name: "Guest", email: "", phone: "", earnings: 0, requestsCreated: 0, requestsFulfilled: 0 };
     return {
       name: user.displayName || user.username,
+      email: user.email || "",
+      phone: user.phone || "",
       earnings: user.earnings || 0,
       requestsCreated: user.requestsCreated || 0,
       requestsFulfilled: user.requestsFulfilled || 0,
@@ -196,7 +200,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateProfile = async (data: { displayName?: string; email?: string }) => {
+  const updateProfile = async (data: { displayName?: string; email?: string; phone?: string }) => {
     try {
       const res = await apiRequest("PATCH", "/api/auth/profile", data);
       const result = await res.json();

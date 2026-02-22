@@ -57,6 +57,8 @@ export interface Notification {
 
 export interface UserProfile {
   name: string;
+  email: string;
+  phone: string;
   earnings: number;
   requestsCreated: number;
   requestsFulfilled: number;

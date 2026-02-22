@@ -84,9 +84,15 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{profile.name}</Text>
-            <Text style={styles.subtitle}>New York, NY</Text>
+            <Text style={styles.subtitle}>{profile.email || profile.phone || "Add your details"}</Text>
           </View>
-          <Pressable style={styles.editBtn}>
+          <Pressable
+            style={styles.editBtn}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push("/edit-profile");
+            }}
+          >
             <Feather name="edit-2" size={14} color={Colors.light.tint} />
           </Pressable>
         </View>
