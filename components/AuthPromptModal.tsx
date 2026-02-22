@@ -61,8 +61,8 @@ const CONTEXT_CONFIG: Record<
   },
   profile: {
     icon: "person-outline",
-    title: "Your LoKat Profile",
-    subtitle: "Create an account to track your requests, earnings, and build your reputation.",
+    title: "Unlock Your Profile",
+    subtitle: "Sign in to track your requests, earnings, and build your reputation.",
     features: [
       { icon: "wallet-outline", text: "Manage earnings & payments" },
       { icon: "stats-chart-outline", text: "Track your activity" },
