@@ -1,7 +1,7 @@
-# LoKate
+# LoKat
 
 ## Overview
-LoKate is a mobile app connecting photo seekers with LoKaters. Seekers drop pins on a map to request photos at specific locations with orientation, angle, and timing preferences. LoKaters browse nearby requests, go to the location, take photos, and earn money.
+LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins on a map to request photos at specific locations with orientation, angle, and timing preferences. LoKaters browse nearby requests, go to the location, take photos, and earn money.
 
 ## Recent Changes
 - 2026-02-22: Full backend with PostgreSQL, session auth, REST API, seeded demo data

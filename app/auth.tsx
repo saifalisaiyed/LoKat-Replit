@@ -70,7 +70,7 @@ export default function AuthScreen() {
           <View style={styles.logoCircle}>
             <Ionicons name="location" size={32} color="#fff" />
           </View>
-          <Text style={styles.appName}>LoKate</Text>
+          <Text style={styles.appName}>LoKat</Text>
           <Text style={styles.tagline}>Photo requests, anywhere</Text>
         </View>
 

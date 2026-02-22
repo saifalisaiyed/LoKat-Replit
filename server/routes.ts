@@ -284,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1`;
       const response = await fetch(url, {
-        headers: { "User-Agent": "LoKateApp/1.0" },
+        headers: { "User-Agent": "LoKatApp/1.0" },
       });
       const data = await response.json();
       const results = data.map((item: any) => {
