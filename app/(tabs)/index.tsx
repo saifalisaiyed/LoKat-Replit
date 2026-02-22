@@ -21,6 +21,7 @@ import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
+import AuthPromptModal, { type AuthPromptContext } from "@/components/AuthPromptModal";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.5;
@@ -163,6 +164,8 @@ export default function HomeScreen() {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<TextInput>(null);
+  const [authPromptVisible, setAuthPromptVisible] = useState(false);
+  const [authPromptContext, setAuthPromptContext] = useState<AuthPromptContext>("create-request");
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   useEffect(() => {
@@ -213,7 +216,7 @@ export default function HomeScreen() {
 
   const handleMapPress = useCallback((e: any) => {
     if (!e?.nativeEvent?.coordinate) return;
-    if (!isAuthenticated) { router.push("/auth"); return; }
+    if (!isAuthenticated) { setAuthPromptContext("create-request"); setAuthPromptVisible(true); return; }
     const { latitude, longitude } = e.nativeEvent.coordinate;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const closest = POPULAR_LOCATIONS.reduce((best, loc) => {
@@ -248,7 +251,7 @@ export default function HomeScreen() {
   const handlePoiClick = useCallback((e: any) => {
     const poi = e?.nativeEvent;
     if (!poi?.coordinate) return;
-    if (!isAuthenticated) { router.push("/auth"); return; }
+    if (!isAuthenticated) { setAuthPromptContext("create-request"); setAuthPromptVisible(true); return; }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const name = poi.name || "Selected Location";
     const { latitude, longitude } = poi.coordinate;
@@ -373,7 +376,7 @@ export default function HomeScreen() {
   }, [searchQuery, localResults, remoteResults]);
 
   const handleLocationSelect = (loc: typeof POPULAR_LOCATIONS[0]) => {
-    if (!isAuthenticated) { setSearchVisible(false); router.push("/auth"); return; }
+    if (!isAuthenticated) { setSearchVisible(false); setAuthPromptContext("create-request"); setAuthPromptVisible(true); return; }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSearchVisible(false);
     setSearchQuery("");
@@ -612,6 +615,12 @@ export default function HomeScreen() {
           />
         </View>
       </Modal>
+
+      <AuthPromptModal
+        visible={authPromptVisible}
+        onClose={() => setAuthPromptVisible(false)}
+        context={authPromptContext}
+      />
     </View>
   );
 }

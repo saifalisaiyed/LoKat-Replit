@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,16 +12,108 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
+import AuthPromptModal from "@/components/AuthPromptModal";
+
+function GuestProfileView({ onSignUp }: { onSignUp: () => void }) {
+  const insets = useSafeAreaInsets();
+  const webInsetTop = Platform.OS === "web" ? 67 : 0;
+
+  return (
+    <View style={[guestStyles.container, { paddingTop: insets.top + 20 + webInsetTop }]}>
+      <View style={guestStyles.content}>
+        <View style={guestStyles.iconContainer}>
+          <View style={guestStyles.iconCircle}>
+            <Ionicons name="person-outline" size={32} color="#fff" />
+          </View>
+          <View style={guestStyles.iconGlow} />
+        </View>
+
+        <Text style={guestStyles.title}>Your LoKat Profile</Text>
+        <Text style={guestStyles.subtitle}>
+          Sign in to track your requests, manage earnings, and build your reputation as a Seeker or LoKater.
+        </Text>
+
+        <View style={guestStyles.featureCards}>
+          <View style={guestStyles.featureCard}>
+            <View style={[guestStyles.featureIcon, { backgroundColor: "rgba(124, 58, 237, 0.1)" }]}>
+              <Ionicons name="camera-outline" size={20} color={Colors.light.tint} />
+            </View>
+            <View style={guestStyles.featureInfo}>
+              <Text style={guestStyles.featureTitle}>Request Photos</Text>
+              <Text style={guestStyles.featureDesc}>Drop pins and get photos from anywhere</Text>
+            </View>
+          </View>
+          <View style={guestStyles.featureDivider} />
+          <View style={guestStyles.featureCard}>
+            <View style={[guestStyles.featureIcon, { backgroundColor: "rgba(249, 115, 22, 0.1)" }]}>
+              <Ionicons name="wallet-outline" size={20} color={Colors.light.orange} />
+            </View>
+            <View style={guestStyles.featureInfo}>
+              <Text style={guestStyles.featureTitle}>Earn Money</Text>
+              <Text style={guestStyles.featureDesc}>Fulfill requests and get paid</Text>
+            </View>
+          </View>
+          <View style={guestStyles.featureDivider} />
+          <View style={guestStyles.featureCard}>
+            <View style={[guestStyles.featureIcon, { backgroundColor: "rgba(34, 197, 94, 0.1)" }]}>
+              <Ionicons name="star-outline" size={20} color="#22C55E" />
+            </View>
+            <View style={guestStyles.featureInfo}>
+              <Text style={guestStyles.featureTitle}>Build Reputation</Text>
+              <Text style={guestStyles.featureDesc}>Grow your ratings and unlock perks</Text>
+            </View>
+          </View>
+        </View>
+
+        <Pressable
+          style={({ pressed }) => [
+            guestStyles.signUpBtn,
+            pressed && { opacity: 0.92, transform: [{ scale: 0.98 }] },
+          ]}
+          onPress={onSignUp}
+        >
+          <Text style={guestStyles.signUpBtnText}>Create Free Account</Text>
+          <Ionicons name="arrow-forward" size={18} color="#fff" />
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [
+            guestStyles.loginBtn,
+            pressed && { opacity: 0.8 },
+          ]}
+          onPress={onSignUp}
+        >
+          <Text style={guestStyles.loginText}>
+            Already have an account? <Text style={guestStyles.loginTextBold}>Log In</Text>
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { profile, logout, isAuthenticated } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
+  const [authPromptVisible, setAuthPromptVisible] = useState(false);
 
   const handleLogout = async () => {
     await logout();
-    router.replace("/auth");
   };
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <GuestProfileView onSignUp={() => router.push("/auth")} />
+        <AuthPromptModal
+          visible={authPromptVisible}
+          onClose={() => setAuthPromptVisible(false)}
+          context="profile"
+        />
+      </>
+    );
+  }
 
   return (
     <ScrollView
@@ -147,6 +239,136 @@ function MenuItem({ icon, label }: { icon: string; label: string }) {
   );
 }
 
+const guestStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F5F7",
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingBottom: 60,
+  },
+  iconContainer: {
+    marginBottom: 24,
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.light.tint,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
+  },
+  iconGlow: {
+    position: "absolute",
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "rgba(124, 58, 237, 0.12)",
+    zIndex: 1,
+  },
+  title: {
+    fontSize: 24,
+    color: Colors.light.text,
+    fontFamily: "Archivo_700Bold",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 28,
+    paddingHorizontal: 12,
+  },
+  featureCards: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 4,
+    marginBottom: 28,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  featureCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    gap: 14,
+  },
+  featureDivider: {
+    height: 1,
+    backgroundColor: "#F3F3F5",
+    marginLeft: 56,
+  },
+  featureIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  featureInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  featureTitle: {
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  featureDesc: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+  },
+  signUpBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: Colors.light.tint,
+    paddingVertical: 16,
+    borderRadius: 14,
+    width: "100%",
+    shadowColor: Colors.light.tint,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  signUpBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  loginBtn: {
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  loginText: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+  },
+  loginTextBold: {
+    color: Colors.light.tint,
+    fontFamily: "Archivo_600SemiBold",
+  },
+});
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -213,7 +435,7 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: Colors.light.tint + "30",
+    borderColor: "rgba(124, 58, 237, 0.19)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -273,7 +495,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: Colors.light.tint + "10",
+    backgroundColor: "rgba(124, 58, 237, 0.06)",
     alignItems: "center",
     justifyContent: "center",
   },

@@ -19,6 +19,7 @@ import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
+import AuthPromptModal from "@/components/AuthPromptModal";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;
@@ -66,10 +67,11 @@ function DetailRow({ icon, label, value }: { icon: string; label: string; value:
 export default function RequestDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, acceptRequest, abandonRequest, deleteRequest, activeRequestId, user } = useApp();
+  const { requests, acceptRequest, abandonRequest, deleteRequest, activeRequestId, user, isAuthenticated } = useApp();
   const mapRef = useRef<any>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
+  const [authPromptVisible, setAuthPromptVisible] = useState(false);
 
   const request = requests.find((r) => r.id === id);
   const userId = user?.id;
@@ -97,6 +99,7 @@ export default function RequestDetailScreen() {
   };
 
   const handleAccept = () => {
+    if (!isAuthenticated) { setAuthPromptVisible(true); return; }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     acceptRequest(request.id);
     router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
@@ -342,6 +345,12 @@ export default function RequestDetailScreen() {
           </View>
         </Pressable>
       </Modal>
+
+      <AuthPromptModal
+        visible={authPromptVisible}
+        onClose={() => setAuthPromptVisible(false)}
+        context="claim-request"
+      />
     </View>
   );
 }
