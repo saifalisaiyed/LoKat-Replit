@@ -36,7 +36,8 @@ interface AppContextValue {
   isLoading: boolean;
   activeRequestId: string | null;
   login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  register: (fullName: string, phone: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  register: (phone: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  updateProfile: (data: { displayName?: string; email?: string }) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
   createRequest: (req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">) => void;
   acceptRequest: (id: string) => void;
@@ -176,9 +177,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (fullName: string, phone: string, email: string, password: string) => {
+  const register = async (phone: string, password: string) => {
     try {
-      const res = await apiRequest("POST", "/api/auth/register", { fullName, phone, email, password });
+      const res = await apiRequest("POST", "/api/auth/register", { phone, password });
       const data = await res.json();
       setUser(data.user);
       await fetchRequests();
@@ -189,6 +190,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const parsed = JSON.parse(errorText);
         return { ok: false, error: parsed.message || "Registration failed" };
+      } catch {
+        return { ok: false, error: errorText };
+      }
+    }
+  };
+
+  const updateProfile = async (data: { displayName?: string; email?: string }) => {
+    try {
+      const res = await apiRequest("PATCH", "/api/auth/profile", data);
+      const result = await res.json();
+      setUser(result.user);
+      return { ok: true };
+    } catch (e: any) {
+      const msg = e.message || "Update failed";
+      const errorText = msg.includes(":") ? msg.split(": ").slice(1).join(": ") : msg;
+      try {
+        const parsed = JSON.parse(errorText);
+        return { ok: false, error: parsed.message || "Update failed" };
       } catch {
         return { ok: false, error: errorText };
       }
@@ -332,6 +351,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       activeRequestId,
       login,
       register,
+      updateProfile,
       logout,
       createRequest,
       acceptRequest,

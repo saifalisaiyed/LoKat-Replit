@@ -49,31 +49,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
-      const { fullName, phone, email, password } = req.body;
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
+      const { phone, password } = req.body;
+      if (!phone || !phone.trim()) {
+        return res.status(400).json({ message: "Phone number is required" });
       }
-      if (!fullName || !fullName.trim()) {
-        return res.status(400).json({ message: "Full name is required" });
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({ message: "Please enter a valid email address" });
-      }
-      if (password.length < 6) {
+      if (!password || password.length < 6) {
         return res.status(400).json({ message: "Password must be at least 6 characters" });
       }
-      const existing = await storage.getUserByEmail(email.toLowerCase().trim());
-      if (existing) {
-        return res.status(409).json({ message: "An account with this email already exists" });
+      const cleanPhone = phone.trim().replace(/[^0-9+\-() ]/g, "");
+      const existingPhone = await storage.getUserByPhone(cleanPhone);
+      if (existingPhone) {
+        return res.status(409).json({ message: "An account with this phone number already exists" });
       }
-      const username = email.toLowerCase().trim().split("@")[0] + "_" + Date.now().toString(36);
+      const username = "user_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       const user = await storage.createUser({
         username,
-        email: email.toLowerCase().trim(),
-        phone: phone?.trim() || "",
+        email: "",
+        phone: cleanPhone,
         password,
-        displayName: fullName.trim(),
+        displayName: "LoKater",
       });
       req.session.userId = user.id;
       const { password: _, ...safeUser } = user;
@@ -124,7 +118,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/auth/profile", requireAuth, async (req: Request, res: Response) => {
     try {
-      const user = await storage.updateUserProfile(req.session.userId!, req.body);
+      const { displayName, email } = req.body;
+      const updates: Record<string, string> = {};
+      if (displayName && displayName.trim()) updates.displayName = displayName.trim();
+      if (email && email.trim()) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) {
+          return res.status(400).json({ message: "Please enter a valid email address" });
+        }
+        const existing = await storage.getUserByEmail(email.toLowerCase().trim());
+        if (existing && existing.id !== req.session.userId) {
+          return res.status(409).json({ message: "This email is already in use" });
+        }
+        updates.email = email.toLowerCase().trim();
+      }
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: "No updates provided" });
+      }
+      const user = await storage.updateUserProfile(req.session.userId!, updates);
       if (!user) return res.status(404).json({ message: "User not found" });
       const { password: _, ...safeUser } = user;
       return res.json({ user: safeUser });
