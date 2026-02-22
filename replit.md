@@ -4,6 +4,8 @@
 LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins on a map to request photos at specific locations with orientation, angle, and timing preferences. LoKaters browse nearby requests, go to the location, take photos, and earn money.
 
 ## Recent Changes
+- 2026-02-22: Multi-step sign-up: phone+password → name → email → app (progressive onboarding)
+- 2026-02-22: Login uses email+password; sign-up uses phone+password
 - 2026-02-22: Full backend with PostgreSQL, session auth, REST API, seeded demo data
 - 2026-02-22: Frontend rewritten to use API calls via React context (replaced AsyncStorage)
 - 2026-02-22: Auth screens (login/register) with session-based authentication
@@ -24,10 +26,11 @@ LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins 
 - **Colors**: Purple accent (#7C3AED), dark map (#1A1B2E), orange time (#F97316)
 
 ## API Endpoints
-- `POST /api/auth/register` - Register new user (username, password, displayName)
-- `POST /api/auth/login` - Login (username, password)
+- `POST /api/auth/register` - Register new user (phone, password)
+- `POST /api/auth/login` - Login (email, password)
 - `POST /api/auth/logout` - Logout
 - `GET /api/auth/me` - Get current session user
+- `PATCH /api/auth/profile` - Update profile (displayName, email) (auth required)
 - `GET /api/requests` - List all open requests
 - `GET /api/requests/:id` - Get single request
 - `POST /api/requests` - Create request (auth required)
@@ -53,7 +56,9 @@ LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins 
 - `app/(tabs)/notifications.tsx` - Notifications (hidden from tab bar)
 - `app/(tabs)/profile.tsx` - Profile with stats, earnings
 - `app/(tabs)/_layout.tsx` - Tab layout with 3 visible tabs, purple active state
-- `app/auth.tsx` - Login/Register authentication screen
+- `app/auth.tsx` - Login (email+password) / Sign Up (phone+password) screen
+- `app/onboarding/name.tsx` - Onboarding step: "What's your name?"
+- `app/onboarding/email.tsx` - Onboarding step: "Add your email"
 - `app/create-request.tsx` - Modal form to create photo requests
 - `app/request-detail/[id].tsx` - Request detail with actions
 - `app/camera/[id].tsx` - Camera screen for LoKaters to take photos
@@ -69,7 +74,7 @@ LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins 
 - `server/seed.ts` - Demo data seeder (12 NYC photo requests)
 
 ## Database Schema
-- **users**: id (uuid), username (unique), password (sha256), displayName, requestsCreated, requestsFulfilled, earnings, rating
+- **users**: id (uuid), username (unique), email, phone, password (sha256), displayName, requestsCreated, requestsFulfilled, earnings
 - **photo_requests**: id (uuid), creatorId, claimedBy, latitude, longitude, locationName, address, category, orientation, angle, timing, reward, status, notes, createdAt
 - **notifications**: id (uuid), userId, type, title, message, requestId, read, createdAt
 
