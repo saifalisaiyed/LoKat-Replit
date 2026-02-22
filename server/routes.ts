@@ -28,6 +28,17 @@ function requireAuth(req: Request, res: Response, next: Function) {
   next();
 }
 
+async function requireAdmin(req: Request, res: Response, next: Function) {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+  const user = await storage.getUser(req.session.userId);
+  if (!user || !user.isAdmin) {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+  next();
+}
+
 function paramId(req: Request): string {
   const id = req.params.id;
   return Array.isArray(id) ? id[0] : id;
@@ -540,6 +551,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("Object access error:", error);
       return res.sendStatus(500);
+    }
+  });
+
+  app.get("/api/admin/requests", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const statusFilter = req.query.status as string | undefined;
+      const allRequests = await storage.getAllRequestsAdmin(statusFilter);
+      return res.json(allRequests);
+    } catch (e) {
+      console.error("Admin requests error:", e);
+      return res.status(500).json({ message: "Failed to fetch requests" });
+    }
+  });
+
+  app.get("/api/admin/users", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const allUsers = await storage.getAllUsersAdmin();
+      return res.json(allUsers.map(u => {
+        const { password: _, ...safe } = u;
+        return safe;
+      }));
+    } catch (e) {
+      console.error("Admin users error:", e);
+      return res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.get("/api/admin/stats", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const stats = await storage.getAdminStats();
+      return res.json(stats);
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to fetch stats" });
     }
   });
 

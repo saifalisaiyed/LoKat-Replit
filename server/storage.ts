@@ -58,6 +58,10 @@ export interface IStorage {
 
   getMessages(requestId: string): Promise<Message[]>;
   createMessage(requestId: string, senderId: string, text: string): Promise<Message>;
+
+  getAllRequestsAdmin(statusFilter?: string): Promise<PhotoRequest[]>;
+  getAllUsersAdmin(): Promise<User[]>;
+  getAdminStats(): Promise<{ totalUsers: number; totalRequests: number; openRequests: number; acceptedRequests: number; completedRequests: number; totalEarnings: number }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -342,6 +346,38 @@ export class DatabaseStorage implements IStorage {
       .values({ id, requestId, senderId, text })
       .returning();
     return msg;
+  }
+
+  async getAllRequestsAdmin(statusFilter?: string): Promise<PhotoRequest[]> {
+    if (statusFilter && statusFilter !== "all") {
+      return db
+        .select()
+        .from(photoRequests)
+        .where(eq(photoRequests.status, statusFilter))
+        .orderBy(desc(photoRequests.createdAt));
+    }
+    return db.select().from(photoRequests).orderBy(desc(photoRequests.createdAt));
+  }
+
+  async getAllUsersAdmin(): Promise<User[]> {
+    return db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async getAdminStats(): Promise<{ totalUsers: number; totalRequests: number; openRequests: number; acceptedRequests: number; completedRequests: number; totalEarnings: number }> {
+    const [userCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const [reqCount] = await db.select({ count: sql<number>`count(*)` }).from(photoRequests);
+    const [openCount] = await db.select({ count: sql<number>`count(*)` }).from(photoRequests).where(eq(photoRequests.status, "open"));
+    const [acceptedCount] = await db.select({ count: sql<number>`count(*)` }).from(photoRequests).where(eq(photoRequests.status, "accepted"));
+    const [completedCount] = await db.select({ count: sql<number>`count(*)` }).from(photoRequests).where(eq(photoRequests.status, "completed"));
+    const [earningsSum] = await db.select({ total: sql<number>`coalesce(sum(${users.earnings}), 0)` }).from(users);
+    return {
+      totalUsers: Number(userCount.count),
+      totalRequests: Number(reqCount.count),
+      openRequests: Number(openCount.count),
+      acceptedRequests: Number(acceptedCount.count),
+      completedRequests: Number(completedCount.count),
+      totalEarnings: Number(earningsSum.total),
+    };
   }
 }
 
