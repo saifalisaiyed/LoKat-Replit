@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Image,
+  Modal,
+  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,6 +21,49 @@ import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
 
 const lokatLogo = require("@/assets/images/lokat-logo.png");
+
+const COUNTRY_CODES = [
+  { code: "+1", flag: "🇺🇸", name: "United States" },
+  { code: "+1", flag: "🇨🇦", name: "Canada" },
+  { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
+  { code: "+91", flag: "🇮🇳", name: "India" },
+  { code: "+61", flag: "🇦🇺", name: "Australia" },
+  { code: "+49", flag: "🇩🇪", name: "Germany" },
+  { code: "+33", flag: "🇫🇷", name: "France" },
+  { code: "+81", flag: "🇯🇵", name: "Japan" },
+  { code: "+86", flag: "🇨🇳", name: "China" },
+  { code: "+82", flag: "🇰🇷", name: "South Korea" },
+  { code: "+55", flag: "🇧🇷", name: "Brazil" },
+  { code: "+52", flag: "🇲🇽", name: "Mexico" },
+  { code: "+39", flag: "🇮🇹", name: "Italy" },
+  { code: "+34", flag: "🇪🇸", name: "Spain" },
+  { code: "+31", flag: "🇳🇱", name: "Netherlands" },
+  { code: "+46", flag: "🇸🇪", name: "Sweden" },
+  { code: "+47", flag: "🇳🇴", name: "Norway" },
+  { code: "+45", flag: "🇩🇰", name: "Denmark" },
+  { code: "+41", flag: "🇨🇭", name: "Switzerland" },
+  { code: "+48", flag: "🇵🇱", name: "Poland" },
+  { code: "+7", flag: "🇷🇺", name: "Russia" },
+  { code: "+90", flag: "🇹🇷", name: "Turkey" },
+  { code: "+966", flag: "🇸🇦", name: "Saudi Arabia" },
+  { code: "+971", flag: "🇦🇪", name: "UAE" },
+  { code: "+234", flag: "🇳🇬", name: "Nigeria" },
+  { code: "+27", flag: "🇿🇦", name: "South Africa" },
+  { code: "+254", flag: "🇰🇪", name: "Kenya" },
+  { code: "+63", flag: "🇵🇭", name: "Philippines" },
+  { code: "+65", flag: "🇸🇬", name: "Singapore" },
+  { code: "+60", flag: "🇲🇾", name: "Malaysia" },
+  { code: "+66", flag: "🇹🇭", name: "Thailand" },
+  { code: "+62", flag: "🇮🇩", name: "Indonesia" },
+  { code: "+64", flag: "🇳🇿", name: "New Zealand" },
+  { code: "+353", flag: "🇮🇪", name: "Ireland" },
+  { code: "+351", flag: "🇵🇹", name: "Portugal" },
+  { code: "+43", flag: "🇦🇹", name: "Austria" },
+  { code: "+32", flag: "🇧🇪", name: "Belgium" },
+  { code: "+54", flag: "🇦🇷", name: "Argentina" },
+  { code: "+56", flag: "🇨🇱", name: "Chile" },
+  { code: "+57", flag: "🇨🇴", name: "Colombia" },
+];
 
 function GoogleLogo() {
   return (
@@ -34,12 +79,24 @@ export default function AuthScreen() {
   const insets = useSafeAreaInsets();
   const { login, register } = useApp();
   const [mode, setMode] = useState<"login" | "register">("register");
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+  const phoneInputRef = useRef<TextInput>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
+
+  const filteredCountries = countrySearch.trim()
+    ? COUNTRY_CODES.filter(
+        (c) =>
+          c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+          c.code.includes(countrySearch)
+      )
+    : COUNTRY_CODES;
 
   const handleSubmit = async () => {
     setError("");
@@ -64,7 +121,8 @@ export default function AuthScreen() {
       if (mode === "login") {
         result = await login(email.trim(), password.trim());
       } else {
-        result = await register(phone.trim(), password.trim());
+        const fullPhone = selectedCountry.code + phone.trim().replace(/^0+/, "");
+        result = await register(fullPhone, password.trim());
       }
       if (result.ok) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -96,6 +154,14 @@ export default function AuthScreen() {
   const switchMode = () => {
     setMode(mode === "register" ? "login" : "register");
     setError("");
+  };
+
+  const selectCountry = (country: (typeof COUNTRY_CODES)[0]) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelectedCountry(country);
+    setShowCountryPicker(false);
+    setCountrySearch("");
+    setTimeout(() => phoneInputRef.current?.focus(), 100);
   };
 
   return (
@@ -130,18 +196,35 @@ export default function AuthScreen() {
           {mode === "register" ? (
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Phone Number</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="+1 555 123 4567"
-                placeholderTextColor="#B0B0B0"
-                value={phone}
-                onChangeText={(text) => {
-                  const cleaned = text.replace(/[^0-9+\- ]/g, "");
-                  setPhone(cleaned);
-                }}
-                keyboardType="phone-pad"
-                autoComplete="tel"
-              />
+              <View style={styles.phoneRow}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.countryCodeBtn,
+                    pressed && { backgroundColor: "#EFEFEF" },
+                  ]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setShowCountryPicker(true);
+                  }}
+                >
+                  <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
+                  <Text style={styles.countryCode}>{selectedCountry.code}</Text>
+                  <Ionicons name="chevron-down" size={14} color="#999" />
+                </Pressable>
+                <TextInput
+                  ref={phoneInputRef}
+                  style={styles.phoneInput}
+                  placeholder="555 123 4567"
+                  placeholderTextColor="#B0B0B0"
+                  value={phone}
+                  onChangeText={(text) => {
+                    const cleaned = text.replace(/[^0-9 ]/g, "");
+                    setPhone(cleaned);
+                  }}
+                  keyboardType="number-pad"
+                  autoComplete="tel"
+                />
+              </View>
             </View>
           ) : (
             <View style={styles.inputGroup}>
@@ -248,6 +331,70 @@ export default function AuthScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={showCountryPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setShowCountryPicker(false);
+          setCountrySearch("");
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={styles.modalBackdrop}
+            onPress={() => {
+              setShowCountryPicker(false);
+              setCountrySearch("");
+            }}
+          />
+          <View style={[styles.modalContent, { paddingBottom: insets.bottom + 16 }]}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>Select Country</Text>
+
+            <View style={styles.searchWrapper}>
+              <Ionicons name="search" size={18} color="#999" style={{ marginLeft: 12 }} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search country..."
+                placeholderTextColor="#B0B0B0"
+                value={countrySearch}
+                onChangeText={setCountrySearch}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <FlatList
+              data={filteredCountries}
+              keyExtractor={(item, index) => `${item.code}-${item.name}-${index}`}
+              style={styles.countryList}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item }) => (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.countryRow,
+                    pressed && { backgroundColor: "#F3F0FF" },
+                    item.code === selectedCountry.code &&
+                      item.name === selectedCountry.name &&
+                      styles.countryRowSelected,
+                  ]}
+                  onPress={() => selectCountry(item)}
+                >
+                  <Text style={styles.countryRowFlag}>{item.flag}</Text>
+                  <Text style={styles.countryRowName}>{item.name}</Text>
+                  <Text style={styles.countryRowCode}>{item.code}</Text>
+                  {item.code === selectedCountry.code &&
+                    item.name === selectedCountry.name && (
+                      <Ionicons name="checkmark-circle" size={20} color={Colors.light.tint} />
+                    )}
+                </Pressable>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -308,6 +455,41 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   input: {
+    backgroundColor: "#F8F8FA",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: Colors.light.text,
+    borderWidth: 1,
+    borderColor: "#EBEBEB",
+    fontFamily: "Archivo_400Regular",
+  },
+  phoneRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  countryCodeBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#F8F8FA",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: "#EBEBEB",
+  },
+  countryFlag: {
+    fontSize: 18,
+  },
+  countryCode: {
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
+  },
+  phoneInput: {
+    flex: 1,
     backgroundColor: "#F8F8FA",
     borderRadius: 12,
     paddingHorizontal: 14,
@@ -429,5 +611,81 @@ const styles = StyleSheet.create({
   termsLink: {
     color: Colors.light.tint,
     fontFamily: "Archivo_500Medium",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 12,
+    maxHeight: "70%",
+  },
+  modalHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#DDD",
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    color: Colors.light.text,
+    fontFamily: "Archivo_600SemiBold",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  searchWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F7",
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#EBEBEB",
+  },
+  searchInput: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_400Regular",
+  },
+  countryList: {
+    flex: 1,
+  },
+  countryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  countryRowSelected: {
+    backgroundColor: "rgba(124, 58, 237, 0.04)",
+  },
+  countryRowFlag: {
+    fontSize: 22,
+  },
+  countryRowName: {
+    flex: 1,
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_400Regular",
+  },
+  countryRowCode: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_500Medium",
+    marginRight: 4,
   },
 });
