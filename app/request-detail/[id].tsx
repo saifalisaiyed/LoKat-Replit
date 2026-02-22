@@ -66,14 +66,15 @@ function DetailRow({ icon, label, value }: { icon: string; label: string; value:
 export default function RequestDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, acceptRequest, abandonRequest, deleteRequest, activeRequestId } = useApp();
+  const { requests, acceptRequest, abandonRequest, deleteRequest, activeRequestId, user } = useApp();
   const mapRef = useRef<any>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
 
   const request = requests.find((r) => r.id === id);
-  const isMyRequest = request?.creatorId === "me";
-  const isActiveLoKater = request?.status === "accepted" && request?.acceptedBy === "me";
+  const userId = user?.id;
+  const isMyRequest = request?.creatorId === userId;
+  const isActiveLoKater = request?.status === "accepted" && request?.acceptedBy === userId;
   const safeCategory = request?.category || "landmarks";
   const categoryData = CATEGORIES.find((c) => c.key === safeCategory) || CATEGORIES[0];
 

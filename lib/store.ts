@@ -7,9 +7,9 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Crypto from "expo-crypto";
 import React from "react";
+import { apiRequest, getApiUrl } from "./query-client";
+import { fetch } from "expo/fetch";
 import type {
   PhotoRequest,
   UserProfile,
@@ -17,30 +17,28 @@ import type {
   Notification,
   Category,
 } from "./types";
-import { demoRequests, demoNotifications } from "./demo-data";
 
-const REQUESTS_KEY = "@lokate_requests";
-const PROFILE_KEY = "@lokate_profile";
-const NOTIFS_KEY = "@lokate_notifications";
-const SEEDED_KEY = "@lokate_seeded_v2";
-const ACTIVE_REQUEST_KEY = "@lokate_active_request";
-
-const defaultProfile: UserProfile = {
-  name: "Alex",
-  earnings: 24.0,
-  requestsCreated: 3,
-  requestsFulfilled: 5,
-};
+interface AuthUser {
+  id: string;
+  username: string;
+  displayName: string;
+  earnings: number;
+  requestsCreated: number;
+  requestsFulfilled: number;
+}
 
 interface AppContextValue {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
   profile: UserProfile;
   requests: PhotoRequest[];
   notifications: Notification[];
   isLoading: boolean;
   activeRequestId: string | null;
-  createRequest: (
-    req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">,
-  ) => void;
+  login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  register: (username: string, password: string, displayName?: string) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  createRequest: (req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">) => void;
   acceptRequest: (id: string) => void;
   abandonRequest: (id: string) => void;
   submitPhoto: (id: string, photoUri: string) => void;
@@ -50,248 +48,261 @@ interface AppContextValue {
   markAllNotificationsRead: () => void;
   unreadCount: number;
   getRequestsByCategory: (category: Category | null) => PhotoRequest[];
+  refreshRequests: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+function normalizeRequest(r: any): PhotoRequest {
+  return {
+    ...r,
+    createdAt: typeof r.createdAt === "string" ? r.createdAt : new Date(r.createdAt).toISOString(),
+  };
+}
+
+function normalizeNotification(n: any): Notification {
+  return {
+    ...n,
+    createdAt: typeof n.createdAt === "string" ? n.createdAt : new Date(n.createdAt).toISOString(),
+  };
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfile] = useState<UserProfile>(defaultProfile);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [requests, setRequests] = useState<PhotoRequest[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [activeRequestId, setActiveRequestId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const isAuthenticated = !!user;
 
-  const loadData = async () => {
+  const profile: UserProfile = useMemo(() => {
+    if (!user) return { name: "Guest", earnings: 0, requestsCreated: 0, requestsFulfilled: 0 };
+    return {
+      name: user.displayName || user.username,
+      earnings: user.earnings || 0,
+      requestsCreated: user.requestsCreated || 0,
+      requestsFulfilled: user.requestsFulfilled || 0,
+    };
+  }, [user]);
+
+  const fetchMe = async (): Promise<AuthUser | null> => {
     try {
-      const [savedProfile, savedRequests, savedNotifs, seeded, savedActiveReq] =
-        await Promise.all([
-          AsyncStorage.getItem(PROFILE_KEY),
-          AsyncStorage.getItem(REQUESTS_KEY),
-          AsyncStorage.getItem(NOTIFS_KEY),
-          AsyncStorage.getItem(SEEDED_KEY),
-          AsyncStorage.getItem(ACTIVE_REQUEST_KEY),
-        ]);
-      if (savedActiveReq) setActiveRequestId(savedActiveReq);
+      const baseUrl = getApiUrl();
+      const res = await fetch(`${baseUrl}api/auth/me`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        return data.user;
+      }
+    } catch (e) {}
+    return null;
+  };
 
-      if (savedProfile) setProfile(JSON.parse(savedProfile));
-      if (savedRequests) {
-        const parsed = JSON.parse(savedRequests) as PhotoRequest[];
-        const migrated = parsed.map((r) => ({
-          ...r,
-          category: r.category || "landmarks" as Category,
-          address: r.address || "New York, NY",
-        }));
-        setRequests(migrated);
-        if (parsed.some((r) => !r.category)) {
-          await AsyncStorage.setItem(REQUESTS_KEY, JSON.stringify(migrated));
-        }
-      } else if (!seeded) {
-        setRequests(demoRequests);
-        await AsyncStorage.setItem(
-          REQUESTS_KEY,
-          JSON.stringify(demoRequests),
-        );
-      }
-      if (savedNotifs) {
-        setNotifications(JSON.parse(savedNotifs));
-      } else if (!seeded) {
-        setNotifications(demoNotifications);
-        await AsyncStorage.setItem(
-          NOTIFS_KEY,
-          JSON.stringify(demoNotifications),
-        );
-      }
-      if (!seeded) {
-        await AsyncStorage.setItem(SEEDED_KEY, "true");
+  const fetchRequests = async () => {
+    try {
+      const baseUrl = getApiUrl();
+      const res = await fetch(`${baseUrl}api/requests`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setRequests(data.map(normalizeRequest));
       }
     } catch (e) {
-      console.error("Failed to load data:", e);
-    } finally {
-      setIsLoading(false);
+      console.error("Failed to fetch requests:", e);
     }
   };
 
-  const saveProfile = async (p: UserProfile) => {
-    setProfile(p);
-    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  const fetchNotifications = async () => {
+    if (!user) return;
+    try {
+      const baseUrl = getApiUrl();
+      const res = await fetch(`${baseUrl}api/notifications`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.map(normalizeNotification));
+      }
+    } catch (e) {
+      console.error("Failed to fetch notifications:", e);
+    }
   };
 
-  const saveRequests = async (r: PhotoRequest[]) => {
-    setRequests(r);
-    await AsyncStorage.setItem(REQUESTS_KEY, JSON.stringify(r));
+  const refreshProfile = async () => {
+    const me = await fetchMe();
+    if (me) setUser(me);
   };
 
-  const saveNotifications = async (n: Notification[]) => {
-    setNotifications(n);
-    await AsyncStorage.setItem(NOTIFS_KEY, JSON.stringify(n));
+  useEffect(() => {
+    (async () => {
+      try {
+        const me = await fetchMe();
+        if (me) {
+          setUser(me);
+        }
+        await fetchRequests();
+      } catch (e) {
+        console.error("Init error:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+      const found = requests.find(
+        (r) => r.status === "accepted" && r.acceptedBy === user.id
+      );
+      setActiveRequestId(found?.id || null);
+    }
+  }, [user, requests]);
+
+  const login = async (username: string, password: string) => {
+    try {
+      const res = await apiRequest("POST", "/api/auth/login", { username, password });
+      const data = await res.json();
+      setUser(data.user);
+      await fetchRequests();
+      return { ok: true };
+    } catch (e: any) {
+      const msg = e.message || "Login failed";
+      const errorText = msg.includes(":") ? msg.split(": ").slice(1).join(": ") : msg;
+      try {
+        const parsed = JSON.parse(errorText);
+        return { ok: false, error: parsed.message || "Login failed" };
+      } catch {
+        return { ok: false, error: errorText };
+      }
+    }
   };
 
-  const addNotification = (
-    title: string,
-    body: string,
-    type: Notification["type"],
-    requestId?: string,
-  ) => {
-    const notif: Notification = {
-      id: Crypto.randomUUID(),
-      title,
-      body,
-      type,
-      requestId,
-      createdAt: new Date().toISOString(),
-      read: false,
-    };
-    const updated = [notif, ...notifications];
-    saveNotifications(updated);
+  const register = async (username: string, password: string, displayName?: string) => {
+    try {
+      const res = await apiRequest("POST", "/api/auth/register", { username, password, displayName });
+      const data = await res.json();
+      setUser(data.user);
+      await fetchRequests();
+      return { ok: true };
+    } catch (e: any) {
+      const msg = e.message || "Registration failed";
+      const errorText = msg.includes(":") ? msg.split(": ").slice(1).join(": ") : msg;
+      try {
+        const parsed = JSON.parse(errorText);
+        return { ok: false, error: parsed.message || "Registration failed" };
+      } catch {
+        return { ok: false, error: errorText };
+      }
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await apiRequest("POST", "/api/auth/logout");
+    } catch (e) {}
+    setUser(null);
+    setRequests([]);
+    setNotifications([]);
+    setActiveRequestId(null);
   };
 
   const createRequest = useCallback(
-    (
-      req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">,
-    ) => {
-      const newReq: PhotoRequest = {
-        ...req,
-        id: Crypto.randomUUID(),
-        creatorId: "me",
-        status: "open",
-        createdAt: new Date().toISOString(),
-      };
-      const updated = [newReq, ...requests];
-      saveRequests(updated);
-      saveProfile({
-        ...profile,
-        requestsCreated: profile.requestsCreated + 1,
-      });
+    async (req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">) => {
+      try {
+        await apiRequest("POST", "/api/requests", req);
+        await fetchRequests();
+        await refreshProfile();
+      } catch (e) {
+        console.error("Create request error:", e);
+      }
     },
-    [requests, profile],
+    [],
   );
 
   const acceptRequest = useCallback(
-    (id: string) => {
-      const updated = requests.map((r) =>
-        r.id === id
-          ? { ...r, status: "accepted" as RequestStatus, acceptedBy: "me" }
-          : r,
-      );
-      saveRequests(updated);
-      setActiveRequestId(id);
-      AsyncStorage.setItem(ACTIVE_REQUEST_KEY, id);
-      const req = requests.find((r) => r.id === id);
-      if (req) {
-        addNotification(
-          "Request accepted",
-          `You accepted the request for ${req.locationName}`,
-          "accepted",
-          id,
-        );
+    async (id: string) => {
+      try {
+        await apiRequest("PATCH", `/api/requests/${id}/accept`);
+        await fetchRequests();
+        await fetchNotifications();
+      } catch (e) {
+        console.error("Accept request error:", e);
       }
     },
-    [requests, notifications],
+    [],
   );
 
   const abandonRequest = useCallback(
-    (id: string) => {
-      const updated = requests.map((r) =>
-        r.id === id
-          ? { ...r, status: "open" as RequestStatus, acceptedBy: undefined }
-          : r,
-      );
-      saveRequests(updated);
-      setActiveRequestId(null);
-      AsyncStorage.removeItem(ACTIVE_REQUEST_KEY);
-      const req = requests.find((r) => r.id === id);
-      if (req) {
-        addNotification(
-          "Request abandoned",
-          `You abandoned the request for ${req.locationName}`,
-          "accepted",
-          id,
-        );
+    async (id: string) => {
+      try {
+        await apiRequest("PATCH", `/api/requests/${id}/abandon`);
+        await fetchRequests();
+        await fetchNotifications();
+      } catch (e) {
+        console.error("Abandon request error:", e);
       }
     },
-    [requests, notifications],
+    [],
   );
 
   const submitPhoto = useCallback(
-    (id: string, photoUri: string) => {
-      const updated = requests.map((r) =>
-        r.id === id
-          ? {
-              ...r,
-              status: "submitted" as RequestStatus,
-              photoUri,
-              submittedAt: new Date().toISOString(),
-            }
-          : r,
-      );
-      saveRequests(updated);
-      setActiveRequestId(null);
-      AsyncStorage.removeItem(ACTIVE_REQUEST_KEY);
-      const req = requests.find((r) => r.id === id);
-      if (req) {
-        addNotification(
-          "Photo submitted",
-          `Photo for ${req.locationName} has been submitted`,
-          "submitted",
-          id,
-        );
+    async (id: string, photoUri: string) => {
+      try {
+        await apiRequest("PATCH", `/api/requests/${id}/submit`, { photoUri });
+        await fetchRequests();
+        await fetchNotifications();
+      } catch (e) {
+        console.error("Submit photo error:", e);
       }
     },
-    [requests, notifications],
+    [],
   );
 
   const completeRequest = useCallback(
-    (id: string) => {
-      const req = requests.find((r) => r.id === id);
-      const updated = requests.map((r) =>
-        r.id === id
-          ? { ...r, status: "completed" as RequestStatus }
-          : r,
-      );
-      saveRequests(updated);
-      if (req) {
-        saveProfile({
-          ...profile,
-          earnings: profile.earnings + req.reward,
-          requestsFulfilled: profile.requestsFulfilled + 1,
-        });
-        addNotification(
-          "Payment received",
-          `You earned $${req.reward.toFixed(2)} for ${req.locationName}`,
-          "completed",
-          id,
-        );
+    async (id: string) => {
+      try {
+        await apiRequest("PATCH", `/api/requests/${id}/complete`);
+        await fetchRequests();
+        await refreshProfile();
+        await fetchNotifications();
+      } catch (e) {
+        console.error("Complete request error:", e);
       }
     },
-    [requests, profile, notifications],
+    [],
   );
 
   const deleteRequest = useCallback(
-    (id: string) => {
-      const updated = requests.filter((r) => r.id !== id);
-      saveRequests(updated);
+    async (id: string) => {
+      try {
+        await apiRequest("DELETE", `/api/requests/${id}`);
+        await fetchRequests();
+      } catch (e) {
+        console.error("Delete request error:", e);
+      }
     },
-    [requests],
+    [],
   );
 
   const markNotificationRead = useCallback(
-    (id: string) => {
-      const updated = notifications.map((n) =>
-        n.id === id ? { ...n, read: true } : n,
-      );
-      saveNotifications(updated);
+    async (id: string) => {
+      try {
+        await apiRequest("PATCH", `/api/notifications/${id}/read`);
+        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+      } catch (e) {
+        console.error("Mark read error:", e);
+      }
     },
-    [notifications],
+    [],
   );
 
-  const markAllNotificationsRead = useCallback(() => {
-    const updated = notifications.map((n) => ({ ...n, read: true }));
-    saveNotifications(updated);
-  }, [notifications]);
+  const markAllNotificationsRead = useCallback(async () => {
+    try {
+      await apiRequest("PATCH", "/api/notifications/read-all");
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch (e) {
+      console.error("Mark all read error:", e);
+    }
+  }, []);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
@@ -300,20 +311,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const getRequestsByCategory = useCallback(
     (category: Category | null) => {
-      const open = requests.filter((r) => r.status === "open" && r.creatorId !== "me");
+      const userId = user?.id;
+      const open = requests.filter((r) => r.status === "open" && r.creatorId !== userId);
       if (!category) return open;
       return open.filter((r) => r.category === category);
     },
-    [requests],
+    [requests, user],
   );
+
+  const refreshRequests = fetchRequests;
 
   const value = useMemo(
     () => ({
+      user,
+      isAuthenticated,
       profile,
       requests,
       notifications,
       isLoading,
       activeRequestId,
+      login,
+      register,
+      logout,
       createRequest,
       acceptRequest,
       abandonRequest,
@@ -324,8 +343,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       markAllNotificationsRead,
       unreadCount,
       getRequestsByCategory,
+      refreshRequests,
+      refreshProfile,
     }),
     [
+      user,
+      isAuthenticated,
       profile,
       requests,
       notifications,

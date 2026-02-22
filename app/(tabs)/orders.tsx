@@ -36,9 +36,9 @@ function getCategoryLabel(key: Category): string {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key;
 }
 
-function OrderCard({ item, onPress }: { item: any; onPress: () => void }) {
+function OrderCard({ item, onPress, userId }: { item: any; onPress: () => void; userId?: string }) {
   const statusConfig = getStatusConfig(item.status);
-  const isMyRequest = item.creatorId === "me";
+  const isMyRequest = item.creatorId === userId;
 
   return (
     <Pressable
@@ -96,12 +96,13 @@ function OrderCard({ item, onPress }: { item: any; onPress: () => void }) {
 
 export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
-  const { requests } = useApp();
+  const { requests, user } = useApp();
+  const userId = user?.id;
   const [activeTab, setActiveTab] = useState<Tab>("active");
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const myOrders = requests.filter(
-    (r) => r.creatorId === "me" || r.acceptedBy === "me",
+    (r) => r.creatorId === userId || r.acceptedBy === userId,
   );
 
   const activeOrders = myOrders.filter(
@@ -191,7 +192,7 @@ export default function OrdersScreen() {
         data={data}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <OrderCard item={item} onPress={() => handlePress(item.id)} />
+          <OrderCard item={item} onPress={() => handlePress(item.id)} userId={userId} />
         )}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={{

@@ -156,7 +156,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { getRequestsByCategory, activeRequestId } = useApp();
+  const { getRequestsByCategory, activeRequestId, isAuthenticated, user } = useApp();
   const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
@@ -213,6 +213,7 @@ export default function HomeScreen() {
 
   const handleMapPress = useCallback((e: any) => {
     if (!e?.nativeEvent?.coordinate) return;
+    if (!isAuthenticated) { router.push("/auth"); return; }
     const { latitude, longitude } = e.nativeEvent.coordinate;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const closest = POPULAR_LOCATIONS.reduce((best, loc) => {
@@ -247,6 +248,7 @@ export default function HomeScreen() {
   const handlePoiClick = useCallback((e: any) => {
     const poi = e?.nativeEvent;
     if (!poi?.coordinate) return;
+    if (!isAuthenticated) { router.push("/auth"); return; }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const name = poi.name || "Selected Location";
     const { latitude, longitude } = poi.coordinate;
@@ -371,6 +373,7 @@ export default function HomeScreen() {
   }, [searchQuery, localResults, remoteResults]);
 
   const handleLocationSelect = (loc: typeof POPULAR_LOCATIONS[0]) => {
+    if (!isAuthenticated) { setSearchVisible(false); router.push("/auth"); return; }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSearchVisible(false);
     setSearchQuery("");

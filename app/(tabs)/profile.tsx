@@ -9,13 +9,19 @@ import {
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { router } from "expo-router";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { profile } = useApp();
+  const { profile, logout, isAuthenticated } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/auth");
+  };
 
   return (
     <ScrollView
@@ -116,7 +122,7 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <Pressable style={styles.logoutBtn}>
+      <Pressable style={styles.logoutBtn} onPress={handleLogout}>
         <Feather name="log-out" size={16} color="#EF4444" />
         <Text style={styles.logoutText}>Sign Out</Text>
       </Pressable>
