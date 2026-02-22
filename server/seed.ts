@@ -25,25 +25,58 @@ const DEMO_REQUESTS = [
 async function seed() {
   console.log("Seeding database...");
 
-  const demoUserId = randomUUID();
-  const [demoUser] = await db
+  const seekerId = randomUUID();
+  const [seekerUser] = await db
     .insert(users)
     .values({
-      id: demoUserId,
+      id: seekerId,
       username: "demo_seeker",
-      email: "demo@lokat.app",
+      email: "seeker@lokat.app",
       phone: "+1234567890",
       password: hashPassword("demo1234"),
       displayName: "NYC Explorer",
       requestsCreated: DEMO_REQUESTS.length,
+      isAdmin: false,
     })
     .onConflictDoNothing()
     .returning();
 
-  if (!demoUser) {
-    console.log("Demo user already exists, skipping seed.");
+  if (!seekerUser) {
+    console.log("Seeker user already exists, skipping seed.");
     return;
   }
+
+  const lokaterId = randomUUID();
+  await db
+    .insert(users)
+    .values({
+      id: lokaterId,
+      username: "demo_lokater",
+      email: "lokater@lokat.app",
+      phone: "+1987654321",
+      password: hashPassword("demo1234"),
+      displayName: "Street Photographer",
+      requestsFulfilled: 3,
+      earnings: 22.50,
+      averageRating: 4.7,
+      totalRatings: 3,
+      isAdmin: false,
+    })
+    .onConflictDoNothing();
+
+  const adminId = randomUUID();
+  await db
+    .insert(users)
+    .values({
+      id: adminId,
+      username: "admin",
+      email: "admin@lokat.app",
+      phone: "+1000000000",
+      password: hashPassword("admin1234"),
+      displayName: "Admin",
+      isAdmin: true,
+    })
+    .onConflictDoNothing();
 
   const now = new Date();
   for (let i = 0; i < DEMO_REQUESTS.length; i++) {
@@ -51,7 +84,7 @@ async function seed() {
     const createdAt = new Date(now.getTime() - (i * 15 + Math.random() * 30) * 60000);
     await db.insert(photoRequests).values({
       id: randomUUID(),
-      creatorId: demoUserId,
+      creatorId: seekerId,
       latitude: r.lat,
       longitude: r.lng,
       locationName: r.locationName,
@@ -66,6 +99,7 @@ async function seed() {
     });
   }
 
+  console.log("Seeded 3 users: seeker@lokat.app, lokater@lokat.app, admin@lokat.app");
   console.log(`Seeded ${DEMO_REQUESTS.length} demo requests`);
 }
 

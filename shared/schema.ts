@@ -25,6 +25,7 @@ export const users = pgTable("users", {
   requestsFulfilled: integer("requests_fulfilled").notNull().default(0),
   averageRating: doublePrecision("average_rating").notNull().default(0),
   totalRatings: integer("total_ratings").notNull().default(0),
+  isAdmin: boolean("is_admin").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
