@@ -132,10 +132,13 @@ export default function AuthScreen() {
               <Text style={styles.inputLabel}>Phone Number</Text>
               <TextInput
                 style={styles.input}
-                placeholder="(555) 123-4567"
+                placeholder="+1 555 123 4567"
                 placeholderTextColor="#B0B0B0"
                 value={phone}
-                onChangeText={setPhone}
+                onChangeText={(text) => {
+                  const cleaned = text.replace(/[^0-9+\- ]/g, "");
+                  setPhone(cleaned);
+                }}
                 keyboardType="phone-pad"
                 autoComplete="tel"
               />
