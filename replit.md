@@ -4,6 +4,9 @@
 LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins on a map to request photos at specific locations with orientation, angle, and timing preferences. LoKaters browse nearby requests, go to the location, take photos, and earn money.
 
 ## Recent Changes
+- 2026-02-22: Admin panel: admin@lokat.app/admin1234 can view all requests (all statuses), user stats, filter by status
+- 2026-02-22: Three test accounts: seeker@lokat.app/demo1234, lokater@lokat.app/demo1234, admin@lokat.app/admin1234
+- 2026-02-22: isAdmin field on users table, requireAdmin middleware, admin API endpoints
 - 2026-02-22: Multi-step sign-up: phone+password → name → email → app (progressive onboarding)
 - 2026-02-22: Login uses email+password; sign-up uses phone+password
 - 2026-02-22: Full backend with PostgreSQL, session auth, REST API, seeded demo data
