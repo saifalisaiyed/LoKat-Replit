@@ -16,6 +16,8 @@ export const users = pgTable("users", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  phone: text("phone").notNull().default(""),
   password: text("password").notNull(),
   displayName: text("display_name").notNull().default("LoKater"),
   earnings: doublePrecision("earnings").notNull().default(0),
@@ -66,6 +68,8 @@ export const notifications = pgTable("notifications", {
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
+  email: true,
+  phone: true,
   password: true,
   displayName: true,
 });

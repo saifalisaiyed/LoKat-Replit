@@ -31,6 +31,8 @@ async function seed() {
     .values({
       id: demoUserId,
       username: "demo_seeker",
+      email: "demo@lokat.app",
+      phone: "+1234567890",
       password: hashPassword("demo1234"),
       displayName: "NYC Explorer",
       requestsCreated: DEMO_REQUESTS.length,

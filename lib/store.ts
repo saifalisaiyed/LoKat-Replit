@@ -35,8 +35,8 @@ interface AppContextValue {
   notifications: Notification[];
   isLoading: boolean;
   activeRequestId: string | null;
-  login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  register: (username: string, password: string, displayName?: string) => Promise<{ ok: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  register: (fullName: string, phone: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
   createRequest: (req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">) => void;
   acceptRequest: (id: string) => void;
@@ -157,9 +157,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [user, requests]);
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      const res = await apiRequest("POST", "/api/auth/login", { username, password });
+      const res = await apiRequest("POST", "/api/auth/login", { email, password });
       const data = await res.json();
       setUser(data.user);
       await fetchRequests();
@@ -176,9 +176,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (username: string, password: string, displayName?: string) => {
+  const register = async (fullName: string, phone: string, email: string, password: string) => {
     try {
-      const res = await apiRequest("POST", "/api/auth/register", { username, password, displayName });
+      const res = await apiRequest("POST", "/api/auth/register", { fullName, phone, email, password });
       const data = await res.json();
       setUser(data.user);
       await fetchRequests();

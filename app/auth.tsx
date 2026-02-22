@@ -9,9 +9,9 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   ScrollView,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -34,30 +34,42 @@ export default function AuthScreen() {
   const insets = useSafeAreaInsets();
   const { login, register } = useApp();
   const [mode, setMode] = useState<"login" | "register">("register");
-  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const handleSubmit = async () => {
     setError("");
-    if (!username.trim() || !password.trim()) {
-      setError("Please fill in all fields");
-      return;
-    }
-    if (mode === "register" && password.trim().length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
+    if (mode === "register") {
+      if (!fullName.trim()) {
+        setError("Please enter your full name");
+        return;
+      }
+      if (!email.trim()) {
+        setError("Please enter your email");
+        return;
+      }
+      if (!password.trim() || password.trim().length < 6) {
+        setError("Password must be at least 6 characters");
+        return;
+      }
+    } else {
+      if (!email.trim() || !password.trim()) {
+        setError("Please fill in all fields");
+        return;
+      }
     }
     setLoading(true);
     try {
       let result;
       if (mode === "login") {
-        result = await login(username.trim(), password.trim());
+        result = await login(email.trim(), password.trim());
       } else {
-        result = await register(username.trim(), password.trim(), displayName.trim() || undefined);
+        result = await register(fullName.trim(), phone.trim(), email.trim(), password.trim());
       }
       if (result.ok) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -82,6 +94,11 @@ export default function AuthScreen() {
     setError("Google sign-in coming soon");
   };
 
+  const switchMode = () => {
+    setMode(mode === "register" ? "login" : "register");
+    setError("");
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -96,59 +113,67 @@ export default function AuthScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.logoSection}>
-          <View style={styles.logoContainer}>
-            <Image source={lokatLogo} style={styles.logoImage} />
-          </View>
-          <Text style={styles.appName}>LoKat</Text>
-          <Text style={styles.tagline}>
-            {mode === "register" ? "Create your account" : "Welcome back"}
+          <Image source={lokatLogo} style={styles.logoImage} />
+        </View>
+
+        <View style={styles.headerSection}>
+          <Text style={styles.headerTitle}>
+            {mode === "register" ? "Create Your Account" : "Log In"}
           </Text>
+          <Pressable onPress={switchMode} hitSlop={8}>
+            <Text style={styles.headerSubtext}>
+              {mode === "register" ? (
+                <>Already have an account? <Text style={styles.headerLink}>Log in</Text></>
+              ) : (
+                <>Don't have an account? <Text style={styles.headerLink}>Sign up</Text></>
+              )}
+            </Text>
+          </Pressable>
         </View>
 
         <View style={styles.formCard}>
-          <View style={styles.tabRow}>
-            <Pressable
-              style={[styles.tab, mode === "register" && styles.tabActive]}
-              onPress={() => { setMode("register"); setError(""); }}
-            >
-              <Text style={[styles.tabText, mode === "register" && styles.tabTextActive]}>
-                Sign Up
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[styles.tab, mode === "login" && styles.tabActive]}
-              onPress={() => { setMode("login"); setError(""); }}
-            >
-              <Text style={[styles.tabText, mode === "login" && styles.tabTextActive]}>
-                Log In
-              </Text>
-            </Pressable>
-          </View>
+          {mode === "register" && (
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Full Name</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your full name"
+                placeholderTextColor="#B0B0B0"
+                value={fullName}
+                onChangeText={setFullName}
+                autoCapitalize="words"
+                autoComplete="name"
+              />
+            </View>
+          )}
 
           {mode === "register" && (
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Display Name</Text>
+              <Text style={styles.inputLabel}>Phone</Text>
               <TextInput
                 style={styles.input}
-                placeholder="What should we call you?"
+                placeholder="Enter your phone number"
                 placeholderTextColor="#B0B0B0"
-                value={displayName}
-                onChangeText={setDisplayName}
-                autoCapitalize="words"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                autoComplete="tel"
               />
             </View>
           )}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Username</Text>
+            <Text style={styles.inputLabel}>Email</Text>
             <TextInput
               style={styles.input}
-              placeholder="Choose a username"
+              placeholder="Enter your email"
               placeholderTextColor="#B0B0B0"
-              value={username}
-              onChangeText={setUsername}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="email"
             />
           </View>
 
@@ -156,11 +181,12 @@ export default function AuthScreen() {
             <Text style={styles.inputLabel}>Password</Text>
             <TextInput
               style={styles.input}
-              placeholder={mode === "register" ? "Min 6 characters" : "Enter password"}
+              placeholder={mode === "register" ? "Min 6 characters" : "Enter your password"}
               placeholderTextColor="#B0B0B0"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              autoComplete={mode === "register" ? "new-password" : "current-password"}
             />
           </View>
 
@@ -188,7 +214,9 @@ export default function AuthScreen() {
               </Text>
             )}
           </Pressable>
+        </View>
 
+        <View style={styles.bottomSection}>
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>or</Text>
@@ -218,14 +246,14 @@ export default function AuthScreen() {
             <Ionicons name="eye-outline" size={18} color={Colors.light.textSecondary} />
             <Text style={styles.guestBtnText}>Continue as Guest</Text>
           </Pressable>
-        </View>
 
-        <Text style={styles.termsText}>
-          By continuing, you agree to our{" "}
-          <Text style={styles.termsLink}>Terms of Service</Text>
-          {" "}and{" "}
-          <Text style={styles.termsLink}>Privacy Policy</Text>
-        </Text>
+          <Text style={styles.termsText}>
+            By continuing, you agree to our{" "}
+            <Text style={styles.termsLink}>Terms of Service</Text>
+            {" "}and{" "}
+            <Text style={styles.termsLink}>Privacy Policy</Text>
+          </Text>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -239,89 +267,61 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    justifyContent: "center",
   },
   logoSection: {
     alignItems: "center",
-    marginBottom: 28,
-  },
-  logoContainer: {
-    marginBottom: 12,
-    alignItems: "center",
-    justifyContent: "center",
+    marginBottom: 20,
+    marginTop: 8,
   },
   logoImage: {
-    width: 72,
-    height: 72,
-    borderRadius: 18,
+    width: 64,
+    height: 64,
+    borderRadius: 16,
   },
-  appName: {
-    fontSize: 28,
+  headerSection: {
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 26,
     color: Colors.light.text,
     fontFamily: "Archivo_700Bold",
     letterSpacing: -0.5,
+    marginBottom: 6,
   },
-  tagline: {
+  headerSubtext: {
     fontSize: 14,
     color: Colors.light.textSecondary,
-    marginTop: 2,
     fontFamily: "Archivo_400Regular",
   },
-  formCard: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 22,
-    gap: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  tabRow: {
-    flexDirection: "row",
-    backgroundColor: "#F5F5F7",
-    borderRadius: 12,
-    padding: 3,
-    marginBottom: 2,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  tabActive: {
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  tabText: {
-    fontSize: 14,
-    color: Colors.light.textSecondary,
-    fontFamily: "Archivo_500Medium",
-  },
-  tabTextActive: {
+  headerLink: {
     color: Colors.light.tint,
     fontFamily: "Archivo_600SemiBold",
   },
+  formCard: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 20,
+    gap: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
   inputGroup: {
-    gap: 5,
+    gap: 6,
   },
   inputLabel: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
     marginLeft: 2,
   },
   input: {
-    backgroundColor: "#FAFAFA",
+    backgroundColor: "#F8F8FA",
     borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: 13,
+    paddingVertical: 14,
     fontSize: 15,
     color: Colors.light.text,
     borderWidth: 1,
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     backgroundColor: Colors.light.tint,
-    paddingVertical: 15,
+    paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -360,16 +360,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
   },
+  bottomSection: {
+    marginTop: 24,
+    gap: 14,
+  },
   dividerRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    marginVertical: 2,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#EBEBEB",
+    backgroundColor: "#DDDDE0",
   },
   dividerText: {
     fontSize: 12,
@@ -386,6 +389,11 @@ const styles = StyleSheet.create({
     borderColor: "#E5E7EB",
     borderRadius: 12,
     paddingVertical: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   googleBtnText: {
     fontSize: 15,
@@ -399,7 +407,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "rgba(0, 0, 0, 0.03)",
   },
   guestBtnText: {
     fontSize: 15,
@@ -412,8 +420,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Archivo_400Regular",
     lineHeight: 16,
-    paddingHorizontal: 20,
-    marginTop: 16,
+    paddingHorizontal: 16,
+    marginTop: 4,
   },
   termsLink: {
     color: Colors.light.tint,

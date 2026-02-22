@@ -24,6 +24,7 @@ export function verifyPassword(password: string, hash: string): boolean {
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserProfile(id: string, data: { displayName?: string }): Promise<User | undefined>;
   incrementUserStat(id: string, field: "requestsCreated" | "requestsFulfilled", amount?: number): Promise<void>;
@@ -57,6 +58,11 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
     const hashedPassword = hashPassword(insertUser.password);
@@ -65,6 +71,8 @@ export class DatabaseStorage implements IStorage {
       .values({
         id,
         username: insertUser.username,
+        email: insertUser.email || "",
+        phone: insertUser.phone || "",
         password: hashedPassword,
         displayName: insertUser.displayName || insertUser.username,
       })

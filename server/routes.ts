@@ -49,21 +49,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
-      const { username, password, displayName } = req.body;
-      if (!username || !password) {
-        return res.status(400).json({ message: "Username and password required" });
+      const { fullName, phone, email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
       }
-      if (username.length < 3) {
-        return res.status(400).json({ message: "Username must be at least 3 characters" });
+      if (!fullName || !fullName.trim()) {
+        return res.status(400).json({ message: "Full name is required" });
       }
-      if (password.length < 4) {
-        return res.status(400).json({ message: "Password must be at least 4 characters" });
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
       }
-      const existing = await storage.getUserByUsername(username);
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+      const existing = await storage.getUserByEmail(email.toLowerCase().trim());
       if (existing) {
-        return res.status(409).json({ message: "Username already taken" });
+        return res.status(409).json({ message: "An account with this email already exists" });
       }
-      const user = await storage.createUser({ username, password, displayName: displayName || username });
+      const username = email.toLowerCase().trim().split("@")[0] + "_" + Date.now().toString(36);
+      const user = await storage.createUser({
+        username,
+        email: email.toLowerCase().trim(),
+        phone: phone?.trim() || "",
+        password,
+        displayName: fullName.trim(),
+      });
       req.session.userId = user.id;
       const { password: _, ...safeUser } = user;
       return res.json({ user: safeUser });
@@ -75,13 +86,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
-      const { username, password } = req.body;
-      if (!username || !password) {
-        return res.status(400).json({ message: "Username and password required" });
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
       }
-      const user = await storage.getUserByUsername(username);
+      const user = await storage.getUserByEmail(email.toLowerCase().trim());
       if (!user || !verifyPassword(password, user.password)) {
-        return res.status(401).json({ message: "Invalid username or password" });
+        return res.status(401).json({ message: "Invalid email or password" });
       }
       req.session.userId = user.id;
       const { password: _, ...safeUser } = user;
