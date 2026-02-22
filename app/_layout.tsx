@@ -2,13 +2,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import { View, Text, Image, StyleSheet, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { AppProvider } from "@/lib/store";
-import { Ionicons } from "@expo/vector-icons";
+
+const lokatLogo = require("@/assets/images/lokat-logo.png");
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -86,7 +87,7 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
         <View style={splashStyles.logoArea}>
           <Animated.View style={[splashStyles.glow, glowAnimStyle]} />
           <Animated.View style={[splashStyles.logoCircle, logoAnimStyle]}>
-            <Ionicons name="location" size={40} color="#fff" />
+            <Image source={lokatLogo} style={splashStyles.logoImage} />
           </Animated.View>
         </View>
 
@@ -120,29 +121,27 @@ const splashStyles = StyleSheet.create({
     position: "relative",
     alignItems: "center",
     justifyContent: "center",
-    width: 120,
-    height: 120,
+    width: 140,
+    height: 140,
     marginBottom: 24,
   },
   glow: {
     position: "absolute",
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "rgba(124, 58, 237, 0.25)",
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: "rgba(124, 58, 237, 0.2)",
   },
   logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#7C3AED",
+    width: 100,
+    height: 100,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#7C3AED",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 12,
+  },
+  logoImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 24,
   },
   appName: {
     fontSize: 38,

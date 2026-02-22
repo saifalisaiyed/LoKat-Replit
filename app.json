@@ -4,12 +4,12 @@
     "slug": "lokat",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/lokat-logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/lokat-logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#0A0F1C"
     },
@@ -20,10 +20,8 @@
     "android": {
       "package": "com.myapp",
       "adaptiveIcon": {
-        "backgroundColor": "#0A0F1C",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#1A1B2E",
+        "foregroundImage": "./assets/images/lokat-logo.png"
       }
     },
     "web": {

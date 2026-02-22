@@ -11,11 +11,14 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
+
+const lokatLogo = require("@/assets/images/lokat-logo.png");
 
 function GoogleLogo() {
   return (
@@ -94,10 +97,7 @@ export default function AuthScreen() {
       >
         <View style={styles.logoSection}>
           <View style={styles.logoContainer}>
-            <View style={styles.logoGlow} />
-            <View style={styles.logoCircle}>
-              <Ionicons name="location" size={28} color="#fff" />
-            </View>
+            <Image source={lokatLogo} style={styles.logoImage} />
           </View>
           <Text style={styles.appName}>LoKat</Text>
           <Text style={styles.tagline}>
@@ -246,30 +246,14 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   logoContainer: {
-    position: "relative",
     marginBottom: 12,
     alignItems: "center",
     justifyContent: "center",
   },
-  logoGlow: {
-    position: "absolute",
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(124, 58, 237, 0.1)",
-  },
-  logoCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: Colors.light.tint,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: Colors.light.tint,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+  logoImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 18,
   },
   appName: {
     fontSize: 28,
