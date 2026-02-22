@@ -21,11 +21,6 @@ export default function ProfileScreen() {
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [authPromptVisible, setAuthPromptVisible] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setAuthPromptVisible(true);
-    }
-  }, [isAuthenticated]);
 
   const handleLogout = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
