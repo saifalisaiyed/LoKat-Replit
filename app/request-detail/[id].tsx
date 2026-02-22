@@ -112,7 +112,7 @@ export default function RequestDetailScreen() {
 
   const handleNavigate = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
+    router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
   };
 
   const handleAbandon = () => {
@@ -164,7 +164,13 @@ export default function RequestDetailScreen() {
         />
         <Pressable
           style={[styles.backBtn, { top: insets.top + 12 + webInsetTop }]}
-          onPress={() => router.back()}
+          onPress={() => {
+            if (isActiveLoKater) {
+              router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
+            } else {
+              router.back();
+            }
+          }}
           hitSlop={12}
         >
           <Ionicons name="arrow-back" size={22} color={Colors.light.text} />

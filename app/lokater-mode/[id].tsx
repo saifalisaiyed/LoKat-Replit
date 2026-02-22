@@ -325,7 +325,7 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
         <Pressable
           style={styles.topBtn}
           onPress={() =>
-            router.push({
+            router.replace({
               pathname: "/request-detail/[id]",
               params: { id: id! },
             })
