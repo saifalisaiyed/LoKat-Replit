@@ -96,7 +96,7 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
         </Animated.Text>
 
         <Animated.Text style={[splashStyles.tagline, taglineAnimStyle]}>
-          Photo requests, anywhere
+          Seek the Moment. Anywhere, Anytime.
         </Animated.Text>
       </View>
 
