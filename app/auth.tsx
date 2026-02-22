@@ -34,7 +34,6 @@ export default function AuthScreen() {
   const insets = useSafeAreaInsets();
   const { login, register } = useApp();
   const [mode, setMode] = useState<"login" | "register">("register");
-  const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,12 +44,8 @@ export default function AuthScreen() {
   const handleSubmit = async () => {
     setError("");
     if (mode === "register") {
-      if (!fullName.trim()) {
-        setError("Please enter your full name");
-        return;
-      }
-      if (!email.trim()) {
-        setError("Please enter your email");
+      if (!phone.trim()) {
+        setError("Please enter your phone number");
         return;
       }
       if (!password.trim() || password.trim().length < 6) {
@@ -69,11 +64,15 @@ export default function AuthScreen() {
       if (mode === "login") {
         result = await login(email.trim(), password.trim());
       } else {
-        result = await register(fullName.trim(), phone.trim(), email.trim(), password.trim());
+        result = await register(phone.trim(), password.trim());
       }
       if (result.ok) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.replace("/(tabs)");
+        if (mode === "register") {
+          router.replace("/onboarding/name");
+        } else {
+          router.replace("/(tabs)");
+        }
       } else {
         setError(result.error || "Something went wrong");
       }
@@ -118,41 +117,22 @@ export default function AuthScreen() {
 
         <View style={styles.headerSection}>
           <Text style={styles.headerTitle}>
-            {mode === "register" ? "Create Your Account" : "Log In"}
+            {mode === "register" ? "Create Your Account" : "Welcome Back"}
           </Text>
-          <Pressable onPress={switchMode} hitSlop={8}>
-            <Text style={styles.headerSubtext}>
-              {mode === "register" ? (
-                <>Already have an account? <Text style={styles.headerLink}>Log in</Text></>
-              ) : (
-                <>Don't have an account? <Text style={styles.headerLink}>Sign up</Text></>
-              )}
-            </Text>
-          </Pressable>
+          <Text style={styles.headerSubtitle}>
+            {mode === "register"
+              ? "Sign up with your phone number to get started"
+              : "Log in to your account"}
+          </Text>
         </View>
 
         <View style={styles.formCard}>
-          {mode === "register" && (
+          {mode === "register" ? (
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Full Name</Text>
+              <Text style={styles.inputLabel}>Phone Number</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your full name"
-                placeholderTextColor="#B0B0B0"
-                value={fullName}
-                onChangeText={setFullName}
-                autoCapitalize="words"
-                autoComplete="name"
-              />
-            </View>
-          )}
-
-          {mode === "register" && (
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Phone</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your phone number"
+                placeholder="(555) 123-4567"
                 placeholderTextColor="#B0B0B0"
                 value={phone}
                 onChangeText={setPhone}
@@ -160,22 +140,22 @@ export default function AuthScreen() {
                 autoComplete="tel"
               />
             </View>
+          ) : (
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your email"
+                placeholderTextColor="#B0B0B0"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="email"
+              />
+            </View>
           )}
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#B0B0B0"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="email"
-            />
-          </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Password</Text>
@@ -210,7 +190,7 @@ export default function AuthScreen() {
               <ActivityIndicator color="#fff" size="small" />
             ) : (
               <Text style={styles.submitBtnText}>
-                {mode === "register" ? "Create Account" : "Log In"}
+                {mode === "register" ? "Sign Up" : "Log In"}
               </Text>
             )}
           </Pressable>
@@ -245,6 +225,16 @@ export default function AuthScreen() {
           >
             <Ionicons name="eye-outline" size={18} color={Colors.light.textSecondary} />
             <Text style={styles.guestBtnText}>Continue as Guest</Text>
+          </Pressable>
+
+          <Pressable onPress={switchMode} hitSlop={8} style={styles.switchRow}>
+            <Text style={styles.switchText}>
+              {mode === "register" ? (
+                <>Already have an account? <Text style={styles.switchLink}>Log in</Text></>
+              ) : (
+                <>Don't have an account? <Text style={styles.switchLink}>Sign up</Text></>
+              )}
+            </Text>
           </Pressable>
 
           <Text style={styles.termsText}>
@@ -288,14 +278,11 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     marginBottom: 6,
   },
-  headerSubtext: {
+  headerSubtitle: {
     fontSize: 14,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
-  },
-  headerLink: {
-    color: Colors.light.tint,
-    fontFamily: "Archivo_600SemiBold",
+    lineHeight: 20,
   },
   formCard: {
     backgroundColor: "#fff",
@@ -413,6 +400,19 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_500Medium",
+  },
+  switchRow: {
+    alignItems: "center",
+    paddingVertical: 4,
+  },
+  switchText: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+  },
+  switchLink: {
+    color: Colors.light.tint,
+    fontFamily: "Archivo_600SemiBold",
   },
   termsText: {
     fontSize: 11,
