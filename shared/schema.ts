@@ -23,6 +23,8 @@ export const users = pgTable("users", {
   earnings: doublePrecision("earnings").notNull().default(0),
   requestsCreated: integer("requests_created").notNull().default(0),
   requestsFulfilled: integer("requests_fulfilled").notNull().default(0),
+  averageRating: doublePrecision("average_rating").notNull().default(0),
+  totalRatings: integer("total_ratings").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -66,6 +68,38 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const ratings = pgTable("ratings", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  requestId: varchar("request_id")
+    .notNull()
+    .references(() => photoRequests.id),
+  fromUserId: varchar("from_user_id")
+    .notNull()
+    .references(() => users.id),
+  toUserId: varchar("to_user_id")
+    .notNull()
+    .references(() => users.id),
+  score: integer("score").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const messages = pgTable("messages", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  requestId: varchar("request_id")
+    .notNull()
+    .references(() => photoRequests.id),
+  senderId: varchar("sender_id")
+    .notNull()
+    .references(() => users.id),
+  text: text("text").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   email: true,
@@ -89,3 +123,5 @@ export type User = typeof users.$inferSelect;
 export type PhotoRequest = typeof photoRequests.$inferSelect;
 export type InsertPhotoRequest = z.infer<typeof insertPhotoRequestSchema>;
 export type Notification = typeof notifications.$inferSelect;
+export type Rating = typeof ratings.$inferSelect;
+export type Message = typeof messages.$inferSelect;

@@ -180,6 +180,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/requests", async (req: Request, res: Response) => {
     try {
       const requests = await storage.getRequests();
+      const lat = parseFloat(req.query.lat as string);
+      const lng = parseFloat(req.query.lng as string);
+      const radius = parseFloat(req.query.radius as string);
+      if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius) && radius > 0) {
+        const filtered = requests.filter((r) => {
+          const dLat = ((r.latitude - lat) * Math.PI) / 180;
+          const dLng = ((r.longitude - lng) * Math.PI) / 180;
+          const a =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos((lat * Math.PI) / 180) *
+              Math.cos((r.latitude * Math.PI) / 180) *
+              Math.sin(dLng / 2) ** 2;
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const distKm = 6371 * c;
+          return distKm <= radius;
+        });
+        return res.json(filtered);
+      }
       return res.json(requests);
     } catch (e) {
       console.error("Get requests error:", e);
@@ -301,6 +319,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json({ ok: true });
     } catch (e) {
       return res.status(500).json({ message: "Failed to mark all read" });
+    }
+  });
+
+  app.post("/api/ratings", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { requestId, toUserId, score, comment } = req.body;
+      if (!requestId || !toUserId || !score) {
+        return res.status(400).json({ message: "requestId, toUserId, and score are required" });
+      }
+      if (score < 1 || score > 5) {
+        return res.status(400).json({ message: "Score must be between 1 and 5" });
+      }
+      const existing = await storage.getRatingByRequestAndUser(requestId, req.session.userId!);
+      if (existing) {
+        return res.status(409).json({ message: "You already rated this request" });
+      }
+      const request = await storage.getRequestById(requestId);
+      if (!request || request.status !== "completed") {
+        return res.status(400).json({ message: "Can only rate completed requests" });
+      }
+      const rating = await storage.createRating(requestId, req.session.userId!, toUserId, score, comment);
+      return res.status(201).json(rating);
+    } catch (e) {
+      console.error("Rating error:", e);
+      return res.status(500).json({ message: "Failed to create rating" });
+    }
+  });
+
+  app.get("/api/ratings/:userId", async (req: Request, res: Response) => {
+    try {
+      const ratings = await storage.getRatingsForUser(paramId(req));
+      return res.json(ratings);
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to fetch ratings" });
+    }
+  });
+
+  app.get("/api/ratings/check/:requestId", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const rating = await storage.getRatingByRequestAndUser(paramId(req), req.session.userId!);
+      return res.json({ rated: !!rating, rating: rating || null });
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to check rating" });
+    }
+  });
+
+  app.get("/api/messages/:requestId", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const request = await storage.getRequestById(paramId(req));
+      if (!request) return res.status(404).json({ message: "Request not found" });
+      if (request.creatorId !== req.session.userId && request.acceptedBy !== req.session.userId) {
+        return res.status(403).json({ message: "Not authorized to view messages" });
+      }
+      const msgs = await storage.getMessages(paramId(req));
+      return res.json(msgs);
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  app.post("/api/messages/:requestId", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { text } = req.body;
+      if (!text || !text.trim()) {
+        return res.status(400).json({ message: "Message text is required" });
+      }
+      const request = await storage.getRequestById(paramId(req));
+      if (!request) return res.status(404).json({ message: "Request not found" });
+      if (request.creatorId !== req.session.userId && request.acceptedBy !== req.session.userId) {
+        return res.status(403).json({ message: "Not authorized to send messages" });
+      }
+      const msg = await storage.createMessage(paramId(req), req.session.userId!, text.trim());
+      const recipientId = req.session.userId === request.creatorId ? request.acceptedBy : request.creatorId;
+      if (recipientId) {
+        const sender = await storage.getUser(req.session.userId!);
+        await storage.createNotification(
+          recipientId,
+          "New message",
+          `${sender?.displayName || "Someone"}: ${text.trim().substring(0, 50)}`,
+          "message",
+          request.id,
+        );
+      }
+      return res.status(201).json(msg);
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  app.get("/api/profile/:id", async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser(paramId(req));
+      if (!user) return res.status(404).json({ message: "User not found" });
+      return res.json({
+        id: user.id,
+        displayName: user.displayName,
+        requestsCreated: user.requestsCreated,
+        requestsFulfilled: user.requestsFulfilled,
+        averageRating: user.averageRating,
+        totalRatings: user.totalRatings,
+        createdAt: user.createdAt,
+      });
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to fetch profile" });
     }
   });
 

@@ -49,7 +49,7 @@ export interface Notification {
   id: string;
   title: string;
   body: string;
-  type: "accepted" | "submitted" | "completed" | "new_request";
+  type: "accepted" | "submitted" | "completed" | "new_request" | "message";
   requestId?: string;
   createdAt: string;
   read: boolean;
@@ -62,4 +62,24 @@ export interface UserProfile {
   earnings: number;
   requestsCreated: number;
   requestsFulfilled: number;
+  averageRating: number;
+  totalRatings: number;
+}
+
+export interface Rating {
+  id: string;
+  requestId: string;
+  fromUserId: string;
+  toUserId: string;
+  score: number;
+  comment?: string;
+  createdAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  requestId: string;
+  senderId: string;
+  text: string;
+  createdAt: string;
 }

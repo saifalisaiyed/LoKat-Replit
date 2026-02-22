@@ -1,14 +1,18 @@
-import { eq, desc, and, or, ne, sql } from "drizzle-orm";
+import { eq, desc, and, or, ne, sql, asc } from "drizzle-orm";
 import { db } from "./db";
 import {
   users,
   photoRequests,
   notifications,
+  ratings,
+  messages,
   type User,
   type InsertUser,
   type PhotoRequest,
   type InsertPhotoRequest,
   type Notification,
+  type Rating,
+  type Message,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import * as crypto from "crypto";
@@ -47,6 +51,13 @@ export interface IStorage {
   markNotificationRead(id: string, userId: string): Promise<void>;
   markAllNotificationsRead(userId: string): Promise<void>;
   getUnreadCount(userId: string): Promise<number>;
+
+  createRating(requestId: string, fromUserId: string, toUserId: string, score: number, comment?: string): Promise<Rating>;
+  getRatingByRequestAndUser(requestId: string, fromUserId: string): Promise<Rating | undefined>;
+  getRatingsForUser(userId: string): Promise<Rating[]>;
+
+  getMessages(requestId: string): Promise<Message[]>;
+  createMessage(requestId: string, senderId: string, text: string): Promise<Message>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -201,7 +212,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     if (req) {
       await this.createNotification(
-        req.acceptedBy || req.creatorId,
+        req.creatorId,
         "Photo submitted",
         `Photo for ${req.locationName} has been submitted`,
         "submitted",
@@ -276,6 +287,61 @@ export class DatabaseStorage implements IStorage {
       .from(notifications)
       .where(and(eq(notifications.userId, userId), eq(notifications.read, false)));
     return result?.count || 0;
+  }
+
+  async createRating(requestId: string, fromUserId: string, toUserId: string, score: number, comment?: string): Promise<Rating> {
+    const id = randomUUID();
+    const [rating] = await db
+      .insert(ratings)
+      .values({ id, requestId, fromUserId, toUserId, score, comment })
+      .returning();
+    const userRatings = await db
+      .select({ avg: sql<number>`avg(score)::float`, count: sql<number>`count(*)::int` })
+      .from(ratings)
+      .where(eq(ratings.toUserId, toUserId));
+    if (userRatings[0]) {
+      await db
+        .update(users)
+        .set({
+          averageRating: userRatings[0].avg || 0,
+          totalRatings: userRatings[0].count || 0,
+        })
+        .where(eq(users.id, toUserId));
+    }
+    return rating;
+  }
+
+  async getRatingByRequestAndUser(requestId: string, fromUserId: string): Promise<Rating | undefined> {
+    const [rating] = await db
+      .select()
+      .from(ratings)
+      .where(and(eq(ratings.requestId, requestId), eq(ratings.fromUserId, fromUserId)));
+    return rating;
+  }
+
+  async getRatingsForUser(userId: string): Promise<Rating[]> {
+    return db
+      .select()
+      .from(ratings)
+      .where(eq(ratings.toUserId, userId))
+      .orderBy(desc(ratings.createdAt));
+  }
+
+  async getMessages(requestId: string): Promise<Message[]> {
+    return db
+      .select()
+      .from(messages)
+      .where(eq(messages.requestId, requestId))
+      .orderBy(asc(messages.createdAt));
+  }
+
+  async createMessage(requestId: string, senderId: string, text: string): Promise<Message> {
+    const id = randomUUID();
+    const [msg] = await db
+      .insert(messages)
+      .values({ id, requestId, senderId, text })
+      .returning();
+    return msg;
   }
 }
 
