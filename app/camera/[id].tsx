@@ -6,24 +6,28 @@ import {
   Pressable,
   Platform,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { CameraView, useCameraPermissions, CameraType } from "expo-camera";
 import { Image } from "expo-image";
+import { File } from "expo-file-system";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
+import { uploadFileToStorage } from "@/client/utils/objectStorageExpo";
 
 export default function CameraScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, submitPhoto } = useApp();
+  const { requests, submitPhoto, uploadAndSubmitPhoto } = useApp();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>("back");
   const [capturedUri, setCapturedUri] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
@@ -94,12 +98,25 @@ export default function CameraScreen() {
     setCapturedUri(null);
   };
 
-  const handleSubmit = () => {
-    if (!capturedUri || !id) return;
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    submitPhoto(id, capturedUri);
-    router.dismissAll();
-    router.replace("/(tabs)");
+  const handleSubmit = async () => {
+    if (!capturedUri || !id || isUploading) return;
+    setIsUploading(true);
+    try {
+      if (Platform.OS !== "web") {
+        const file = new File(capturedUri);
+        const uploadURL = await uploadFileToStorage(file);
+        await uploadAndSubmitPhoto(id, uploadURL);
+      } else {
+        await submitPhoto(id, capturedUri);
+      }
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      router.dismissAll();
+      router.replace("/(tabs)");
+    } catch (e) {
+      console.error("Photo upload error:", e);
+      setIsUploading(false);
+      Alert.alert("Upload Failed", "Could not upload photo. Please try again.");
+    }
   };
 
   const toggleFacing = () => {
@@ -144,11 +161,22 @@ export default function CameraScreen() {
               style={({ pressed }) => [
                 styles.submitPhotoBtn,
                 pressed && { opacity: 0.85 },
+                isUploading && { opacity: 0.7 },
               ]}
               onPress={handleSubmit}
+              disabled={isUploading}
             >
-              <Ionicons name="send" size={20} color="#fff" />
-              <Text style={styles.submitPhotoBtnText}>Send</Text>
+              {isUploading ? (
+                <>
+                  <ActivityIndicator size="small" color="#fff" />
+                  <Text style={styles.submitPhotoBtnText}>Uploading...</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons name="send" size={20} color="#fff" />
+                  <Text style={styles.submitPhotoBtnText}>Send</Text>
+                </>
+              )}
             </Pressable>
           </View>
         </View>

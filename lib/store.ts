@@ -45,7 +45,8 @@ interface AppContextValue {
   createRequest: (req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">) => void;
   acceptRequest: (id: string) => void;
   abandonRequest: (id: string) => void;
-  submitPhoto: (id: string, photoUri: string) => void;
+  submitPhoto: (id: string, photoUri: string) => Promise<void>;
+  uploadAndSubmitPhoto: (requestId: string, uploadURL: string) => Promise<void>;
   completeRequest: (id: string) => void;
   deleteRequest: (id: string) => void;
   markNotificationRead: (id: string) => void;
@@ -292,6 +293,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const uploadAndSubmitPhoto = useCallback(
+    async (requestId: string, uploadURL: string) => {
+      try {
+        await apiRequest("PUT", `/api/photos/submit`, { requestId, uploadURL });
+        await fetchRequests();
+        await fetchNotifications();
+      } catch (e) {
+        console.error("Upload and submit photo error:", e);
+      }
+    },
+    [],
+  );
+
   const completeRequest = useCallback(
     async (id: string) => {
       try {
@@ -374,6 +388,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       acceptRequest,
       abandonRequest,
       submitPhoto,
+      uploadAndSubmitPhoto,
       completeRequest,
       deleteRequest,
       markNotificationRead,
@@ -395,6 +410,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       acceptRequest,
       abandonRequest,
       submitPhoto,
+      uploadAndSubmitPhoto,
       completeRequest,
       deleteRequest,
       markNotificationRead,

@@ -3,6 +3,8 @@ import { createServer, type Server } from "node:http";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import { storage, verifyPassword, hashPassword } from "./storage";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { ObjectPermission } from "./objectAcl";
 
 declare module "express-session" {
   interface SessionData {
@@ -354,6 +356,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (e) {
       console.error("Nominatim error:", e);
       return res.json({ results: [], source: "error" });
+    }
+  });
+
+  app.post("/api/objects/upload", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (e) {
+      console.error("Upload URL error:", e);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  app.put("/api/photos/submit", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { requestId, uploadURL } = req.body;
+      if (!requestId || !uploadURL) {
+        return res.status(400).json({ error: "requestId and uploadURL are required" });
+      }
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        uploadURL,
+        {
+          owner: req.session.userId!,
+          visibility: "public",
+        },
+      );
+      const request = await storage.submitPhoto(requestId, objectPath);
+      if (!request) return res.status(400).json({ message: "Cannot submit photo" });
+      return res.json(request);
+    } catch (e) {
+      console.error("Photo submit error:", e);
+      return res.status(500).json({ error: "Failed to submit photo" });
+    }
+  });
+
+  app.get(/^\/objects\/(.+)$/, async (req: Request, res: Response) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      const canAccess = await objectStorageService.canAccessObjectEntity({
+        objectFile,
+        userId: req.session.userId,
+        requestedPermission: ObjectPermission.READ,
+      });
+      if (!canAccess) {
+        return res.sendStatus(401);
+      }
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      console.error("Object access error:", error);
+      return res.sendStatus(500);
+    }
+  });
+
+  app.get(/^\/public-objects\/(.+)$/, async (req: Request, res: Response) => {
+    const filePath = req.path.replace("/public-objects/", "");
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Public object error:", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   });
 
