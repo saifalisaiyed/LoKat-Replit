@@ -75,7 +75,7 @@ function ClassicTabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={[tabStyles.iconWrap, focused && tabStyles.iconWrapActive]}>
               <Ionicons
-                name={focused ? "scan" : "scan-outline"}
+                name={focused ? "map" : "map-outline"}
                 size={22}
                 color={focused ? "#fff" : color}
               />

@@ -13,8 +13,19 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
+
+function GoogleIcon() {
+  return (
+    <View style={{ width: 20, height: 20, alignItems: "center", justifyContent: "center" }}>
+      <Text style={{ fontSize: 16, fontWeight: "700" }}>
+        <Text style={{ color: "#4285F4" }}>G</Text>
+      </Text>
+    </View>
+  );
+}
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
@@ -33,6 +44,10 @@ export default function AuthScreen() {
       setError("Please fill in all fields");
       return;
     }
+    if (mode === "register" && password.trim().length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
     setLoading(true);
     try {
       let result;
@@ -42,6 +57,7 @@ export default function AuthScreen() {
         result = await register(username.trim(), password.trim(), displayName.trim() || undefined);
       }
       if (result.ok) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         router.replace("/(tabs)");
       } else {
         setError(result.error || "Something went wrong");
@@ -53,6 +69,16 @@ export default function AuthScreen() {
     }
   };
 
+  const handleSkip = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.replace("/(tabs)");
+  };
+
+  const handleGoogleSignIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setError("Google sign-in coming soon");
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -61,14 +87,17 @@ export default function AuthScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: insets.top + 40 + webInsetTop, paddingBottom: insets.bottom + 40 },
+          { paddingTop: insets.top + 24 + webInsetTop, paddingBottom: insets.bottom + 24 },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.logoSection}>
-          <View style={styles.logoCircle}>
-            <Ionicons name="location" size={32} color="#fff" />
+          <View style={styles.logoContainer}>
+            <View style={styles.logoGlow} />
+            <View style={styles.logoCircle}>
+              <Ionicons name="location" size={30} color="#fff" />
+            </View>
           </View>
           <Text style={styles.appName}>LoKat</Text>
           <Text style={styles.tagline}>Photo requests, anywhere</Text>
@@ -92,6 +121,25 @@ export default function AuthScreen() {
                 Log In
               </Text>
             </Pressable>
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.googleBtn,
+              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+            ]}
+            onPress={handleGoogleSignIn}
+          >
+            <GoogleIcon />
+            <Text style={styles.googleBtnText}>
+              Continue with Google
+            </Text>
+          </Pressable>
+
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
           </View>
 
           {mode === "register" && (
@@ -125,7 +173,7 @@ export default function AuthScreen() {
             <Text style={styles.inputLabel}>Password</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter password"
+              placeholder={mode === "register" ? "Min 6 characters" : "Enter password"}
               placeholderTextColor="#B0B0B0"
               value={password}
               onChangeText={setPassword}
@@ -158,6 +206,24 @@ export default function AuthScreen() {
             )}
           </Pressable>
         </View>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.skipBtn,
+            pressed && { opacity: 0.7 },
+          ]}
+          onPress={handleSkip}
+        >
+          <Text style={styles.skipText}>Skip for now</Text>
+          <Ionicons name="arrow-forward" size={16} color={Colors.light.textSecondary} />
+        </Pressable>
+
+        <Text style={styles.termsText}>
+          By continuing, you agree to our{" "}
+          <Text style={styles.termsLink}>Terms of Service</Text>
+          {" "}and{" "}
+          <Text style={styles.termsLink}>Privacy Policy</Text>
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -175,21 +241,39 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: "center",
-    marginBottom: 36,
+    marginBottom: 32,
+  },
+  logoContainer: {
+    position: "relative",
+    marginBottom: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoGlow: {
+    position: "absolute",
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: "rgba(124, 58, 237, 0.1)",
   },
   logoCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     backgroundColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    shadowColor: Colors.light.tint,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   appName: {
-    fontSize: 28,
+    fontSize: 30,
     color: Colors.light.text,
     fontFamily: "Archivo_700Bold",
+    letterSpacing: -0.5,
   },
   tagline: {
     fontSize: 15,
@@ -200,15 +284,19 @@ const styles = StyleSheet.create({
   formCard: {
     backgroundColor: "#fff",
     borderRadius: 20,
-    padding: 24,
-    gap: 18,
+    padding: 22,
+    gap: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   tabRow: {
     flexDirection: "row",
     backgroundColor: "#F5F5F7",
     borderRadius: 12,
     padding: 3,
-    marginBottom: 4,
   },
   tab: {
     flex: 1,
@@ -218,6 +306,11 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   tabText: {
     fontSize: 14,
@@ -227,6 +320,38 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: Colors.light.tint,
     fontFamily: "Archivo_600SemiBold",
+  },
+  googleBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    backgroundColor: "#fff",
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingVertical: 14,
+  },
+  googleBtnText: {
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
+  },
+  dividerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#EBEBEB",
+  },
+  dividerText: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+    textTransform: "lowercase",
   },
   inputGroup: {
     gap: 6,
@@ -241,7 +366,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
     borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: 14,
+    paddingVertical: 13,
     fontSize: 15,
     color: Colors.light.text,
     borderWidth: 1,
@@ -265,14 +390,44 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     backgroundColor: Colors.light.tint,
-    paddingVertical: 16,
-    borderRadius: 14,
+    paddingVertical: 15,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: Colors.light.tint,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   submitBtnText: {
     color: "#fff",
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
+  },
+  skipBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 18,
+    alignSelf: "center",
+  },
+  skipText: {
+    fontSize: 15,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_500Medium",
+  },
+  termsText: {
+    fontSize: 11,
+    color: "#B0B0B0",
+    textAlign: "center",
+    fontFamily: "Archivo_400Regular",
+    lineHeight: 16,
+    paddingHorizontal: 20,
+  },
+  termsLink: {
+    color: Colors.light.tint,
+    fontFamily: "Archivo_500Medium",
   },
 });
