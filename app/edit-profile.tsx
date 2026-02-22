@@ -184,6 +184,18 @@ export default function EditProfileScreen() {
             <Text style={styles.saveBtnText}>Save Changes</Text>
           )}
         </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.changePwdBtn,
+            pressed && { opacity: 0.8 },
+          ]}
+          onPress={() => router.push("/change-password")}
+        >
+          <Ionicons name="lock-closed-outline" size={18} color={Colors.light.tint} />
+          <Text style={styles.changePwdText}>Change Password</Text>
+          <Ionicons name="chevron-forward" size={16} color="#CCC" />
+        </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -318,5 +330,25 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
+  },
+  changePwdBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 16,
+    gap: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  changePwdText: {
+    flex: 1,
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
   },
 });

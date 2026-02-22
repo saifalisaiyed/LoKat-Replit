@@ -13,7 +13,7 @@ import {
 import { randomUUID } from "crypto";
 import * as crypto from "crypto";
 
-function hashPassword(password: string): string {
+export function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
@@ -28,6 +28,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getUserByPhone(phone: string): Promise<User | undefined>;
   updateUserProfile(id: string, data: { displayName?: string; email?: string; phone?: string }): Promise<User | undefined>;
+  changePassword(id: string, newPasswordHash: string): Promise<boolean>;
   incrementUserStat(id: string, field: "requestsCreated" | "requestsFulfilled", amount?: number): Promise<void>;
   addUserEarnings(id: string, amount: number): Promise<void>;
 
@@ -93,6 +94,15 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async changePassword(id: string, newPasswordHash: string): Promise<boolean> {
+    const result = await db
+      .update(users)
+      .set({ password: newPasswordHash })
+      .where(eq(users.id, id))
+      .returning();
+    return result.length > 0;
   }
 
   async incrementUserStat(id: string, field: "requestsCreated" | "requestsFulfilled", amount = 1): Promise<void> {

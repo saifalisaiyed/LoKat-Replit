@@ -40,6 +40,7 @@ interface AppContextValue {
   login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   register: (phone: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   updateProfile: (data: { displayName?: string; email?: string; phone?: string }) => Promise<{ ok: boolean; error?: string }>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
   createRequest: (req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">) => void;
   acceptRequest: (id: string) => void;
@@ -218,6 +219,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      const res = await apiRequest("POST", "/api/auth/change-password", { currentPassword, newPassword });
+      const result = await res.json();
+      if (!res.ok) return { ok: false, error: result.message || "Failed to change password" };
+      return { ok: true };
+    } catch (e: any) {
+      return { ok: false, error: e.message || "Failed to change password" };
+    }
+  };
+
   const logout = async () => {
     try {
       await apiRequest("POST", "/api/auth/logout");
@@ -356,6 +368,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       login,
       register,
       updateProfile,
+      changePassword,
       logout,
       createRequest,
       acceptRequest,

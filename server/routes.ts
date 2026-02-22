@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "node:http";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
-import { storage, verifyPassword } from "./storage";
+import { storage, verifyPassword, hashPassword } from "./storage";
 
 declare module "express-session" {
   interface SessionData {
@@ -149,6 +149,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json({ user: safeUser });
     } catch (e) {
       return res.status(500).json({ message: "Update failed" });
+    }
+  });
+
+  app.post("/api/auth/change-password", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Current and new password are required" });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      }
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!verifyPassword(currentPassword, user.password)) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+      const hashed = hashPassword(newPassword);
+      const ok = await storage.changePassword(user.id, hashed);
+      if (!ok) return res.status(500).json({ message: "Failed to change password" });
+      return res.json({ message: "Password changed successfully" });
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to change password" });
     }
   });
 
