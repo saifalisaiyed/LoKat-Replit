@@ -17,7 +17,7 @@ import AuthPromptModal from "@/components/AuthPromptModal";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { profile, logout, isAuthenticated } = useApp();
+  const { profile, logout, isAuthenticated, user } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [authPromptVisible, setAuthPromptVisible] = useState(false);
 
@@ -164,6 +164,30 @@ export default function ProfileScreen() {
           <MenuItem icon="file-text" label="Terms & Conditions" />
         </View>
       </View>
+
+      {user?.isAdmin && (
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Admin</Text>
+          <View style={styles.menuGroup}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { backgroundColor: "#F8F8FA" },
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/admin");
+              }}
+            >
+              <View style={[styles.menuIconWrap, { backgroundColor: "rgba(124, 58, 237, 0.08)" }]}>
+                <Feather name="shield" size={18} color={Colors.light.tint} />
+              </View>
+              <Text style={styles.menuItemText}>Admin Panel</Text>
+              <Feather name="chevron-right" size={16} color="#D0D0D0" />
+            </Pressable>
+          </View>
+        </View>
+      )}
 
       <Pressable style={styles.logoutBtn} onPress={handleLogout}>
         <Feather name="log-out" size={16} color="#EF4444" />

@@ -31,6 +31,7 @@ interface AuthUser {
   requestsFulfilled: number;
   averageRating: number;
   totalRatings: number;
+  isAdmin: boolean;
 }
 
 interface AppContextValue {
