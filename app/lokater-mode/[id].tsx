@@ -124,6 +124,7 @@ export default function LoKaterModeScreen() {
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
   const [instructionsVisible, setInstructionsVisible] = useState(false);
+  const lokaterIframeRef = useRef<HTMLIFrameElement>(null);
 
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
@@ -289,6 +290,7 @@ var userIcon=L.divIcon({html:'<div style="width:20px;height:20px;border-radius:1
 L.marker([uLat,uLng],{icon:userIcon}).addTo(map);
 var destIcon=L.divIcon({html:'<div style="width:32px;height:32px;border-radius:16px;background:${Colors.light.tint};border:3px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>',className:'',iconSize:[32,32],iconAnchor:[16,16]});
 L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
+window.addEventListener('message',function(event){try{var data=typeof event.data==='string'?JSON.parse(event.data):event.data;if(data.type==='centerLocation'){map.setView([data.lat,data.lng],16,{animate:true});}}catch(e){}});
 </script></body></html>`
     : "";
 
@@ -298,6 +300,7 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
         {userLocation ? (
           Platform.OS === "web" ? (
             <iframe
+              ref={lokaterIframeRef as any}
               srcDoc={mapHtml}
               style={{ width: "100%", height: "100%", border: "none" }}
               title="Navigation"
@@ -369,6 +372,34 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
           </View>
         </View>
       </View>
+
+      <Pressable
+        style={[styles.lokaterLocBtn, { bottom: Platform.OS === "web" ? 34 + 16 + 160 : insets.bottom + 16 + 160 }]}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          if (Platform.OS === "web") {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                  const iframe = lokaterIframeRef.current;
+                  if (iframe && (iframe as any).contentWindow) {
+                    (iframe as any).contentWindow.postMessage(
+                      JSON.stringify({ type: "centerLocation", lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                      "*"
+                    );
+                  }
+                },
+                () => {},
+                { enableHighAccuracy: true }
+              );
+            }
+          } else if (userLocation) {
+            // native handled by NavigationMap
+          }
+        }}
+      >
+        <Ionicons name="locate" size={20} color="#fff" />
+      </Pressable>
 
       <View
         style={[
@@ -694,6 +725,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
+  },
+  lokaterLocBtn: {
+    position: "absolute",
+    right: 16,
+    zIndex: 15,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   bottomSheet: {
     position: "absolute",

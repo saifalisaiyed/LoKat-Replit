@@ -279,7 +279,9 @@ export default function HomeScreen() {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              // Web map is an iframe so we can't pan it easily, but we store for future
+              if (mapRef.current && mapRef.current.centerToLocation) {
+                mapRef.current.centerToLocation(pos.coords.latitude, pos.coords.longitude);
+              }
             },
             () => {},
             { enableHighAccuracy: true }
@@ -291,12 +293,16 @@ export default function HomeScreen() {
         if (status === "granted") {
           const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
           if (mapRef.current) {
-            mapRef.current.animateToRegion({
-              latitude: loc.coords.latitude,
-              longitude: loc.coords.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }, 500);
+            if (mapRef.current.animateToRegion) {
+              mapRef.current.animateToRegion({
+                latitude: loc.coords.latitude,
+                longitude: loc.coords.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }, 500);
+            } else if (mapRef.current.centerToLocation) {
+              mapRef.current.centerToLocation(loc.coords.latitude, loc.coords.longitude);
+            }
           }
         }
       }

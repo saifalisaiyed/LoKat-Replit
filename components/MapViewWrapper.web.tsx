@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { View, StyleSheet } from "react-native";
 import Colors from "@/constants/colors";
 
@@ -15,13 +15,14 @@ interface MapWrapperProps {
   onPoiClick?: (e: any) => void;
 }
 
-export default function MapViewWrapper({
+function MapViewWrapperInner({
   selectedPin,
   openRequests,
   isSeeker,
   onMarkerPress,
   initialRegion,
   onMapPress,
+  mapRef,
 }: MapWrapperProps) {
   const lat = initialRegion?.latitude ?? 40.758;
   const lng = initialRegion?.longitude ?? -73.9855;
@@ -104,10 +105,35 @@ export default function MapViewWrapper({
             lng: e.latlng.lng
           }), '*');
         });
+
+        window.addEventListener('message', function(event) {
+          try {
+            var data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            if (data.type === 'centerLocation') {
+              map.setView([data.lat, data.lng], 16, { animate: true });
+            }
+          } catch(e) {}
+        });
       </script>
     </body>
     </html>
   `;
+
+  useEffect(() => {
+    if (mapRef) {
+      mapRef.current = {
+        centerToLocation: (lat: number, lng: number) => {
+          const iframe = iframeRef.current;
+          if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage(
+              JSON.stringify({ type: "centerLocation", lat, lng }),
+              "*"
+            );
+          }
+        },
+      };
+    }
+  }, [mapRef]);
 
   return (
     <View style={styles.webMap}>
@@ -123,6 +149,10 @@ export default function MapViewWrapper({
       />
     </View>
   );
+}
+
+export default function MapViewWrapper(props: MapWrapperProps) {
+  return <MapViewWrapperInner {...props} />;
 }
 
 const styles = StyleSheet.create({
