@@ -115,9 +115,9 @@ function getCategoryIcon(key: Category): string {
   return CATEGORIES.find((c) => c.key === key)?.icon ?? "pricetag-outline";
 }
 
-function getDistanceMi(lat: number, lng: number): string {
-  const userLat = 40.758;
-  const userLng = -73.9855;
+function getDistanceMi(lat: number, lng: number, userCoords: { latitude: number; longitude: number } | null): string {
+  const userLat = userCoords?.latitude ?? 40.758;
+  const userLng = userCoords?.longitude ?? -73.9855;
   const R = 3958.8;
   const dLat = ((lat - userLat) * Math.PI) / 180;
   const dLng = ((lng - userLng) * Math.PI) / 180;
@@ -131,7 +131,7 @@ function getDistanceMi(lat: number, lng: number): string {
   return d < 1 ? `${(d * 5280).toFixed(0)}ft` : `${d.toFixed(1)}mi`;
 }
 
-function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
+function RequestCard({ item, onPress, userCoords }: { item: any; onPress: () => void; userCoords: { latitude: number; longitude: number } | null }) {
   const catColor = getCategoryColor(item.category);
 
   return (
@@ -157,7 +157,7 @@ function RequestCard({ item, onPress }: { item: any; onPress: () => void }) {
         <View style={styles.cardMetaRow}>
           <Ionicons name="navigate-circle-outline" size={13} color={Colors.light.textSecondary} />
           <Text style={styles.cardDistance}>
-            {getDistanceMi(item.latitude, item.longitude)}
+            {getDistanceMi(item.latitude, item.longitude, userCoords)}
           </Text>
           <Ionicons name="time-outline" size={13} color={Colors.light.orange} />
           <Text style={styles.cardTime}>{timeAgo(item.createdAt)}</Text>
@@ -574,6 +574,7 @@ export default function HomeScreen() {
           <RequestCard
             item={item}
             onPress={() => handleRequestPress(item.id)}
+            userCoords={myCoords}
           />
         )}
         contentContainerStyle={{
