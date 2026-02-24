@@ -1,6 +1,6 @@
-import React from "react";
-import { StyleSheet } from "react-native";
-import MapView, { Marker, Circle } from "react-native-maps";
+import React, { useMemo } from "react";
+import { StyleSheet, Platform } from "react-native";
+import MapView, { Marker, Heatmap, PROVIDER_GOOGLE } from "react-native-maps";
 import Colors from "@/constants/colors";
 
 interface MapWrapperProps {
@@ -28,10 +28,21 @@ export default function MapViewWrapper({
   onPoiClick,
   showHeatmap = false,
 }: MapWrapperProps) {
+  const heatmapPoints = useMemo(() => {
+    return openRequests.map((req: any) => ({
+      latitude: req.latitude,
+      longitude: req.longitude,
+      weight: 1,
+    }));
+  }, [openRequests]);
+
+  const useGoogleMaps = Platform.OS === "android";
+
   return (
     <MapView
       ref={mapRef}
       style={StyleSheet.absoluteFill}
+      provider={useGoogleMaps ? PROVIDER_GOOGLE : undefined}
       initialRegion={initialRegion}
       showsUserLocation={permissionStatus === "granted"}
       showsMyLocationButton={false}
@@ -41,28 +52,18 @@ export default function MapViewWrapper({
       onPoiClick={onPoiClick || onMapPress}
       mapType="standard"
     >
-      {showHeatmap && openRequests.map((req: any) => (
-        <React.Fragment key={`heat-${req.id}`}>
-          <Circle
-            center={{ latitude: req.latitude, longitude: req.longitude }}
-            radius={500}
-            fillColor="rgba(124, 58, 237, 0.12)"
-            strokeColor="rgba(124, 58, 237, 0)"
-          />
-          <Circle
-            center={{ latitude: req.latitude, longitude: req.longitude }}
-            radius={250}
-            fillColor="rgba(139, 92, 246, 0.2)"
-            strokeColor="rgba(139, 92, 246, 0)"
-          />
-          <Circle
-            center={{ latitude: req.latitude, longitude: req.longitude }}
-            radius={100}
-            fillColor="rgba(167, 139, 250, 0.3)"
-            strokeColor="rgba(167, 139, 250, 0)"
-          />
-        </React.Fragment>
-      ))}
+      {showHeatmap && heatmapPoints.length > 0 && useGoogleMaps && (
+        <Heatmap
+          points={heatmapPoints}
+          radius={40}
+          opacity={0.6}
+          gradient={{
+            colors: ["rgba(124, 58, 237, 0)", "rgba(139, 92, 246, 0.4)", "rgba(147, 51, 234, 0.6)", "rgba(168, 85, 247, 0.8)", "rgba(192, 132, 252, 1)"],
+            startPoints: [0.0, 0.25, 0.5, 0.75, 1.0],
+            colorMapSize: 256,
+          }}
+        />
+      )}
       {selectedPin && isSeeker && (
         <Marker coordinate={selectedPin} pinColor={Colors.light.tint} />
       )}
