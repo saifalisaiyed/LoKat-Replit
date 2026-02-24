@@ -91,12 +91,19 @@ function MapViewWrapperInner({
         
         // Heatmap layer
         if (requests.length > 0) {
-          var heatPoints = requests.map(function(r) { return [r.lat, r.lng, 0.5]; });
+          var heatPoints = requests.map(function(r) { return [r.lat, r.lng, 1.0]; });
           var heat = L.heatLayer(heatPoints, {
-            radius: 25,
-            blur: 15,
-            maxZoom: 17,
-            gradient: {0.4: 'blue', 0.65: 'lime', 1: 'red'}
+            radius: 35,
+            blur: 20,
+            maxZoom: 10,
+            minOpacity: 0.4,
+            gradient: {
+              0.2: 'blue',
+              0.4: 'cyan',
+              0.6: 'lime',
+              0.8: 'yellow',
+              1.0: 'red'
+            }
           }).addTo(map);
         }
 
