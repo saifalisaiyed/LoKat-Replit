@@ -72,6 +72,8 @@ export default function CreateRequestScreen() {
   const [orientation, setOrientation] = useState<Orientation>("portrait");
   const [angle, setAngle] = useState<Angle>("eye-level");
   const [timing, setTiming] = useState<Timing>("now");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
   const [note, setNote] = useState("");
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
@@ -181,17 +183,41 @@ export default function CreateRequestScreen() {
           <View style={styles.chipRow}>
             <OptionChip
               icon="flash-outline"
-              label="Urgent"
+              label="Now"
               selected={timing === "now"}
               onPress={() => setTiming("now")}
             />
             <OptionChip
-              icon="time-outline"
-              label="Scheduled"
+              icon="calendar-outline"
+              label="Later"
               selected={timing === "scheduled"}
               onPress={() => setTiming("scheduled")}
             />
           </View>
+          {timing === "scheduled" && (
+            <View style={styles.scheduledFields}>
+              <View style={styles.scheduledField}>
+                <Ionicons name="calendar-outline" size={16} color={Colors.light.textSecondary} />
+                <TextInput
+                  style={styles.scheduledInput}
+                  placeholder="Date (e.g. Mar 15, 2026)"
+                  placeholderTextColor="#B0B0B0"
+                  value={scheduledDate}
+                  onChangeText={setScheduledDate}
+                />
+              </View>
+              <View style={styles.scheduledField}>
+                <Ionicons name="time-outline" size={16} color={Colors.light.textSecondary} />
+                <TextInput
+                  style={styles.scheduledInput}
+                  placeholder="Time (e.g. 3:00 PM)"
+                  placeholderTextColor="#B0B0B0"
+                  value={scheduledTime}
+                  onChangeText={setScheduledTime}
+                />
+              </View>
+            </View>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -358,6 +384,28 @@ const styles = StyleSheet.create({
   },
   chipLabelActive: {
     color: "#fff",
+  },
+  scheduledFields: {
+    gap: 8,
+    marginTop: 4,
+  },
+  scheduledField: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#FAFAFA",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#EBEBEB",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  scheduledInput: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.light.text,
+    fontFamily: "Archivo_400Regular",
+    paddingVertical: 0,
   },
   noteInput: {
     backgroundColor: "#FAFAFA",
