@@ -26,6 +26,30 @@ import AuthPromptModal, { type AuthPromptContext } from "@/components/AuthPrompt
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.5;
 
+const LOCATION_FILTERS = [
+  { key: "anywhere", label: "Anywhere", icon: "globe-outline" },
+  { key: "near-me", label: "Near Me", icon: "navigate-outline" },
+  { key: "new-york", label: "New York", icon: "business-outline", lat: 40.7128, lng: -74.006 },
+  { key: "london", label: "London", icon: "business-outline", lat: 51.5074, lng: -0.1278 },
+  { key: "paris", label: "Paris", icon: "business-outline", lat: 48.8566, lng: 2.3522 },
+  { key: "tokyo", label: "Tokyo", icon: "business-outline", lat: 35.6762, lng: 139.6503 },
+  { key: "los-angeles", label: "Los Angeles", icon: "business-outline", lat: 34.0522, lng: -118.2437 },
+  { key: "dubai", label: "Dubai", icon: "business-outline", lat: 25.2048, lng: 55.2708 },
+  { key: "sydney", label: "Sydney", icon: "business-outline", lat: -33.8688, lng: 151.2093 },
+  { key: "rome", label: "Rome", icon: "business-outline", lat: 41.9028, lng: 12.4964 },
+] as const;
+
+function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 const CATEGORY_COLORS: Record<string, string> = {
   landmarks: "#D4A017",
   nature: "#22C55E",
@@ -167,6 +191,9 @@ export default function HomeScreen() {
   const [authPromptVisible, setAuthPromptVisible] = useState(false);
   const [authPromptContext, setAuthPromptContext] = useState<AuthPromptContext>("create-request");
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
+  const [locationFilter, setLocationFilter] = useState<string>("anywhere");
+  const [locationFilterVisible, setLocationFilterVisible] = useState(false);
+  const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
     if (activeRequestId) {
@@ -182,7 +209,15 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    if (Platform.OS !== "web") {
+    if (Platform.OS === "web") {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => setMyCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+          () => {},
+          { enableHighAccuracy: true }
+        );
+      }
+    } else {
       requestLocation();
     }
   }, []);
@@ -192,12 +227,33 @@ export default function HomeScreen() {
       const Location = require("expo-location");
       const { status } = await Location.requestForegroundPermissionsAsync();
       setPermissionStatus(status);
+      if (status === "granted") {
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        setMyCoords({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+      }
     } catch (e) {
       console.log("Location error:", e);
     }
   };
 
-  const openRequests = getRequestsByCategory(selectedCategory);
+  const categoryFiltered = getRequestsByCategory(selectedCategory);
+
+  const openRequests = useMemo(() => {
+    if (locationFilter === "anywhere") return categoryFiltered;
+    if (locationFilter === "near-me") {
+      if (!myCoords) return categoryFiltered;
+      return categoryFiltered.filter((r) =>
+        getDistanceKm(myCoords.latitude, myCoords.longitude, r.latitude, r.longitude) <= 25
+      );
+    }
+    const cityFilter = LOCATION_FILTERS.find((f) => f.key === locationFilter);
+    if (cityFilter && "lat" in cityFilter) {
+      return categoryFiltered.filter((r) =>
+        getDistanceKm(cityFilter.lat, cityFilter.lng, r.latitude, r.longitude) <= 50
+      );
+    }
+    return categoryFiltered;
+  }, [categoryFiltered, locationFilter, myCoords]);
 
   const handleMarkerPress = useCallback((id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -479,6 +535,25 @@ export default function HomeScreen() {
           <Text style={styles.sectionTitle}>
             Incoming Requests ({openRequests.length})
           </Text>
+          <Pressable
+            style={({ pressed }) => [styles.filterBtn, pressed && { opacity: 0.7 }]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setLocationFilterVisible(true);
+            }}
+          >
+            <Ionicons
+              name={locationFilter === "anywhere" ? "funnel-outline" : "funnel"}
+              size={14}
+              color={locationFilter === "anywhere" ? Colors.light.textSecondary : Colors.light.tint}
+            />
+            <Text style={[
+              styles.filterBtnText,
+              locationFilter !== "anywhere" && { color: Colors.light.tint },
+            ]}>
+              {LOCATION_FILTERS.find((f) => f.key === locationFilter)?.label || "Anywhere"}
+            </Text>
+          </Pressable>
         </View>
       </View>
     </>
@@ -622,6 +697,55 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
+      <Modal
+        visible={locationFilterVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLocationFilterVisible(false)}
+      >
+        <Pressable
+          style={styles.filterOverlay}
+          onPress={() => setLocationFilterVisible(false)}
+        >
+          <View style={[styles.filterSheet, { paddingBottom: Platform.OS === "web" ? 34 + 16 : insets.bottom + 16 }]}>
+            <View style={styles.filterHandle} />
+            <Text style={styles.filterSheetTitle}>Filter by Location</Text>
+            {LOCATION_FILTERS.map((f) => {
+              const isActive = locationFilter === f.key;
+              return (
+                <Pressable
+                  key={f.key}
+                  style={({ pressed }) => [
+                    styles.filterOption,
+                    isActive && styles.filterOptionActive,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setLocationFilter(f.key);
+                    setLocationFilterVisible(false);
+                  }}
+                >
+                  <View style={[styles.filterOptionIcon, isActive && styles.filterOptionIconActive]}>
+                    <Ionicons
+                      name={f.icon as any}
+                      size={18}
+                      color={isActive ? "#fff" : Colors.light.textSecondary}
+                    />
+                  </View>
+                  <Text style={[styles.filterOptionLabel, isActive && styles.filterOptionLabelActive]}>
+                    {f.label}
+                  </Text>
+                  {isActive && (
+                    <Ionicons name="checkmark-circle" size={20} color={Colors.light.tint} />
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
+        </Pressable>
+      </Modal>
+
       <AuthPromptModal
         visible={authPromptVisible}
         onClose={() => setAuthPromptVisible(false)}
@@ -727,6 +851,85 @@ const styles = StyleSheet.create({
   feedHeader: {
     paddingTop: 18,
     paddingBottom: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingRight: 16,
+  },
+  filterBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#fff",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  filterBtnText: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_500Medium",
+  },
+  filterOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+  filterSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    gap: 4,
+  },
+  filterHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#E5E7EB",
+    alignSelf: "center",
+    marginBottom: 8,
+  },
+  filterSheetTitle: {
+    fontSize: 18,
+    color: Colors.light.text,
+    fontFamily: "Archivo_700Bold",
+    marginBottom: 8,
+  },
+  filterOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+  },
+  filterOptionActive: {
+    backgroundColor: Colors.light.tint + "0D",
+  },
+  filterOptionIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "#F5F5F7",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  filterOptionIconActive: {
+    backgroundColor: Colors.light.tint,
+  },
+  filterOptionLabel: {
+    flex: 1,
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
+  },
+  filterOptionLabelActive: {
+    color: Colors.light.tint,
+    fontFamily: "Archivo_600SemiBold",
   },
   requestCard: {
     flexDirection: "row",
