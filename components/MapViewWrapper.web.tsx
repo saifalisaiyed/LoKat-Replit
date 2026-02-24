@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, StyleSheet } from "react-native";
 import Colors from "@/constants/colors";
 
 interface MapWrapperProps {
@@ -30,22 +29,24 @@ export default function MapViewWrapper({
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    if (!onMapPress) return;
     const handler = (event: MessageEvent) => {
       try {
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-        if (data.type === "mapClick") {
+        if (data.type === "mapClick" && onMapPress) {
           onMapPress({
             nativeEvent: {
               coordinate: { latitude: data.lat, longitude: data.lng },
             },
           });
         }
+        if (data.type === "markerClick" && data.id) {
+          onMarkerPress(data.id);
+        }
       } catch {}
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, [onMapPress]);
+  }, [onMapPress, onMarkerPress]);
 
   const mapHtml = `
     <!DOCTYPE html>
@@ -86,7 +87,14 @@ export default function MapViewWrapper({
 
         var requests = ${JSON.stringify(openRequests.map(r => ({ id: r.id, lat: r.latitude, lng: r.longitude })))};
         requests.forEach(function(req) {
-          L.marker([req.lat, req.lng], { icon: markerIcon }).addTo(map);
+          var m = L.marker([req.lat, req.lng], { icon: markerIcon }).addTo(map);
+          m.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            window.parent.postMessage(JSON.stringify({
+              type: 'markerClick',
+              id: req.id
+            }), '*');
+          });
         });
 
         map.on('click', function(e) {
@@ -113,36 +121,6 @@ export default function MapViewWrapper({
         }}
         title="Map"
       />
-
-      {openRequests.slice(0, 4).map((req: any, i: number) => {
-        const positions = [
-          { top: "28%", left: "55%" },
-          { top: "48%", left: "68%" },
-          { top: "18%", left: "75%" },
-          { top: "65%", left: "25%" },
-        ];
-        const pos = positions[i] || positions[0];
-        return (
-          <Pressable
-            key={req.id}
-            style={[styles.marker, pos as any]}
-            onPress={(e) => {
-              e.stopPropagation();
-              onMarkerPress(req.id);
-            }}
-          >
-            <View style={styles.markerDot}>
-              <Ionicons name="location" size={14} color="#fff" />
-            </View>
-          </Pressable>
-        );
-      })}
-
-      {selectedPin && isSeeker && (
-        <View style={styles.selectedPin}>
-          <Ionicons name="location" size={36} color={Colors.light.tint} />
-        </View>
-      )}
     </View>
   );
 }
@@ -150,34 +128,8 @@ export default function MapViewWrapper({
 const styles = StyleSheet.create({
   webMap: {
     flex: 1,
-    backgroundColor: "#e5e3df",
+    backgroundColor: "#1A1B2E",
     position: "relative",
     overflow: "hidden",
-  },
-  marker: {
-    position: "absolute",
-    zIndex: 5,
-    alignItems: "center",
-  },
-  markerDot: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: Colors.light.tint,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  selectedPin: {
-    position: "absolute",
-    top: "45%",
-    left: "48%",
-    zIndex: 6,
   },
 });
