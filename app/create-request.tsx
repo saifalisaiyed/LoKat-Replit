@@ -75,9 +75,9 @@ export default function CreateRequestScreen() {
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    createRequest({
+    await createRequest({
       latitude: parseFloat(lat || "40.7580"),
       longitude: parseFloat(lng || "-73.9855"),
       locationName,
