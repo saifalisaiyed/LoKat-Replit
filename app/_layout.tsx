@@ -100,9 +100,7 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
         </Animated.Text>
       </View>
 
-      <Animated.Text style={[splashStyles.footerText, taglineAnimStyle]}>
-        Connecting seekers with photographers
-      </Animated.Text>
+      <View style={{ height: 20 }} />
     </Animated.View>
   );
 }

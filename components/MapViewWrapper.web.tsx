@@ -13,6 +13,7 @@ interface MapWrapperProps {
   mapRef?: any;
   onMapPress?: (e: any) => void;
   onPoiClick?: (e: any) => void;
+  showHeatmap?: boolean;
 }
 
 function MapViewWrapperInner({
@@ -23,6 +24,7 @@ function MapViewWrapperInner({
   initialRegion,
   onMapPress,
   mapRef,
+  showHeatmap = true,
 }: MapWrapperProps) {
   const lat = initialRegion?.latitude ?? 40.758;
   const lng = initialRegion?.longitude ?? -73.9855;
@@ -89,20 +91,23 @@ function MapViewWrapperInner({
 
         var requests = ${JSON.stringify(openRequests.map(r => ({ id: r.id, lat: r.latitude, lng: r.longitude })))};
         
-        // Heatmap layer
-        if (requests.length > 0) {
-          var heatPoints = requests.map(function(r) { return [r.lat, r.lng, 1.0]; });
-          var heat = L.heatLayer(heatPoints, {
-            radius: 35,
-            blur: 20,
-            maxZoom: 10,
-            minOpacity: 0.4,
+        var heatLayer = null;
+        var showHeatmap = ${showHeatmap ? 'true' : 'false'};
+        if (showHeatmap && requests.length > 0) {
+          var heatPoints = requests.map(function(r) { return [r.lat, r.lng, 0.6]; });
+          heatLayer = L.heatLayer(heatPoints, {
+            radius: 30,
+            blur: 22,
+            maxZoom: 16,
+            max: 1.0,
+            minOpacity: 0.12,
             gradient: {
-              0.2: 'blue',
-              0.4: 'cyan',
-              0.6: 'lime',
-              0.8: 'yellow',
-              1.0: 'red'
+              0.0: 'rgba(124, 58, 237, 0)',
+              0.2: 'rgba(124, 58, 237, 0.06)',
+              0.4: 'rgba(139, 92, 246, 0.15)',
+              0.6: 'rgba(167, 139, 250, 0.28)',
+              0.8: 'rgba(196, 181, 253, 0.4)',
+              1.0: 'rgba(237, 233, 254, 0.55)'
             }
           }).addTo(map);
         }

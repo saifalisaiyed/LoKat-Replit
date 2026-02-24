@@ -186,6 +186,8 @@ export default function HomeScreen() {
   const [locationFilter, setLocationFilter] = useState<string>("anywhere");
   const [locationFilterVisible, setLocationFilterVisible] = useState(false);
   const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [heatmapEnabled, setHeatmapEnabled] = useState(true);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     if (activeRequestId) {
@@ -236,12 +238,6 @@ export default function HomeScreen() {
       if (!myCoords) return categoryFiltered;
       return categoryFiltered.filter((r) =>
         getDistanceKm(myCoords.latitude, myCoords.longitude, r.latitude, r.longitude) <= 25
-      );
-    }
-    const cityFilter = LOCATION_FILTERS.find((f) => f.key === locationFilter);
-    if (cityFilter && "lat" in cityFilter) {
-      return categoryFiltered.filter((r) =>
-        getDistanceKm(cityFilter.lat, cityFilter.lng, r.latitude, r.longitude) <= 50
       );
     }
     return categoryFiltered;
@@ -459,6 +455,7 @@ export default function HomeScreen() {
           mapRef={mapRef}
           onMapPress={handleMapPress}
           onPoiClick={handlePoiClick}
+          showHeatmap={heatmapEnabled}
         />
         <View
           style={[
@@ -467,13 +464,50 @@ export default function HomeScreen() {
           ]}
           pointerEvents="box-none"
         >
-          <Pressable
-            style={styles.searchBar}
-            onPress={() => setSearchVisible(true)}
-          >
-            <Ionicons name="search" size={18} color="#9CA3AF" style={{ marginLeft: 10 }} />
-            <Text style={styles.searchPlaceholder}>Want to see something?</Text>
-          </Pressable>
+          <View style={styles.searchRow}>
+            <Pressable
+              style={styles.searchBar}
+              onPress={() => setSearchVisible(true)}
+            >
+              <Ionicons name="search" size={18} color="#9CA3AF" style={{ marginLeft: 10 }} />
+              <Text style={styles.searchPlaceholder}>Want to see something?</Text>
+            </Pressable>
+            <View>
+              <Pressable
+                style={styles.menuBtn}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setMenuVisible(!menuVisible);
+                }}
+              >
+                <Ionicons name="ellipsis-vertical" size={18} color="#fff" />
+              </Pressable>
+              {menuVisible && (
+                <View style={styles.menuDropdown}>
+                  <Pressable
+                    style={styles.menuItem}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setHeatmapEnabled(!heatmapEnabled);
+                      setMenuVisible(false);
+                    }}
+                  >
+                    <Ionicons
+                      name={heatmapEnabled ? "flame" : "flame-outline"}
+                      size={16}
+                      color={heatmapEnabled ? Colors.light.tint : Colors.light.textSecondary}
+                    />
+                    <Text style={[styles.menuItemText, heatmapEnabled && { color: Colors.light.tint }]}>
+                      Heatmap
+                    </Text>
+                    <View style={[styles.menuToggle, heatmapEnabled && styles.menuToggleOn]}>
+                      <View style={[styles.menuToggleThumb, heatmapEnabled && styles.menuToggleThumbOn]} />
+                    </View>
+                  </Pressable>
+                </View>
+              )}
+            </View>
+          </View>
 
           <View style={styles.mapBottomRow} pointerEvents="box-none">
             <View />
@@ -524,28 +558,59 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.feedHeader}>
-          <Text style={styles.sectionTitle}>
+          <Text style={[styles.sectionTitle, { marginBottom: 0, paddingHorizontal: 0 }]}>
             Incoming Requests ({openRequests.length})
           </Text>
-          <Pressable
-            style={({ pressed }) => [styles.filterBtn, pressed && { opacity: 0.7 }]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setLocationFilterVisible(true);
-            }}
-          >
-            <Ionicons
-              name={locationFilter === "anywhere" ? "funnel-outline" : "funnel"}
-              size={14}
-              color={locationFilter === "anywhere" ? Colors.light.textSecondary : Colors.light.tint}
-            />
-            <Text style={[
-              styles.filterBtnText,
-              locationFilter !== "anywhere" && { color: Colors.light.tint },
-            ]}>
-              {LOCATION_FILTERS.find((f) => f.key === locationFilter)?.label || "Anywhere"}
-            </Text>
-          </Pressable>
+          <View style={{ position: "relative", zIndex: 10 }}>
+            <Pressable
+              style={({ pressed }) => [styles.filterBtn, pressed && { opacity: 0.7 }]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setLocationFilterVisible(!locationFilterVisible);
+              }}
+            >
+              <Ionicons
+                name={locationFilter === "anywhere" ? "funnel-outline" : "funnel"}
+                size={13}
+                color={locationFilter === "anywhere" ? Colors.light.textSecondary : Colors.light.tint}
+              />
+              <Text style={[
+                styles.filterBtnText,
+                locationFilter !== "anywhere" && { color: Colors.light.tint },
+              ]}>
+                {LOCATION_FILTERS.find((f) => f.key === locationFilter)?.label || "Anywhere"}
+              </Text>
+              <Ionicons name="chevron-down" size={12} color={Colors.light.textSecondary} />
+            </Pressable>
+            {locationFilterVisible && (
+              <View style={styles.filterDropdown}>
+                {LOCATION_FILTERS.map((f) => {
+                  const isActive = locationFilter === f.key;
+                  return (
+                    <Pressable
+                      key={f.key}
+                      style={[styles.dropdownOption, isActive && styles.dropdownOptionActive]}
+                      onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        setLocationFilter(f.key);
+                        setLocationFilterVisible(false);
+                      }}
+                    >
+                      <Ionicons
+                        name={f.icon as any}
+                        size={16}
+                        color={isActive ? Colors.light.tint : Colors.light.textSecondary}
+                      />
+                      <Text style={[styles.dropdownLabel, isActive && styles.dropdownLabelActive]}>
+                        {f.label}
+                      </Text>
+                      {isActive && <Ionicons name="checkmark" size={14} color={Colors.light.tint} />}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
+          </View>
         </View>
       </View>
     </>
@@ -690,51 +755,6 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
-      <Modal
-        visible={locationFilterVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setLocationFilterVisible(false)}
-      >
-        <Pressable
-          style={styles.filterOverlay}
-          onPress={() => setLocationFilterVisible(false)}
-        >
-          <View style={styles.dropdownContainer}>
-            {LOCATION_FILTERS.map((f) => {
-              const isActive = locationFilter === f.key;
-              return (
-                <Pressable
-                  key={f.key}
-                  style={({ pressed }) => [
-                    styles.dropdownOption,
-                    isActive && styles.dropdownOptionActive,
-                    pressed && { opacity: 0.7 },
-                  ]}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setLocationFilter(f.key);
-                    setLocationFilterVisible(false);
-                  }}
-                >
-                  <Ionicons
-                    name={f.icon as any}
-                    size={18}
-                    color={isActive ? Colors.light.tint : Colors.light.textSecondary}
-                  />
-                  <Text style={[styles.dropdownLabel, isActive && styles.dropdownLabelActive]}>
-                    {f.label}
-                  </Text>
-                  {isActive && (
-                    <Ionicons name="checkmark" size={16} color={Colors.light.tint} />
-                  )}
-                </Pressable>
-              );
-            })}
-          </View>
-        </Pressable>
-      </Modal>
-
       <AuthPromptModal
         visible={authPromptVisible}
         onClose={() => setAuthPromptVisible(false)}
@@ -765,6 +785,7 @@ const styles = StyleSheet.create({
     paddingBottom: 36,
   },
   searchBar: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.95)",
@@ -839,24 +860,23 @@ const styles = StyleSheet.create({
   },
   feedHeader: {
     paddingTop: 18,
-    paddingBottom: 4,
+    paddingBottom: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingRight: 16,
+    paddingHorizontal: 20,
     zIndex: 10,
   },
   filterBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 5,
     backgroundColor: "#fff",
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 18,
+    paddingVertical: 5,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    marginTop: -16, // Move up to align with header
   },
   filterBtnText: {
     fontSize: 12,
@@ -867,18 +887,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "transparent",
   },
-  dropdownContainer: {
+  filterDropdown: {
     position: "absolute",
-    top: 590, // Positioned below the filter button
-    right: 16,
+    top: 34,
+    right: 0,
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 10,
     padding: 4,
-    width: 150,
+    width: 140,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
     elevation: 8,
     borderWidth: 1,
     borderColor: "#F0F0F0",
@@ -903,6 +923,70 @@ const styles = StyleSheet.create({
   dropdownLabelActive: {
     color: Colors.light.tint,
     fontFamily: "Archivo_600SemiBold",
+  },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  menuBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  menuDropdown: {
+    position: "absolute",
+    top: 42,
+    right: 0,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 4,
+    width: 160,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+    zIndex: 100,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  menuItemText: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
+  },
+  menuToggle: {
+    width: 34,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#E5E7EB",
+    padding: 2,
+    justifyContent: "center",
+  },
+  menuToggleOn: {
+    backgroundColor: Colors.light.tint,
+  },
+  menuToggleThumb: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+  },
+  menuToggleThumbOn: {
+    alignSelf: "flex-end",
   },
   requestCard: {
     flexDirection: "row",
