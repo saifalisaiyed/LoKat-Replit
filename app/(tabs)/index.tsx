@@ -29,14 +29,6 @@ const MAP_HEIGHT = SCREEN_HEIGHT * 0.5;
 const LOCATION_FILTERS = [
   { key: "anywhere", label: "Anywhere", icon: "globe-outline" },
   { key: "near-me", label: "Near Me", icon: "navigate-outline" },
-  { key: "new-york", label: "New York", icon: "business-outline", lat: 40.7128, lng: -74.006 },
-  { key: "london", label: "London", icon: "business-outline", lat: 51.5074, lng: -0.1278 },
-  { key: "paris", label: "Paris", icon: "business-outline", lat: 48.8566, lng: 2.3522 },
-  { key: "tokyo", label: "Tokyo", icon: "business-outline", lat: 35.6762, lng: 139.6503 },
-  { key: "los-angeles", label: "Los Angeles", icon: "business-outline", lat: 34.0522, lng: -118.2437 },
-  { key: "dubai", label: "Dubai", icon: "business-outline", lat: 25.2048, lng: 55.2708 },
-  { key: "sydney", label: "Sydney", icon: "business-outline", lat: -33.8688, lng: 151.2093 },
-  { key: "rome", label: "Rome", icon: "business-outline", lat: 41.9028, lng: 12.4964 },
 ] as const;
 
 function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
@@ -707,17 +699,15 @@ export default function HomeScreen() {
           style={styles.filterOverlay}
           onPress={() => setLocationFilterVisible(false)}
         >
-          <View style={[styles.filterSheet, { paddingBottom: Platform.OS === "web" ? 34 + 16 : insets.bottom + 16 }]}>
-            <View style={styles.filterHandle} />
-            <Text style={styles.filterSheetTitle}>Filter by Location</Text>
+          <View style={styles.dropdownContainer}>
             {LOCATION_FILTERS.map((f) => {
               const isActive = locationFilter === f.key;
               return (
                 <Pressable
                   key={f.key}
                   style={({ pressed }) => [
-                    styles.filterOption,
-                    isActive && styles.filterOptionActive,
+                    styles.dropdownOption,
+                    isActive && styles.dropdownOptionActive,
                     pressed && { opacity: 0.7 },
                   ]}
                   onPress={() => {
@@ -726,18 +716,16 @@ export default function HomeScreen() {
                     setLocationFilterVisible(false);
                   }}
                 >
-                  <View style={[styles.filterOptionIcon, isActive && styles.filterOptionIconActive]}>
-                    <Ionicons
-                      name={f.icon as any}
-                      size={18}
-                      color={isActive ? "#fff" : Colors.light.textSecondary}
-                    />
-                  </View>
-                  <Text style={[styles.filterOptionLabel, isActive && styles.filterOptionLabelActive]}>
+                  <Ionicons
+                    name={f.icon as any}
+                    size={18}
+                    color={isActive ? Colors.light.tint : Colors.light.textSecondary}
+                  />
+                  <Text style={[styles.dropdownLabel, isActive && styles.dropdownLabelActive]}>
                     {f.label}
                   </Text>
                   {isActive && (
-                    <Ionicons name="checkmark-circle" size={20} color={Colors.light.tint} />
+                    <Ionicons name="checkmark" size={16} color={Colors.light.tint} />
                   )}
                 </Pressable>
               );
@@ -855,17 +843,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingRight: 16,
+    zIndex: 10,
   },
   filterBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
     backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: "#E5E7EB",
+    marginTop: -4, // Move up to align with header
   },
   filterBtnText: {
     fontSize: 12,
@@ -874,60 +864,42 @@ const styles = StyleSheet.create({
   },
   filterOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "flex-end",
+    backgroundColor: "transparent",
   },
-  filterSheet: {
+  dropdownContainer: {
+    position: "absolute",
+    top: 590, // Positioned below the filter button
+    right: 16,
     backgroundColor: "#fff",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    gap: 4,
+    borderRadius: 12,
+    padding: 4,
+    width: 150,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
   },
-  filterHandle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#E5E7EB",
-    alignSelf: "center",
-    marginBottom: 8,
-  },
-  filterSheetTitle: {
-    fontSize: 18,
-    color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
-    marginBottom: 8,
-  },
-  filterOption: {
+  dropdownOption: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    paddingVertical: 12,
+    gap: 10,
+    paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 14,
+    borderRadius: 8,
   },
-  filterOptionActive: {
+  dropdownOptionActive: {
     backgroundColor: Colors.light.tint + "0D",
   },
-  filterOptionIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "#F5F5F7",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  filterOptionIconActive: {
-    backgroundColor: Colors.light.tint,
-  },
-  filterOptionLabel: {
+  dropdownLabel: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
   },
-  filterOptionLabelActive: {
+  dropdownLabelActive: {
     color: Colors.light.tint,
     fontFamily: "Archivo_600SemiBold",
   },
