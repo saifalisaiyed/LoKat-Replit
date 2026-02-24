@@ -349,7 +349,9 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
 
       <View style={[styles.locationStrip, { top: insets.top + 60 + webInsetTop }]} pointerEvents="none">
         <View style={styles.locationStripInner}>
-          <Text style={styles.locationStripLabel}>GOING TO</Text>
+          <Text style={[styles.locationStripLabel, isVeryClose && styles.locationStripLabelArrived]}>
+            {isVeryClose ? "YOU HAVE REACHED" : "GOING TO"}
+          </Text>
           <View style={styles.locationStripRow}>
             <Ionicons name="location" size={18} color={Colors.light.tint} />
             <Text style={styles.locationStripName} numberOfLines={1}>{request.locationName}</Text>
@@ -585,7 +587,7 @@ const navStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.light.background },
+  container: { flex: 1, backgroundColor: "#1A1B2E" },
   centered: { alignItems: "center", justifyContent: "center", gap: 12 },
   notFoundText: {
     fontSize: 16,
@@ -605,8 +607,8 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_400Regular",
   },
   mapArea: {
-    flex: 1,
-    backgroundColor: "#e5e3df",
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "#1A1B2E",
   },
   topBar: {
     position: "absolute",
@@ -644,6 +646,9 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_700Bold",
     letterSpacing: 1.5,
     marginBottom: 2,
+  },
+  locationStripLabelArrived: {
+    color: Colors.light.accent,
   },
   locationStripInner: {
     backgroundColor: "rgba(255,255,255,0.95)",
