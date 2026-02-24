@@ -123,6 +123,7 @@ export default function LoKaterModeScreen() {
   const { requests, abandonRequest, activeRequestId } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
+  const [instructionsVisible, setInstructionsVisible] = useState(false);
 
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
@@ -348,6 +349,7 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
 
       <View style={[styles.locationStrip, { top: insets.top + 60 + webInsetTop }]} pointerEvents="none">
         <View style={styles.locationStripInner}>
+          <Text style={styles.locationStripLabel}>GOING TO</Text>
           <View style={styles.locationStripRow}>
             <Ionicons name="location" size={18} color={Colors.light.tint} />
             <Text style={styles.locationStripName} numberOfLines={1}>{request.locationName}</Text>
@@ -391,6 +393,15 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
             onPress={() => router.push({ pathname: "/chat/[id]", params: { id: id! } })}
           >
             <Ionicons name="chatbubble-outline" size={20} color={Colors.light.tint} />
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.instructionsBtn, pressed && { opacity: 0.7 }]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setInstructionsVisible(true);
+            }}
+          >
+            <Ionicons name="document-text-outline" size={20} color={Colors.light.tint} />
           </Pressable>
           <Pressable
             style={({ pressed }) => [
@@ -461,6 +472,86 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
               onPress={() => setMenuVisible(false)}
             >
               <Text style={styles.menuCancelText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
+      <Modal
+        visible={instructionsVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setInstructionsVisible(false)}
+      >
+        <Pressable
+          style={styles.menuOverlay}
+          onPress={() => setInstructionsVisible(false)}
+        >
+          <View
+            style={[
+              styles.instructionsSheet,
+              {
+                paddingBottom:
+                  Platform.OS === "web" ? 34 + 16 : insets.bottom + 16,
+              },
+            ]}
+          >
+            <View style={styles.menuHandle} />
+            <Text style={styles.instructionsSheetTitle}>Instructions Given</Text>
+
+            <View style={styles.instructionItem}>
+              <View style={styles.instructionIconWrap}>
+                <Ionicons name="phone-portrait-outline" size={18} color={Colors.light.tint} />
+              </View>
+              <View style={styles.instructionInfo}>
+                <Text style={styles.instructionLabel}>Orientation</Text>
+                <Text style={styles.instructionValue}>
+                  {request.orientation === "portrait" ? "Portrait" : "Landscape"}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.instructionItem}>
+              <View style={styles.instructionIconWrap}>
+                <Ionicons
+                  name={request.angle === "looking-up" ? "arrow-up-circle-outline" : request.angle === "looking-down" ? "arrow-down-circle-outline" : "remove-circle-outline"}
+                  size={18}
+                  color={Colors.light.tint}
+                />
+              </View>
+              <View style={styles.instructionInfo}>
+                <Text style={styles.instructionLabel}>Angle</Text>
+                <Text style={styles.instructionValue}>
+                  {request.angle.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                </Text>
+              </View>
+            </View>
+
+            {request.note ? (
+              <View style={styles.instructionNoteCard}>
+                <Text style={styles.instructionNoteLabel}>Notes</Text>
+                <Text style={styles.instructionNoteText}>{request.note}</Text>
+              </View>
+            ) : (
+              <View style={styles.instructionItem}>
+                <View style={styles.instructionIconWrap}>
+                  <Ionicons name="document-text-outline" size={18} color={Colors.light.textSecondary} />
+                </View>
+                <View style={styles.instructionInfo}>
+                  <Text style={styles.instructionLabel}>Notes</Text>
+                  <Text style={[styles.instructionValue, { color: Colors.light.textSecondary }]}>No additional notes</Text>
+                </View>
+              </View>
+            )}
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuCancelBtn,
+                pressed && { opacity: 0.7 },
+              ]}
+              onPress={() => setInstructionsVisible(false)}
+            >
+              <Text style={styles.menuCancelText}>Close</Text>
             </Pressable>
           </View>
         </Pressable>
@@ -547,12 +638,19 @@ const styles = StyleSheet.create({
     right: 16,
     zIndex: 10,
   },
+  locationStripLabel: {
+    fontSize: 11,
+    color: Colors.light.tint,
+    fontFamily: "Archivo_700Bold",
+    letterSpacing: 1.5,
+    marginBottom: 2,
+  },
   locationStripInner: {
     backgroundColor: "rgba(255,255,255,0.95)",
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 6,
+    gap: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -629,6 +727,16 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   chatFloatBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: Colors.light.tint,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(124,58,237,0.06)",
+  },
+  instructionsBtn: {
     width: 52,
     height: 52,
     borderRadius: 16,
@@ -729,5 +837,68 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.light.text,
     fontFamily: "Archivo_500Medium",
+  },
+  instructionsSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    gap: 12,
+  },
+  instructionsSheetTitle: {
+    fontSize: 18,
+    color: Colors.light.text,
+    fontFamily: "Archivo_700Bold",
+    marginBottom: 4,
+  },
+  instructionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 8,
+  },
+  instructionIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: Colors.light.tint + "12",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  instructionInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  instructionLabel: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_500Medium",
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.5,
+  },
+  instructionValue: {
+    fontSize: 16,
+    color: Colors.light.text,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  instructionNoteCard: {
+    backgroundColor: Colors.light.background,
+    borderRadius: 14,
+    padding: 16,
+    gap: 6,
+  },
+  instructionNoteLabel: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_500Medium",
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.5,
+  },
+  instructionNoteText: {
+    fontSize: 15,
+    color: Colors.light.text,
+    fontFamily: "Archivo_400Regular",
+    lineHeight: 22,
   },
 });
