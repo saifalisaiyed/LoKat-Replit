@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   guestIconCircle: {
     width: 64,
     height: 64,
-    borderRadius: 32,
+    borderRadius: 20,
     backgroundColor: "#ECECEE",
     alignItems: "center",
     justifyContent: "center",
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.tint,
     paddingVertical: 14,
     paddingHorizontal: 32,
-    borderRadius: 12,
+    borderRadius: 10,
     shadowColor: Colors.light.tint,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   settingsBtn: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: 12,
     backgroundColor: "#F5F5F7",
     alignItems: "center",
     justifyContent: "center",
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: 14,
     backgroundColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   editBtn: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(124, 58, 237, 0.19)",
     alignItems: "center",
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
   earningsCard: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 12,
     overflow: "hidden",
   },
   earningsHeader: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   earningsIconWrap: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: "rgba(124, 58, 237, 0.06)",
     alignItems: "center",
     justifyContent: "center",
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   },
   menuGroup: {
     backgroundColor: "#fff",
-    borderRadius: 14,
+    borderRadius: 10,
     overflow: "hidden",
   },
   menuItem: {
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     marginTop: 32,
     marginHorizontal: 20,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#FEE2E2",

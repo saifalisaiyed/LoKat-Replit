@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 72,
     height: 72,
-    borderRadius: 36,
+    borderRadius: 14,
     backgroundColor: "rgba(124, 58, 237, 0.08)",
     alignItems: "center",
     justifyContent: "center",
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "#fff",
-    borderRadius: 14,
+    borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 17,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FEF2F2",
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: 8,
     width: "100%",
   },
   errorText: {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   continueBtn: {
     backgroundColor: Colors.light.tint,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     width: "100%",

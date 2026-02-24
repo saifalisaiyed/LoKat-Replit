@@ -604,7 +604,7 @@ const navStyles = StyleSheet.create({
     position: "absolute",
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 12,
     backgroundColor: "rgba(59,130,246,0.3)",
   },
   userDot: {
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
   },
   locationStripInner: {
     backgroundColor: "rgba(255,255,255,0.95)",
-    borderRadius: 16,
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 4,
@@ -732,7 +732,7 @@ const styles = StyleSheet.create({
     zIndex: 15,
     width: 42,
     height: 42,
-    borderRadius: 13,
+    borderRadius: 10,
     backgroundColor: "rgba(0,0,0,0.55)",
     alignItems: "center",
     justifyContent: "center",
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(123,192,67,0.1)",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 10,
   },
   arrivedText: {
     fontSize: 14,
@@ -776,7 +776,7 @@ const styles = StyleSheet.create({
   chatFloatBtn: {
     width: 52,
     height: 52,
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: Colors.light.tint,
     alignItems: "center",
@@ -786,7 +786,7 @@ const styles = StyleSheet.create({
   instructionsBtn: {
     width: 52,
     height: 52,
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: Colors.light.tint,
     alignItems: "center",
@@ -800,7 +800,7 @@ const styles = StyleSheet.create({
     gap: 10,
     backgroundColor: Colors.light.tint,
     paddingVertical: 18,
-    borderRadius: 16,
+    borderRadius: 12,
   },
   photoBtnActive: {
     backgroundColor: Colors.light.accent,
@@ -849,12 +849,12 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingVertical: 14,
     paddingHorizontal: 12,
-    borderRadius: 14,
+    borderRadius: 10,
   },
   menuItemIconDanger: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: "#FEE2E2",
     alignItems: "center",
     justifyContent: "center",
@@ -876,7 +876,7 @@ const styles = StyleSheet.create({
   menuCancelBtn: {
     alignItems: "center",
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: 10,
     backgroundColor: Colors.light.background,
     marginTop: 4,
   },
@@ -908,7 +908,7 @@ const styles = StyleSheet.create({
   instructionIconWrap: {
     width: 38,
     height: 38,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: Colors.light.tint + "12",
     alignItems: "center",
     justifyContent: "center",
@@ -931,7 +931,7 @@ const styles = StyleSheet.create({
   },
   instructionNoteCard: {
     backgroundColor: Colors.light.background,
-    borderRadius: 14,
+    borderRadius: 10,
     padding: 16,
     gap: 6,
   },

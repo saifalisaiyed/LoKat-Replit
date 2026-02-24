@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   logoImage: {
     width: 64,
     height: 64,
-    borderRadius: 16,
+    borderRadius: 12,
   },
   headerSection: {
     marginBottom: 20,
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   },
   formCard: {
     backgroundColor: "#fff",
-    borderRadius: 18,
+    borderRadius: 12,
     padding: 20,
     gap: 16,
     shadowColor: "#000",
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "#F8F8FA",
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
     backgroundColor: "#F8F8FA",
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 14,
     borderWidth: 1,
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
   phoneInput: {
     flex: 1,
     backgroundColor: "#F8F8FA",
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FEF2F2",
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   errorText: {
     fontSize: 13,
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
   submitBtn: {
     backgroundColor: Colors.light.tint,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: Colors.light.tint,
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderWidth: 1.5,
     borderColor: "#E5E7EB",
-    borderRadius: 12,
+    borderRadius: 10,
     paddingVertical: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: "rgba(0, 0, 0, 0.03)",
   },
   guestBtnText: {
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#F5F5F7",
-    borderRadius: 12,
+    borderRadius: 10,
     marginHorizontal: 16,
     marginBottom: 8,
     borderWidth: 1,

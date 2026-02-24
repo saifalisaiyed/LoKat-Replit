@@ -480,7 +480,7 @@ export default function HomeScreen() {
                   setMenuVisible(!menuVisible);
                 }}
               >
-                <Ionicons name="ellipsis-vertical" size={18} color="#fff" />
+                <Ionicons name="ellipsis-vertical" size={18} color="#6B7280" />
               </Pressable>
               {menuVisible && (
                 <View style={styles.menuDropdown}>
@@ -789,7 +789,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.95)",
-    borderRadius: 28,
+    borderRadius: 14,
     paddingHorizontal: 4,
     paddingVertical: 12,
     shadowColor: "#000",
@@ -813,7 +813,7 @@ const styles = StyleSheet.create({
   locationBtn: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: "rgba(0,0,0,0.55)",
     alignItems: "center",
     justifyContent: "center",
@@ -848,7 +848,7 @@ const styles = StyleSheet.create({
     gap: 7,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: 12,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#E5E7EB",
@@ -874,7 +874,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 16,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
@@ -932,17 +932,22 @@ const styles = StyleSheet.create({
   menuBtn: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    borderRadius: 10,
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   menuDropdown: {
     position: "absolute",
     top: 42,
     right: 0,
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 10,
     padding: 4,
     width: 160,
     shadowColor: "#000",
@@ -994,7 +999,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 8,
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 12,
     paddingVertical: 14,
     paddingLeft: 14,
     paddingRight: 10,
@@ -1005,7 +1010,7 @@ const styles = StyleSheet.create({
   cardIconCircle: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1038,7 +1043,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.accent,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   cardRewardText: {
     fontSize: 14,
@@ -1078,7 +1083,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#F3F4F6",
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     gap: 8,
@@ -1126,7 +1131,7 @@ const styles = StyleSheet.create({
   searchResultIcon: {
     width: 38,
     height: 38,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
   },

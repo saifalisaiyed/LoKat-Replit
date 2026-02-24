@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 64,
     height: 64,
-    borderRadius: 32,
+    borderRadius: 20,
     backgroundColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   featuresContainer: {
     width: "100%",
     backgroundColor: "#F8F8FA",
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 16,
     gap: 14,
     marginBottom: 24,
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   featureIconWrap: {
     width: 36,
     height: 36,
-    borderRadius: 10,
+    borderRadius: 8,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: Colors.light.tint,
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: 10,
     width: "100%",
     shadowColor: Colors.light.tint,
     shadowOffset: { width: 0, height: 4 },
