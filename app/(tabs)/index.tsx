@@ -855,7 +855,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    marginTop: -4, // Move up to align with header
+    marginTop: -16, // Move up to align with header
   },
   filterBtnText: {
     fontSize: 12,
