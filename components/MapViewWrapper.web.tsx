@@ -96,18 +96,19 @@ function MapViewWrapperInner({
         if (showHeatmap && requests.length > 0) {
           var heatPoints = requests.map(function(r) { return [r.lat, r.lng, 0.6]; });
           heatLayer = L.heatLayer(heatPoints, {
-            radius: 30,
-            blur: 22,
+            radius: 35,
+            blur: 25,
             maxZoom: 16,
             max: 1.0,
-            minOpacity: 0.25,
+            minOpacity: 0.35,
             gradient: {
               0.0: 'rgba(124, 58, 237, 0)',
-              0.2: 'rgba(124, 58, 237, 0.15)',
-              0.4: 'rgba(139, 92, 246, 0.3)',
-              0.6: 'rgba(167, 139, 250, 0.45)',
-              0.8: 'rgba(196, 181, 253, 0.6)',
-              1.0: 'rgba(237, 233, 254, 0.75)'
+              0.15: 'rgba(124, 58, 237, 0.2)',
+              0.3: 'rgba(139, 92, 246, 0.4)',
+              0.5: 'rgba(147, 100, 240, 0.55)',
+              0.7: 'rgba(167, 139, 250, 0.65)',
+              0.85: 'rgba(196, 181, 253, 0.75)',
+              1.0: 'rgba(237, 233, 254, 0.85)'
             }
           }).addTo(map);
         }

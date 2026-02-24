@@ -72,6 +72,8 @@ export default function CreateRequestScreen() {
   const [orientation, setOrientation] = useState<Orientation>("portrait");
   const [angle, setAngle] = useState<Angle>("eye-level");
   const [timing, setTiming] = useState<Timing>("now");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
   const [note, setNote] = useState("");
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
@@ -84,6 +86,9 @@ export default function CreateRequestScreen() {
     if (isSubmitting) return;
     setIsSubmitting(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    const scheduledTimeStr = timing === "scheduled" && scheduledDate
+      ? `${scheduledDate}${scheduledTime ? "T" + scheduledTime : "T12:00"}`
+      : undefined;
     await createRequest({
       latitude: parseFloat(lat || "40.7580"),
       longitude: parseFloat(lng || "-73.9855"),
@@ -95,6 +100,7 @@ export default function CreateRequestScreen() {
       timing,
       reward: 5,
       note: note || undefined,
+      scheduledTime: scheduledTimeStr,
     });
     setShowConfirmation(true);
     Animated.timing(confirmAnim, {
@@ -162,7 +168,7 @@ export default function CreateRequestScreen() {
               onPress={() => setAngle("looking-up")}
             />
             <OptionChip
-              icon="remove-circle-outline"
+              icon="eye-outline"
               label="Straight"
               selected={angle === "eye-level"}
               onPress={() => setAngle("eye-level")}
@@ -192,6 +198,32 @@ export default function CreateRequestScreen() {
               onPress={() => setTiming("scheduled")}
             />
           </View>
+          {timing === "scheduled" && (
+            <View style={styles.scheduledInputs}>
+              <View style={styles.scheduledField}>
+                <Ionicons name="calendar-outline" size={16} color={Colors.light.tint} />
+                <TextInput
+                  style={styles.scheduledInput}
+                  placeholder="Date (YYYY-MM-DD)"
+                  placeholderTextColor="#B0B0B0"
+                  value={scheduledDate}
+                  onChangeText={setScheduledDate}
+                  keyboardType="default"
+                />
+              </View>
+              <View style={styles.scheduledField}>
+                <Ionicons name="time-outline" size={16} color={Colors.light.tint} />
+                <TextInput
+                  style={styles.scheduledInput}
+                  placeholder="Time (HH:MM)"
+                  placeholderTextColor="#B0B0B0"
+                  value={scheduledTime}
+                  onChangeText={setScheduledTime}
+                  keyboardType="default"
+                />
+              </View>
+            </View>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -358,6 +390,30 @@ const styles = StyleSheet.create({
   },
   chipLabelActive: {
     color: "#fff",
+  },
+  scheduledInputs: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 4,
+  },
+  scheduledField: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#FAFAFA",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: Colors.light.tint,
+  },
+  scheduledInput: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.light.text,
+    fontFamily: "Archivo_400Regular",
+    padding: 0,
   },
   noteInput: {
     backgroundColor: "#FAFAFA",
