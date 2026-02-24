@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Circle } from "react-native-maps";
 import Colors from "@/constants/colors";
 
 interface MapWrapperProps {
@@ -13,6 +13,7 @@ interface MapWrapperProps {
   mapRef: any;
   onMapPress: (e: any) => void;
   onPoiClick?: (e: any) => void;
+  showHeatmap?: boolean;
 }
 
 export default function MapViewWrapper({
@@ -25,6 +26,7 @@ export default function MapViewWrapper({
   mapRef,
   onMapPress,
   onPoiClick,
+  showHeatmap = false,
 }: MapWrapperProps) {
   return (
     <MapView
@@ -39,6 +41,28 @@ export default function MapViewWrapper({
       onPoiClick={onPoiClick || onMapPress}
       mapType="standard"
     >
+      {showHeatmap && openRequests.map((req: any) => (
+        <React.Fragment key={`heat-${req.id}`}>
+          <Circle
+            center={{ latitude: req.latitude, longitude: req.longitude }}
+            radius={500}
+            fillColor="rgba(124, 58, 237, 0.12)"
+            strokeColor="rgba(124, 58, 237, 0)"
+          />
+          <Circle
+            center={{ latitude: req.latitude, longitude: req.longitude }}
+            radius={250}
+            fillColor="rgba(139, 92, 246, 0.2)"
+            strokeColor="rgba(139, 92, 246, 0)"
+          />
+          <Circle
+            center={{ latitude: req.latitude, longitude: req.longitude }}
+            radius={100}
+            fillColor="rgba(167, 139, 250, 0.3)"
+            strokeColor="rgba(167, 139, 250, 0)"
+          />
+        </React.Fragment>
+      ))}
       {selectedPin && isSeeker && (
         <Marker coordinate={selectedPin} pinColor={Colors.light.tint} />
       )}

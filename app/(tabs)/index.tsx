@@ -561,56 +561,26 @@ export default function HomeScreen() {
           <Text style={[styles.sectionTitle, { marginBottom: 0, paddingHorizontal: 0 }]}>
             Incoming Requests ({openRequests.length})
           </Text>
-          <View style={{ position: "relative", zIndex: 10 }}>
-            <Pressable
-              style={({ pressed }) => [styles.filterBtn, pressed && { opacity: 0.7 }]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setLocationFilterVisible(!locationFilterVisible);
-              }}
-            >
-              <Ionicons
-                name={locationFilter === "anywhere" ? "funnel-outline" : "funnel"}
-                size={13}
-                color={locationFilter === "anywhere" ? Colors.light.textSecondary : Colors.light.tint}
-              />
-              <Text style={[
-                styles.filterBtnText,
-                locationFilter !== "anywhere" && { color: Colors.light.tint },
-              ]}>
-                {LOCATION_FILTERS.find((f) => f.key === locationFilter)?.label || "Anywhere"}
-              </Text>
-              <Ionicons name="chevron-down" size={12} color={Colors.light.textSecondary} />
-            </Pressable>
-            {locationFilterVisible && (
-              <View style={styles.filterDropdown}>
-                {LOCATION_FILTERS.map((f) => {
-                  const isActive = locationFilter === f.key;
-                  return (
-                    <Pressable
-                      key={f.key}
-                      style={[styles.dropdownOption, isActive && styles.dropdownOptionActive]}
-                      onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        setLocationFilter(f.key);
-                        setLocationFilterVisible(false);
-                      }}
-                    >
-                      <Ionicons
-                        name={f.icon as any}
-                        size={16}
-                        color={isActive ? Colors.light.tint : Colors.light.textSecondary}
-                      />
-                      <Text style={[styles.dropdownLabel, isActive && styles.dropdownLabelActive]}>
-                        {f.label}
-                      </Text>
-                      {isActive && <Ionicons name="checkmark" size={14} color={Colors.light.tint} />}
-                    </Pressable>
-                  );
-                })}
-              </View>
-            )}
-          </View>
+          <Pressable
+            style={({ pressed }) => [styles.filterBtn, pressed && { opacity: 0.7 }]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setLocationFilterVisible(!locationFilterVisible);
+            }}
+          >
+            <Ionicons
+              name={locationFilter === "anywhere" ? "funnel-outline" : "funnel"}
+              size={13}
+              color={locationFilter === "anywhere" ? Colors.light.textSecondary : Colors.light.tint}
+            />
+            <Text style={[
+              styles.filterBtnText,
+              locationFilter !== "anywhere" && { color: Colors.light.tint },
+            ]}>
+              {LOCATION_FILTERS.find((f) => f.key === locationFilter)?.label || "Anywhere"}
+            </Text>
+            <Ionicons name="chevron-down" size={12} color={Colors.light.textSecondary} />
+          </Pressable>
         </View>
       </View>
     </>
@@ -647,6 +617,42 @@ export default function HomeScreen() {
         }}
         showsVerticalScrollIndicator={false}
       />
+
+      {locationFilterVisible && (
+        <Modal transparent animationType="fade" onRequestClose={() => setLocationFilterVisible(false)}>
+          <Pressable
+            style={styles.filterOverlay}
+            onPress={() => setLocationFilterVisible(false)}
+          >
+            <View style={styles.filterDropdown}>
+              {LOCATION_FILTERS.map((f) => {
+                const isActive = locationFilter === f.key;
+                return (
+                  <Pressable
+                    key={f.key}
+                    style={[styles.dropdownOption, isActive && styles.dropdownOptionActive]}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setLocationFilter(f.key);
+                      setLocationFilterVisible(false);
+                    }}
+                  >
+                    <Ionicons
+                      name={f.icon as any}
+                      size={16}
+                      color={isActive ? Colors.light.tint : Colors.light.textSecondary}
+                    />
+                    <Text style={[styles.dropdownLabel, isActive && styles.dropdownLabelActive]}>
+                      {f.label}
+                    </Text>
+                    {isActive && <Ionicons name="checkmark" size={14} color={Colors.light.tint} />}
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Pressable>
+        </Modal>
+      )}
 
       <Modal
         visible={searchVisible}
@@ -825,6 +831,7 @@ const styles = StyleSheet.create({
     marginTop: -24,
     paddingTop: 4,
     marginHorizontal: 0,
+    zIndex: 1,
   },
   categoriesSection: {
     paddingTop: 20,
@@ -865,7 +872,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    zIndex: 10,
+    zIndex: 100,
+    overflow: "visible",
   },
   filterBtn: {
     flexDirection: "row",
@@ -885,16 +893,15 @@ const styles = StyleSheet.create({
   },
   filterOverlay: {
     flex: 1,
-    backgroundColor: "transparent",
+    backgroundColor: "rgba(0,0,0,0.15)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   filterDropdown: {
-    position: "absolute",
-    top: 34,
-    right: 0,
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 4,
-    width: 140,
+    width: 180,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
