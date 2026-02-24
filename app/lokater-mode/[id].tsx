@@ -547,7 +547,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             <View style={styles.instructionItem}>
               <View style={styles.instructionIconWrap}>
                 <Ionicons
-                  name={request.angle === "looking-up" ? "arrow-up-circle-outline" : request.angle === "looking-down" ? "arrow-down-circle-outline" : "eye-outline"}
+                  name={request.angle === "looking-up" ? "arrow-up-circle-outline" : request.angle === "looking-down" ? "arrow-down-circle-outline" : "remove-circle-outline"}
                   size={18}
                   color={Colors.light.tint}
                 />

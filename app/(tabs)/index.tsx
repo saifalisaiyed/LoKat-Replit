@@ -510,16 +510,7 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.mapBottomRow} pointerEvents="box-none">
-            <Pressable
-              style={styles.createFab}
-              onPress={() => {
-                if (!isAuthenticated) { setAuthPromptContext("create-request"); setAuthPromptVisible(true); return; }
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                setSearchVisible(true);
-              }}
-            >
-              <Ionicons name="add" size={26} color="#fff" />
-            </Pressable>
+            <View />
             <Pressable style={styles.locationBtn} onPress={handleCenterLocation}>
               <Ionicons name="locate" size={20} color="#fff" />
             </Pressable>
@@ -798,7 +789,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.95)",
-    borderRadius: 28,
+    borderRadius: 14,
     paddingHorizontal: 4,
     paddingVertical: 12,
     shadowColor: "#000",
@@ -818,19 +809,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-  },
-  createFab: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.light.tint,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#7C3AED",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 6,
   },
   locationBtn: {
     width: 40,
@@ -870,7 +848,7 @@ const styles = StyleSheet.create({
     gap: 7,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: 12,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#E5E7EB",

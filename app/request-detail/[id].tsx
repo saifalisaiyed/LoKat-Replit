@@ -238,7 +238,7 @@ export default function RequestDetailScreen() {
             />
             <View style={styles.detailDivider} />
             <DetailRow
-              icon={request.angle === "looking-up" ? "arrow-up-circle-outline" : request.angle === "looking-down" ? "arrow-down-circle-outline" : "eye-outline"}
+              icon={request.angle === "looking-up" ? "arrow-up-circle-outline" : request.angle === "looking-down" ? "arrow-down-circle-outline" : "remove-circle-outline"}
               label="Angle"
               value={request.angle.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
             />
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   categoryPill: {
     flexDirection: "row", alignItems: "center", gap: 7,
-    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, borderWidth: 1,
+    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, borderWidth: 1,
   },
   categoryPillText: { fontSize: 13, fontFamily: "Archivo_500Medium" },
   chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#fff", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: "#E5E7EB" },
