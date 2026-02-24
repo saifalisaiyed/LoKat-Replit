@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   Platform,
+  Animated,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -75,7 +76,13 @@ export default function CreateRequestScreen() {
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const confirmAnim = useRef(new Animated.Value(0)).current;
+
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     await createRequest({
       latitude: parseFloat(lat || "40.7580"),
@@ -89,7 +96,15 @@ export default function CreateRequestScreen() {
       reward: 5,
       note: note || undefined,
     });
-    router.back();
+    setShowConfirmation(true);
+    Animated.timing(confirmAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+    setTimeout(() => {
+      router.back();
+    }, 2000);
   };
 
   return (
@@ -206,11 +221,43 @@ export default function CreateRequestScreen() {
             pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
           ]}
           onPress={handleSubmit}
+          disabled={isSubmitting}
         >
           <Feather name="send" size={18} color="#fff" />
-          <Text style={styles.submitBtnText}>Launch Request</Text>
+          <Text style={styles.submitBtnText}>
+            {isSubmitting ? "Submitting..." : "Launch Request"}
+          </Text>
         </Pressable>
       </View>
+
+      {showConfirmation && (
+        <Animated.View
+          style={[
+            styles.confirmationOverlay,
+            {
+              opacity: confirmAnim,
+              transform: [
+                {
+                  scale: confirmAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.8, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <View style={styles.confirmationCard}>
+            <View style={styles.confirmationIconWrap}>
+              <Ionicons name="checkmark-circle" size={52} color={Colors.light.accent} />
+            </View>
+            <Text style={styles.confirmationTitle}>Request Launched!</Text>
+            <Text style={styles.confirmationSub}>
+              Your photo request for {locationName} is now live. A nearby LoKater will pick it up soon.
+            </Text>
+          </View>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -345,5 +392,41 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 15,
     fontFamily: "Archivo_600SemiBold",
+  },
+  confirmationOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 100,
+  },
+  confirmationCard: {
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    paddingHorizontal: 32,
+    paddingVertical: 36,
+    alignItems: "center",
+    marginHorizontal: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  confirmationIconWrap: {
+    marginBottom: 16,
+  },
+  confirmationTitle: {
+    fontSize: 22,
+    color: Colors.light.text,
+    fontFamily: "Archivo_700Bold",
+    marginBottom: 8,
+  },
+  confirmationSub: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+    textAlign: "center",
+    lineHeight: 20,
   },
 });
