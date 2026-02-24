@@ -510,7 +510,16 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.mapBottomRow} pointerEvents="box-none">
-            <View />
+            <Pressable
+              style={styles.createFab}
+              onPress={() => {
+                if (!isAuthenticated) { setAuthPromptContext("create-request"); setAuthPromptVisible(true); return; }
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                setSearchVisible(true);
+              }}
+            >
+              <Ionicons name="add" size={26} color="#fff" />
+            </Pressable>
             <Pressable style={styles.locationBtn} onPress={handleCenterLocation}>
               <Ionicons name="locate" size={20} color="#fff" />
             </Pressable>
@@ -809,6 +818,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
+  },
+  createFab: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.light.tint,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#7C3AED",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
   },
   locationBtn: {
     width: 40,
