@@ -8,11 +8,13 @@ import {
   TextInput,
   Platform,
   Animated,
+  Modal,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { type Orientation, type Angle, type Timing, type Category } from "@/lib/types";
@@ -72,8 +74,10 @@ export default function CreateRequestScreen() {
   const [orientation, setOrientation] = useState<Orientation>("portrait");
   const [angle, setAngle] = useState<Angle>("eye-level");
   const [timing, setTiming] = useState<Timing>("now");
-  const [scheduledDate, setScheduledDate] = useState("");
-  const [scheduledTime, setScheduledTime] = useState("");
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
+  const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [note, setNote] = useState("");
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
@@ -164,7 +168,7 @@ export default function CreateRequestScreen() {
               onPress={() => setAngle("looking-up")}
             />
             <OptionChip
-              icon="remove-circle-outline"
+              icon="eye-outline"
               label="Straight"
               selected={angle === "eye-level"}
               onPress={() => setAngle("eye-level")}
@@ -196,27 +200,111 @@ export default function CreateRequestScreen() {
           </View>
           {timing === "scheduled" && (
             <View style={styles.scheduledFields}>
-              <View style={styles.scheduledField}>
+              <Pressable
+                style={styles.scheduledField}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowDatePicker(true);
+                }}
+              >
                 <Ionicons name="calendar-outline" size={16} color={Colors.light.textSecondary} />
-                <TextInput
-                  style={styles.scheduledInput}
-                  placeholder="Date (e.g. Mar 15, 2026)"
-                  placeholderTextColor="#B0B0B0"
-                  value={scheduledDate}
-                  onChangeText={setScheduledDate}
-                />
-              </View>
-              <View style={styles.scheduledField}>
+                <Text style={[styles.scheduledFieldText, !scheduledDate && styles.scheduledPlaceholder]}>
+                  {scheduledDate
+                    ? scheduledDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+                    : "Select date"}
+                </Text>
+                <Ionicons name="chevron-forward" size={14} color={Colors.light.textSecondary} />
+              </Pressable>
+              <Pressable
+                style={styles.scheduledField}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowTimePicker(true);
+                }}
+              >
                 <Ionicons name="time-outline" size={16} color={Colors.light.textSecondary} />
-                <TextInput
-                  style={styles.scheduledInput}
-                  placeholder="Time (e.g. 3:00 PM)"
-                  placeholderTextColor="#B0B0B0"
-                  value={scheduledTime}
-                  onChangeText={setScheduledTime}
-                />
-              </View>
+                <Text style={[styles.scheduledFieldText, !scheduledTime && styles.scheduledPlaceholder]}>
+                  {scheduledTime
+                    ? scheduledTime.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+                    : "Select time"}
+                </Text>
+                <Ionicons name="chevron-forward" size={14} color={Colors.light.textSecondary} />
+              </Pressable>
             </View>
+          )}
+
+          {showDatePicker && (
+            Platform.OS === "web" ? (
+              <Modal transparent animationType="fade" onRequestClose={() => setShowDatePicker(false)}>
+                <Pressable style={styles.pickerOverlay} onPress={() => setShowDatePicker(false)}>
+                  <View style={styles.pickerSheet}>
+                    <Text style={styles.pickerTitle}>Select Date</Text>
+                    <DateTimePicker
+                      value={scheduledDate || new Date()}
+                      mode="date"
+                      display="spinner"
+                      minimumDate={new Date()}
+                      onChange={(_, date) => {
+                        if (date) setScheduledDate(date);
+                      }}
+                    />
+                    <Pressable style={styles.pickerDoneBtn} onPress={() => {
+                      if (!scheduledDate) setScheduledDate(new Date());
+                      setShowDatePicker(false);
+                    }}>
+                      <Text style={styles.pickerDoneText}>Done</Text>
+                    </Pressable>
+                  </View>
+                </Pressable>
+              </Modal>
+            ) : (
+              <DateTimePicker
+                value={scheduledDate || new Date()}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                minimumDate={new Date()}
+                onChange={(_, date) => {
+                  setShowDatePicker(false);
+                  if (date) setScheduledDate(date);
+                }}
+              />
+            )
+          )}
+
+          {showTimePicker && (
+            Platform.OS === "web" ? (
+              <Modal transparent animationType="fade" onRequestClose={() => setShowTimePicker(false)}>
+                <Pressable style={styles.pickerOverlay} onPress={() => setShowTimePicker(false)}>
+                  <View style={styles.pickerSheet}>
+                    <Text style={styles.pickerTitle}>Select Time</Text>
+                    <DateTimePicker
+                      value={scheduledTime || new Date()}
+                      mode="time"
+                      display="spinner"
+                      onChange={(_, time) => {
+                        if (time) setScheduledTime(time);
+                      }}
+                    />
+                    <Pressable style={styles.pickerDoneBtn} onPress={() => {
+                      if (!scheduledTime) setScheduledTime(new Date());
+                      setShowTimePicker(false);
+                    }}>
+                      <Text style={styles.pickerDoneText}>Done</Text>
+                    </Pressable>
+                  </View>
+                </Pressable>
+              </Modal>
+            ) : (
+              <DateTimePicker
+                value={scheduledTime || new Date()}
+                mode="time"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={(_, time) => {
+                  setShowTimePicker(false);
+                  if (time) setScheduledTime(time);
+                }}
+              />
+            )
           )}
         </View>
 
@@ -398,14 +486,47 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#EBEBEB",
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
-  scheduledInput: {
+  scheduledFieldText: {
     flex: 1,
     fontSize: 14,
     color: Colors.light.text,
     fontFamily: "Archivo_400Regular",
-    paddingVertical: 0,
+  },
+  scheduledPlaceholder: {
+    color: "#B0B0B0",
+  },
+  pickerOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pickerSheet: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 20,
+    width: 320,
+    alignItems: "center",
+    gap: 12,
+  },
+  pickerTitle: {
+    fontSize: 16,
+    color: Colors.light.text,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  pickerDoneBtn: {
+    backgroundColor: Colors.light.tint,
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  pickerDoneText: {
+    color: "#fff",
+    fontSize: 15,
+    fontFamily: "Archivo_600SemiBold",
   },
   noteInput: {
     backgroundColor: "#FAFAFA",

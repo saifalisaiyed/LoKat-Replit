@@ -14,11 +14,11 @@ export type Category =
   | "events";
 
 export const CATEGORIES: { key: Category; label: string; icon: string }[] = [
-  { key: "landmarks", label: "Landmarks", icon: "business-outline" },
+  { key: "landmarks", label: "Landmarks", icon: "trophy-outline" },
   { key: "nature", label: "Nature", icon: "leaf-outline" },
   { key: "markets", label: "Markets", icon: "storefront-outline" },
-  { key: "beaches", label: "Beaches & Water", icon: "water-outline" },
-  { key: "cityscapes", label: "Cityscapes", icon: "grid-outline" },
+  { key: "beaches", label: "Beaches & Water", icon: "umbrella-outline" },
+  { key: "cityscapes", label: "Cityscapes", icon: "business-outline" },
   { key: "food", label: "Food & Drink", icon: "restaurant-outline" },
   { key: "hidden-gems", label: "Hidden Gems", icon: "diamond-outline" },
   { key: "events", label: "Events", icon: "calendar-outline" },
