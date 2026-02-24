@@ -56,6 +56,7 @@ function MapViewWrapperInner({
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
       <style>
         * { margin: 0; padding: 0; }
         #map { width: 100%; height: 100vh; cursor: pointer; }
@@ -87,6 +88,18 @@ function MapViewWrapperInner({
         });
 
         var requests = ${JSON.stringify(openRequests.map(r => ({ id: r.id, lat: r.latitude, lng: r.longitude })))};
+        
+        // Heatmap layer
+        if (requests.length > 0) {
+          var heatPoints = requests.map(function(r) { return [r.lat, r.lng, 0.5]; });
+          var heat = L.heatLayer(heatPoints, {
+            radius: 25,
+            blur: 15,
+            maxZoom: 17,
+            gradient: {0.4: 'blue', 0.65: 'lime', 1: 'red'}
+          }).addTo(map);
+        }
+
         requests.forEach(function(req) {
           var m = L.marker([req.lat, req.lng], { icon: markerIcon }).addTo(map);
           m.on('click', function(e) {
