@@ -10,7 +10,7 @@ import {
   Alert,
   Modal,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -335,10 +335,7 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
           <Ionicons name="arrow-back" size={22} color="#333" />
         </Pressable>
 
-        <View style={styles.navBadge}>
-          <Ionicons name="navigate" size={14} color={Colors.light.tint} />
-          <Text style={styles.navBadgeText}>LoKater Mode</Text>
-        </View>
+        <View style={{ flex: 1 }} />
 
         <Pressable
           style={styles.topBtn}
@@ -349,63 +346,32 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
         </Pressable>
       </View>
 
+      <View style={[styles.locationStrip, { top: insets.top + 60 + webInsetTop }]} pointerEvents="none">
+        <View style={styles.locationStripInner}>
+          <View style={styles.locationStripRow}>
+            <Ionicons name="location" size={18} color={Colors.light.tint} />
+            <Text style={styles.locationStripName} numberOfLines={1}>{request.locationName}</Text>
+          </View>
+          <View style={styles.locationStripMeta}>
+            <Ionicons name="time-outline" size={14} color={Colors.light.textSecondary} />
+            <Text style={styles.locationStripEta}>
+              {distance !== null ? formatETA(distance) : "--"}
+            </Text>
+            <View style={styles.locationStripDot} />
+            <Ionicons name="navigate-outline" size={14} color={Colors.light.textSecondary} />
+            <Text style={styles.locationStripDist}>
+              {distance !== null ? formatDistance(distance) : "--"}
+            </Text>
+          </View>
+        </View>
+      </View>
+
       <View
         style={[
           styles.bottomSheet,
           { paddingBottom: Platform.OS === "web" ? 34 + 16 : insets.bottom + 16 },
         ]}
       >
-        <View style={styles.destinationRow}>
-          <View style={styles.destIcon}>
-            <Ionicons name="location" size={20} color={Colors.light.tint} />
-          </View>
-          <View style={styles.destInfo}>
-            <Text style={styles.destName} numberOfLines={1}>
-              {request.locationName}
-            </Text>
-            <Text style={styles.destAddr} numberOfLines={1}>
-              {request.address}
-            </Text>
-          </View>
-          <View style={styles.rewardChip}>
-            <Text style={styles.rewardText}>${request.reward}</Text>
-          </View>
-        </View>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <MaterialCommunityIcons
-              name="map-marker-distance"
-              size={18}
-              color={Colors.light.tint}
-            />
-            <Text style={styles.statValue}>
-              {distance !== null ? formatDistance(distance) : "--"}
-            </Text>
-            <Text style={styles.statLabel}>Distance</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Ionicons name="walk" size={18} color={Colors.light.tint} />
-            <Text style={styles.statValue}>
-              {distance !== null ? formatETA(distance) : "--"}
-            </Text>
-            <Text style={styles.statLabel}>Walking</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Ionicons
-              name="compass"
-              size={18}
-              color={Colors.light.tint}
-            />
-            <Text style={styles.statValue}>
-              {userLocation ? getDirectionLabel(bearing) : "--"}
-            </Text>
-            <Text style={styles.statLabel}>Direction</Text>
-          </View>
-        </View>
-
         {isVeryClose && (
           <View style={styles.arrivedBanner}>
             <Ionicons
@@ -436,9 +402,7 @@ L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
             onPress={handleTakePhoto}
           >
             <Ionicons name="camera" size={22} color="#fff" />
-            <Text style={styles.photoBtnText}>
-              {isCloseEnough ? "Take Photo" : "Take Photo"}
-            </Text>
+            <Text style={styles.photoBtnText}>Take Photo</Text>
           </Pressable>
         </View>
 
@@ -577,24 +541,56 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
   },
-  navBadge: {
-    flexDirection: "row",
-    alignItems: "center",
+  locationStrip: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    zIndex: 10,
+  },
+  locationStripInner: {
+    backgroundColor: "rgba(255,255,255,0.95)",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     gap: 6,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  navBadgeText: {
-    fontSize: 13,
-    color: Colors.light.tint,
+  locationStripRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  locationStripName: {
+    flex: 1,
+    fontSize: 16,
+    color: Colors.light.text,
     fontFamily: "Archivo_600SemiBold",
+  },
+  locationStripMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingLeft: 26,
+  },
+  locationStripEta: {
+    fontSize: 14,
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
+  },
+  locationStripDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.light.textSecondary,
+  },
+  locationStripDist: {
+    fontSize: 14,
+    color: Colors.light.text,
+    fontFamily: "Archivo_500Medium",
   },
   bottomSheet: {
     position: "absolute",
@@ -612,73 +608,6 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 12,
     gap: 16,
-  },
-  destinationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  destIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: Colors.light.tint + "12",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  destInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  destName: {
-    fontSize: 16,
-    color: Colors.light.text,
-    fontFamily: "Archivo_600SemiBold",
-  },
-  destAddr: {
-    fontSize: 13,
-    color: Colors.light.textSecondary,
-    fontFamily: "Archivo_400Regular",
-  },
-  rewardChip: {
-    backgroundColor: Colors.light.accent,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  rewardText: {
-    fontSize: 16,
-    color: "#fff",
-    fontFamily: "Archivo_700Bold",
-  },
-  statsRow: {
-    flexDirection: "row",
-    backgroundColor: Colors.light.background,
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 8,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: "center",
-    gap: 4,
-  },
-  statValue: {
-    fontSize: 18,
-    color: Colors.light.text,
-    fontFamily: "Archivo_700Bold",
-  },
-  statLabel: {
-    fontSize: 11,
-    color: Colors.light.textSecondary,
-    fontFamily: "Archivo_400Regular",
-    textTransform: "uppercase" as const,
-    letterSpacing: 0.5,
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: Colors.light.border,
-    marginVertical: 4,
   },
   arrivedBanner: {
     flexDirection: "row",
