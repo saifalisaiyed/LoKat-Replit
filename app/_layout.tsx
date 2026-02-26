@@ -5,7 +5,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, Image, StyleSheet, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { Ionicons } from "@expo/vector-icons";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { AppProvider } from "@/lib/store";
@@ -18,6 +17,7 @@ import Animated, {
   withDelay,
   withSequence,
   withSpring,
+  withRepeat,
   runOnJS,
   Easing,
 } from "react-native-reanimated";
@@ -31,99 +31,98 @@ import {
 
 SplashScreen.preventAutoHideAsync();
 
-const SPLASH_DURATION = 3200;
+const SPLASH_DURATION = 3400;
+const PULSE_SIZE = 110; // logo circle diameter
+const PULSE_INTERVAL = 420; // ms between each ring launch
 
 function BrandedSplash({ onFinish }: { onFinish: () => void }) {
-  // Pin drop
-  const pinY = useSharedValue(-220);
-  const pinOpacity = useSharedValue(1);
-
-  // Ripple rings
-  const r1Scale = useSharedValue(0);
-  const r1Opacity = useSharedValue(0);
-  const r2Scale = useSharedValue(0);
-  const r2Opacity = useSharedValue(0);
-  const r3Scale = useSharedValue(0);
-  const r3Opacity = useSharedValue(0);
-
-  // Logo swap
-  const logoScale = useSharedValue(0.4);
+  // Logo
+  const logoScale = useSharedValue(0.5);
   const logoOpacity = useSharedValue(0);
+
+  // Background purple glow that breathes
+  const bgGlow = useSharedValue(0);
+
+  // 4 radar pulse rings — each loops independently
+  const p1Scale = useSharedValue(1);
+  const p1Opacity = useSharedValue(0);
+  const p2Scale = useSharedValue(1);
+  const p2Opacity = useSharedValue(0);
+  const p3Scale = useSharedValue(1);
+  const p3Opacity = useSharedValue(0);
+  const p4Scale = useSharedValue(1);
+  const p4Opacity = useSharedValue(0);
 
   // Text
   const nameOpacity = useSharedValue(0);
-  const nameY = useSharedValue(24);
+  const nameY = useSharedValue(20);
   const taglineOpacity = useSharedValue(0);
 
   // Screen fade-out
   const screenOpacity = useSharedValue(1);
 
+  const launchPulse = (scale: ReturnType<typeof useSharedValue>, opacity: ReturnType<typeof useSharedValue>, delay: number) => {
+    scale.value = withDelay(delay, withRepeat(
+      withTiming(2.8, { duration: 1400, easing: Easing.out(Easing.ease) }),
+      -1,
+      false
+    ));
+    opacity.value = withDelay(delay, withRepeat(
+      withSequence(
+        withTiming(0.75, { duration: 80 }),
+        withTiming(0, { duration: 1320, easing: Easing.out(Easing.ease) })
+      ),
+      -1,
+      false
+    ));
+  };
+
   useEffect(() => {
-    // 1. Pin drops with a satisfying bounce
-    pinY.value = withSpring(0, { damping: 7, stiffness: 90, mass: 1 });
+    // 1. Logo springs in
+    logoOpacity.value = withTiming(1, { duration: 500 });
+    logoScale.value = withSpring(1, { damping: 10, stiffness: 120 });
 
-    // 2. On impact (~550ms), three ripple rings expand outward
-    r1Scale.value = withDelay(520, withTiming(1, { duration: 750, easing: Easing.out(Easing.ease) }));
-    r1Opacity.value = withDelay(520, withSequence(
-      withTiming(0.85, { duration: 60 }),
-      withTiming(0, { duration: 690, easing: Easing.out(Easing.ease) })
+    // 2. Background glow breathes slowly
+    bgGlow.value = withDelay(300, withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.4, { duration: 1600, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
     ));
 
-    r2Scale.value = withDelay(660, withTiming(1, { duration: 750, easing: Easing.out(Easing.ease) }));
-    r2Opacity.value = withDelay(660, withSequence(
-      withTiming(0.55, { duration: 60 }),
-      withTiming(0, { duration: 690, easing: Easing.out(Easing.ease) })
-    ));
+    // 3. Four radar rings staggered — start after logo is visible
+    launchPulse(p1Scale, p1Opacity, 500);
+    launchPulse(p2Scale, p2Opacity, 500 + PULSE_INTERVAL);
+    launchPulse(p3Scale, p3Opacity, 500 + PULSE_INTERVAL * 2);
+    launchPulse(p4Scale, p4Opacity, 500 + PULSE_INTERVAL * 3);
 
-    r3Scale.value = withDelay(800, withTiming(1, { duration: 750, easing: Easing.out(Easing.ease) }));
-    r3Opacity.value = withDelay(800, withSequence(
-      withTiming(0.3, { duration: 60 }),
-      withTiming(0, { duration: 690, easing: Easing.out(Easing.ease) })
-    ));
+    // 4. Text
+    nameOpacity.value = withDelay(850, withTiming(1, { duration: 500 }));
+    nameY.value = withDelay(850, withSpring(0, { damping: 14, stiffness: 120 }));
+    taglineOpacity.value = withDelay(1100, withTiming(1, { duration: 500 }));
 
-    // 3. Pin fades out, logo springs in at same position
-    pinOpacity.value = withDelay(580, withTiming(0, { duration: 220 }));
-    logoOpacity.value = withDelay(680, withTiming(1, { duration: 350 }));
-    logoScale.value = withDelay(680, withSpring(1, { damping: 11, stiffness: 140 }));
-
-    // 4. App name slides up
-    nameOpacity.value = withDelay(950, withTiming(1, { duration: 450 }));
-    nameY.value = withDelay(950, withSpring(0, { damping: 14, stiffness: 120 }));
-
-    // 5. Tagline fades in
-    taglineOpacity.value = withDelay(1200, withTiming(1, { duration: 450 }));
-
-    // 6. Fade out entire splash
+    // 5. Fade out
     const timer = setTimeout(() => {
-      screenOpacity.value = withTiming(0, { duration: 450, easing: Easing.out(Easing.ease) }, () => {
+      screenOpacity.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.ease) }, () => {
         runOnJS(onFinish)();
       });
-    }, SPLASH_DURATION - 450);
+    }, SPLASH_DURATION - 500);
 
     return () => clearTimeout(timer);
   }, []);
 
   const containerStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }));
-  const pinStyle = useAnimatedStyle(() => ({
-    opacity: pinOpacity.value,
-    transform: [{ translateY: pinY.value }],
-  }));
-  const r1Style = useAnimatedStyle(() => ({
-    opacity: r1Opacity.value,
-    transform: [{ scale: r1Scale.value }],
-  }));
-  const r2Style = useAnimatedStyle(() => ({
-    opacity: r2Opacity.value,
-    transform: [{ scale: r2Scale.value }],
-  }));
-  const r3Style = useAnimatedStyle(() => ({
-    opacity: r3Opacity.value,
-    transform: [{ scale: r3Scale.value }],
-  }));
+  const bgGlowStyle = useAnimatedStyle(() => ({ opacity: bgGlow.value }));
   const logoStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
     transform: [{ scale: logoScale.value }],
   }));
+  const p1Style = useAnimatedStyle(() => ({ opacity: p1Opacity.value, transform: [{ scale: p1Scale.value }] }));
+  const p2Style = useAnimatedStyle(() => ({ opacity: p2Opacity.value, transform: [{ scale: p2Scale.value }] }));
+  const p3Style = useAnimatedStyle(() => ({ opacity: p3Opacity.value, transform: [{ scale: p3Scale.value }] }));
+  const p4Style = useAnimatedStyle(() => ({ opacity: p4Opacity.value, transform: [{ scale: p4Scale.value }] }));
   const nameStyle = useAnimatedStyle(() => ({
     opacity: nameOpacity.value,
     transform: [{ translateY: nameY.value }],
@@ -132,18 +131,17 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
 
   return (
     <Animated.View style={[splashStyles.container, containerStyle]}>
+      {/* Breathing background glow */}
+      <Animated.View style={[splashStyles.bgGlow, bgGlowStyle]} />
+
       <View style={splashStyles.centerStage}>
-        {/* Ripple rings — all absolutely centered */}
-        <Animated.View style={[splashStyles.ripple, { width: 180, height: 180, borderRadius: 90 }, r1Style]} />
-        <Animated.View style={[splashStyles.ripple, { width: 280, height: 280, borderRadius: 140 }, r2Style]} />
-        <Animated.View style={[splashStyles.ripple, { width: 380, height: 380, borderRadius: 190 }, r3Style]} />
+        {/* Radar pulse rings — all absolutely centered, same starting size as logo */}
+        <Animated.View style={[splashStyles.pulseRing, p1Style]} />
+        <Animated.View style={[splashStyles.pulseRing, p2Style]} />
+        <Animated.View style={[splashStyles.pulseRing, p3Style]} />
+        <Animated.View style={[splashStyles.pulseRing, p4Style]} />
 
-        {/* Map pin drops in */}
-        <Animated.View style={[splashStyles.pinWrap, pinStyle]}>
-          <Ionicons name="location" size={80} color="#7C3AED" />
-        </Animated.View>
-
-        {/* Logo replaces the pin */}
+        {/* Logo at center */}
         <Animated.View style={[splashStyles.logoWrap, logoStyle]}>
           <Image source={lokatLogo} style={splashStyles.logoImage} />
         </Animated.View>
@@ -166,34 +164,43 @@ const splashStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  bgGlow: {
+    position: "absolute",
+    width: 500,
+    height: 500,
+    borderRadius: 250,
+    backgroundColor: "rgba(124, 58, 237, 0.18)",
+    alignSelf: "center",
+    top: "50%",
+    marginTop: -310,
+  },
   centerStage: {
-    width: 380,
-    height: 200,
+    width: PULSE_SIZE,
+    height: PULSE_SIZE,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 28,
+    marginBottom: 36,
   },
-  ripple: {
+  pulseRing: {
     position: "absolute",
-    borderWidth: 2,
+    width: PULSE_SIZE,
+    height: PULSE_SIZE,
+    borderRadius: PULSE_SIZE / 2,
+    borderWidth: 1.5,
     borderColor: "#7C3AED",
   },
-  pinWrap: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   logoWrap: {
-    position: "absolute",
-    width: 90,
-    height: 90,
+    width: PULSE_SIZE,
+    height: PULSE_SIZE,
+    borderRadius: PULSE_SIZE / 2,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
+    backgroundColor: "#2D1B69",
   },
   logoImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 22,
+    width: PULSE_SIZE,
+    height: PULSE_SIZE,
   },
   appName: {
     fontSize: 40,
