@@ -206,31 +206,34 @@ export default function LoKaterModeScreen() {
     }
   };
 
+  const navigateHomeAbandoned = useCallback(() => {
+    router.dismissAll();
+    router.replace({ pathname: "/(tabs)", params: { abandoned: "1" } });
+  }, []);
+
   const handleAbandon = useCallback(() => {
     setMenuVisible(false);
     if (Platform.OS === "web") {
       abandonRequest(id!);
-      router.dismissAll();
-      router.replace("/(tabs)");
+      navigateHomeAbandoned();
     } else {
       Alert.alert(
         "Abandon Request",
         "Are you sure you want to abandon this request? It will become available for other LoKaters.",
         [
-          { text: "Cancel", style: "cancel" },
+          { text: "Keep Going", style: "cancel" },
           {
             text: "Abandon",
             style: "destructive",
             onPress: () => {
               abandonRequest(id!);
-              router.dismissAll();
-              router.replace("/(tabs)");
+              navigateHomeAbandoned();
             },
           },
         ]
       );
     }
-  }, [id, abandonRequest]);
+  }, [id, abandonRequest, navigateHomeAbandoned]);
 
   const handleTakePhoto = useCallback(() => {
     if (!isCloseEnough) return;

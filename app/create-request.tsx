@@ -50,6 +50,38 @@ function OptionChip({
   );
 }
 
+const RESTRICTED_PLACE_TYPES = [
+  "school", "university", "secondary_school", "primary_school",
+  "elementary_school", "high_school", "college", "boarding_school",
+  "preschool", "daycare", "educational_institution",
+  "hospital", "doctor", "health", "pharmacy", "medical_center",
+  "government", "courthouse", "police", "fire_station", "embassy",
+  "prison", "military", "army",
+];
+
+const RESTRICTED_FRIENDLY_NAMES: Record<string, string> = {
+  school: "schools", secondary_school: "schools", primary_school: "schools",
+  elementary_school: "schools", high_school: "schools", boarding_school: "schools",
+  preschool: "schools", daycare: "childcare centres", educational_institution: "educational institutions",
+  university: "universities", college: "colleges",
+  hospital: "hospitals", doctor: "medical facilities", health: "medical facilities",
+  pharmacy: "pharmacies", medical_center: "medical centres",
+  government: "government buildings", courthouse: "courthouses",
+  police: "police stations", fire_station: "fire stations",
+  embassy: "embassies", prison: "prisons", military: "military facilities",
+  army: "military facilities",
+};
+
+function getRestrictionReason(types: string[]): string | null {
+  for (const t of types) {
+    const lower = t.toLowerCase();
+    if (RESTRICTED_PLACE_TYPES.includes(lower)) {
+      return RESTRICTED_FRIENDLY_NAMES[lower] || "restricted locations";
+    }
+  }
+  return null;
+}
+
 export default function CreateRequestScreen() {
   const insets = useSafeAreaInsets();
   const {
@@ -58,14 +90,23 @@ export default function CreateRequestScreen() {
     name: paramName,
     addr: paramAddr,
     cat: paramCat,
+    placeTypes: paramPlaceTypes,
   } = useLocalSearchParams<{
     lat: string;
     lng: string;
     name: string;
     addr: string;
     cat: string;
+    placeTypes?: string;
   }>();
   const { createRequest } = useApp();
+
+  const parsedTypes: string[] = React.useMemo(() => {
+    if (!paramPlaceTypes || paramPlaceTypes === "[]") return [];
+    try { return JSON.parse(paramPlaceTypes); } catch { return []; }
+  }, [paramPlaceTypes]);
+
+  const restrictionReason = getRestrictionReason(parsedTypes);
 
   const locationName = paramName || "Unknown Location";
   const address = paramAddr || "New York, NY";
@@ -114,6 +155,39 @@ export default function CreateRequestScreen() {
       router.back();
     }, 2000);
   };
+
+  if (restrictionReason) {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
+        <View style={[styles.header, { paddingTop: 12 }]}>
+          <Pressable onPress={() => router.back()} hitSlop={12}>
+            <Ionicons name="chevron-back" size={24} color={Colors.light.text} />
+          </Pressable>
+          <Text style={styles.headerTitle}>New Request</Text>
+          <View style={{ width: 24 }} />
+        </View>
+        <View style={styles.restrictedContainer}>
+          <View style={styles.restrictedIconWrap}>
+            <Ionicons name="ban" size={40} color="#EF4444" />
+          </View>
+          <Text style={styles.restrictedTitle}>Location Not Allowed</Text>
+          <Text style={styles.restrictedBody}>
+            Photo requests cannot be created at {restrictionReason}. Please choose a different public location such as a landmark, park, or street.
+          </Text>
+          <View style={styles.restrictedLocationCard}>
+            <Ionicons name="location" size={16} color={Colors.light.textSecondary} />
+            <Text style={styles.restrictedLocationName} numberOfLines={1}>{locationName}</Text>
+          </View>
+          <Pressable
+            style={({ pressed }) => [styles.restrictedBackBtn, pressed && { opacity: 0.8 }]}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.restrictedBackBtnText}>Choose Another Location</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -382,6 +456,63 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  restrictedContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    gap: 16,
+  },
+  restrictedIconWrap: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#FEF2F2",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  restrictedTitle: {
+    fontSize: 22,
+    color: Colors.light.text,
+    fontFamily: "Archivo_700Bold",
+    textAlign: "center",
+  },
+  restrictedBody: {
+    fontSize: 15,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  restrictedLocationCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#F5F5F7",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+    maxWidth: "100%",
+  },
+  restrictedLocationName: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_500Medium",
+    flex: 1,
+  },
+  restrictedBackBtn: {
+    backgroundColor: Colors.light.tint,
+    paddingVertical: 15,
+    paddingHorizontal: 28,
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  restrictedBackBtnText: {
+    color: "#fff",
+    fontSize: 15,
+    fontFamily: "Archivo_600SemiBold",
   },
   header: {
     flexDirection: "row",

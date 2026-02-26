@@ -11,11 +11,12 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
@@ -173,6 +174,7 @@ function RequestCard({ item, onPress, userCoords }: { item: any; onPress: () => 
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ abandoned?: string }>();
   const { getRequestsByCategory, activeRequestId, isAuthenticated, user } = useApp();
   const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -188,6 +190,25 @@ export default function HomeScreen() {
   const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [heatmapEnabled, setHeatmapEnabled] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const toastOpacity = useRef(new Animated.Value(0)).current;
+
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message);
+    setToastVisible(true);
+    Animated.sequence([
+      Animated.timing(toastOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+      Animated.delay(2200),
+      Animated.timing(toastOpacity, { toValue: 0, duration: 350, useNativeDriver: true }),
+    ]).start(() => setToastVisible(false));
+  }, [toastOpacity]);
+
+  useEffect(() => {
+    if (params.abandoned === "1") {
+      showToast("Request abandoned");
+    }
+  }, [params.abandoned]);
 
   useEffect(() => {
     if (activeRequestId) {
@@ -409,6 +430,7 @@ export default function HomeScreen() {
             lat: item.lat,
             lng: item.lng,
             category: cat,
+            types: (item.types || []) as string[],
           };
         });
         setRemoteResults(mapped);
@@ -432,7 +454,7 @@ export default function HomeScreen() {
     return [...localResults, ...dedupedRemote];
   }, [searchQuery, localResults, remoteResults]);
 
-  const handleLocationSelect = (loc: typeof POPULAR_LOCATIONS[0]) => {
+  const handleLocationSelect = (loc: typeof POPULAR_LOCATIONS[0] & { types?: string[] }) => {
     if (!isAuthenticated) { setSearchVisible(false); setAuthPromptContext("create-request"); setAuthPromptVisible(true); return; }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSearchVisible(false);
@@ -445,6 +467,7 @@ export default function HomeScreen() {
         name: loc.name,
         addr: loc.address,
         cat: loc.category,
+        placeTypes: loc.types ? JSON.stringify(loc.types) : "[]",
       },
     });
   };
@@ -773,6 +796,22 @@ export default function HomeScreen() {
         onClose={() => setAuthPromptVisible(false)}
         context={authPromptContext}
       />
+
+      {toastVisible && (
+        <Animated.View
+          style={[
+            styles.toast,
+            {
+              opacity: toastOpacity,
+              bottom: Platform.OS === "web" ? 34 + 80 : insets.bottom + 80,
+            },
+          ]}
+          pointerEvents="none"
+        >
+          <Ionicons name="checkmark-circle" size={18} color="#fff" />
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -781,6 +820,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
+  },
+  toast: {
+    position: "absolute",
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "rgba(30,30,40,0.92)",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  toastText: {
+    color: "#fff",
+    fontSize: 14,
+    fontFamily: "Archivo_500Medium",
   },
   mapContainer: {
     height: MAP_HEIGHT,
