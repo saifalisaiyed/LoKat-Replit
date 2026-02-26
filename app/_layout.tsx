@@ -41,6 +41,14 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
   const glowScale = useSharedValue(0);
   const fadeOut = useSharedValue(1);
 
+  // Three one-shot pulse rings that expand and fade after logo appears
+  const p1Scale = useSharedValue(1);
+  const p1Opacity = useSharedValue(0);
+  const p2Scale = useSharedValue(1);
+  const p2Opacity = useSharedValue(0);
+  const p3Scale = useSharedValue(1);
+  const p3Opacity = useSharedValue(0);
+
   useEffect(() => {
     logoOpacity.value = withTiming(1, { duration: 500 });
     logoScale.value = withSpring(1, { damping: 12, stiffness: 100 });
@@ -48,6 +56,19 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
     textOpacity.value = withDelay(400, withTiming(1, { duration: 500 }));
     textTranslateY.value = withDelay(400, withSpring(0, { damping: 14, stiffness: 120 }));
     taglineOpacity.value = withDelay(700, withTiming(1, { duration: 500 }));
+
+    // Pulse rings fire once the logo is fully visible (~500ms)
+    const firePulse = (scale: typeof p1Scale, opacity: typeof p1Opacity, delay: number) => {
+      scale.value = withDelay(delay, withTiming(2.2, { duration: 900, easing: Easing.out(Easing.ease) }));
+      opacity.value = withDelay(delay, withSequence(
+        withTiming(0.65, { duration: 80 }),
+        withTiming(0, { duration: 820, easing: Easing.out(Easing.ease) })
+      ));
+    };
+
+    firePulse(p1Scale, p1Opacity, 500);
+    firePulse(p2Scale, p2Opacity, 720);
+    firePulse(p3Scale, p3Opacity, 940);
 
     const timer = setTimeout(() => {
       fadeOut.value = withTiming(0, { duration: 400, easing: Easing.out(Easing.ease) }, () => {
@@ -58,33 +79,33 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
     return () => clearTimeout(timer);
   }, []);
 
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: fadeOut.value,
-  }));
-
+  const containerStyle = useAnimatedStyle(() => ({ opacity: fadeOut.value }));
   const logoAnimStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
     transform: [{ scale: logoScale.value }],
   }));
-
   const glowAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: glowScale.value }],
     opacity: glowScale.value * 0.5,
   }));
-
   const textAnimStyle = useAnimatedStyle(() => ({
     opacity: textOpacity.value,
     transform: [{ translateY: textTranslateY.value }],
   }));
-
-  const taglineAnimStyle = useAnimatedStyle(() => ({
-    opacity: taglineOpacity.value,
-  }));
+  const taglineAnimStyle = useAnimatedStyle(() => ({ opacity: taglineOpacity.value }));
+  const p1Style = useAnimatedStyle(() => ({ opacity: p1Opacity.value, transform: [{ scale: p1Scale.value }] }));
+  const p2Style = useAnimatedStyle(() => ({ opacity: p2Opacity.value, transform: [{ scale: p2Scale.value }] }));
+  const p3Style = useAnimatedStyle(() => ({ opacity: p3Opacity.value, transform: [{ scale: p3Scale.value }] }));
 
   return (
     <Animated.View style={[splashStyles.container, containerStyle]}>
       <View style={splashStyles.content}>
         <View style={splashStyles.logoArea}>
+          {/* Pulse rings — positioned absolutely, centered in logoArea */}
+          <Animated.View style={[splashStyles.pulseRing, p1Style]} />
+          <Animated.View style={[splashStyles.pulseRing, p2Style]} />
+          <Animated.View style={[splashStyles.pulseRing, p3Style]} />
+
           <Animated.View style={[splashStyles.glow, glowAnimStyle]} />
           <Animated.View style={[splashStyles.logoCircle, logoAnimStyle]}>
             <Image source={lokatLogo} style={splashStyles.logoImage} />
@@ -122,6 +143,14 @@ const splashStyles = StyleSheet.create({
     width: 140,
     height: 140,
     marginBottom: 24,
+  },
+  pulseRing: {
+    position: "absolute",
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    borderWidth: 1.5,
+    borderColor: "rgba(124, 58, 237, 0.8)",
   },
   glow: {
     position: "absolute",
@@ -221,8 +250,10 @@ export default function RootLayout() {
     }, 50);
   }, []);
 
-  if (!fontsLoaded) return null;
-
+  // Show custom splash immediately (before fonts load) — text appears after
+  // 400–700ms delay, giving fonts plenty of time to load in the background.
+  // This prevents a double-splash where the native OS splash and our custom
+  // splash both appear sequentially.
   if (showSplash) {
     return (
       <ErrorBoundary>
@@ -230,6 +261,8 @@ export default function RootLayout() {
       </ErrorBoundary>
     );
   }
+
+  if (!fontsLoaded) return null;
 
   return (
     <ErrorBoundary>
