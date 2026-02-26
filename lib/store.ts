@@ -372,9 +372,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const getRequestsByCategory = useCallback(
     (category: Category | null) => {
       const userId = user?.id;
-      const open = requests.filter((r) => r.status === "open" && r.creatorId !== userId);
-      if (!category) return open;
-      return open.filter((r) => r.category === category);
+      const isAdmin = user?.isAdmin === true;
+      const filtered = isAdmin
+        ? requests
+        : requests.filter((r) => r.status === "open" && r.creatorId !== userId);
+      if (!category) return filtered;
+      return filtered.filter((r) => r.category === category);
     },
     [requests, user],
   );
