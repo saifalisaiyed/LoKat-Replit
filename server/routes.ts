@@ -734,9 +734,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           Math.sin(dLat / 2) ** 2 +
           Math.cos(toRad(latitude)) * Math.cos(toRad(request.latitude)) * Math.sin(dLon / 2) ** 2;
         const distanceMeters = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        if (distanceMeters > 300) {
+        if (distanceMeters > 100) {
           return res.status(400).json({
-            message: `Photo was taken ${Math.round(distanceMeters)}m from the target. Must be within 300m.`,
+            message: `Photo was taken ${Math.round(distanceMeters)}m from the target. Must be within 100m.`,
             code: "TOO_FAR",
             distanceMeters: Math.round(distanceMeters),
           });

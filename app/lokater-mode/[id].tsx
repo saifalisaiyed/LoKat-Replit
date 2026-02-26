@@ -287,8 +287,8 @@ export default function LoKaterModeScreen() {
         )
       : 0;
 
-  const isCloseEnough = distance !== null && distance < 300;
-  const isVeryClose = distance !== null && distance < 100;
+  const isCloseEnough = distance !== null && distance < 100;
+  const isVeryClose = distance !== null && distance < 50;
 
   const handleTakePhoto = useCallback(() => {
     if (!isCloseEnough) return;
