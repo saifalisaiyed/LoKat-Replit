@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -6,8 +6,9 @@ import {
   Pressable,
   FlatList,
   Platform,
+  ScrollView,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -15,21 +16,35 @@ import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { CATEGORIES, type Category, type RequestStatus } from "@/lib/types";
 
-type Tab = "active" | "past";
+type Tab = "active" | "history";
+type ActiveFilter = "all" | "requested" | "fulfilling";
+type HistoryFilter = "all" | "requested" | "fulfilled";
 
 function getStatusConfig(status: RequestStatus) {
   switch (status) {
     case "open":
-      return { color: Colors.light.tint, label: "Open", icon: "radio-button-on" };
+      return { color: Colors.light.tint, bg: "rgba(124,58,237,0.10)", label: "Waiting", icon: "radio-button-on" };
     case "accepted":
-      return { color: "#F59E0B", label: "Accepted", icon: "time-outline" };
+      return { color: "#F59E0B", bg: "rgba(245,158,11,0.10)", label: "In Progress", icon: "time-outline" };
     case "submitted":
-      return { color: Colors.light.tint, label: "Submitted", icon: "cloud-upload-outline" };
+      return { color: "#3B82F6", bg: "rgba(59,130,246,0.10)", label: "Photo Sent", icon: "cloud-upload-outline" };
     case "completed":
-      return { color: Colors.light.accent, label: "Completed", icon: "checkmark-circle" };
+      return { color: "#10B981", bg: "rgba(16,185,129,0.10)", label: "Completed", icon: "checkmark-circle" };
     default:
-      return { color: Colors.light.textSecondary, label: status, icon: "ellipse" };
+      return { color: Colors.light.textSecondary, bg: "#F5F5F7", label: status, icon: "ellipse" };
   }
+}
+
+function getRoleConfig(isRequested: boolean, isActive: boolean) {
+  if (isRequested) {
+    return { label: "Requested", color: Colors.light.tint, bg: "rgba(124,58,237,0.08)", icon: "arrow-up-outline" };
+  }
+  return {
+    label: isActive ? "Fulfilling" : "Fulfilled",
+    color: "#F97316",
+    bg: "rgba(249,115,22,0.08)",
+    icon: isActive ? "walk-outline" : "checkmark-done-outline",
+  };
 }
 
 function getCategoryLabel(key: Category): string {
@@ -38,7 +53,9 @@ function getCategoryLabel(key: Category): string {
 
 function OrderCard({ item, onPress, userId }: { item: any; onPress: () => void; userId?: string }) {
   const statusConfig = getStatusConfig(item.status);
-  const isMyRequest = item.creatorId === userId;
+  const isRequested = item.creatorId === userId;
+  const isActive = item.status !== "completed";
+  const roleConfig = getRoleConfig(isRequested, isActive);
 
   return (
     <Pressable
@@ -57,34 +74,21 @@ function OrderCard({ item, onPress, userId }: { item: any; onPress: () => void; 
         </View>
         <Text style={styles.orderReward}>${item.reward}</Text>
       </View>
-      <Text style={styles.orderAddress} numberOfLines={1}>
-        {item.address}
-      </Text>
+
+      <Text style={styles.orderAddress} numberOfLines={1}>{item.address}</Text>
+
       <View style={styles.orderBottom}>
         <View style={styles.orderMeta}>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: statusConfig.color + "14" },
-            ]}
-          >
-            <Ionicons
-              name={statusConfig.icon as any}
-              size={11}
-              color={statusConfig.color}
-            />
+          <View style={[styles.statusBadge, { backgroundColor: statusConfig.bg }]}>
+            <Ionicons name={statusConfig.icon as any} size={11} color={statusConfig.color} />
             <Text style={[styles.statusLabel, { color: statusConfig.color }]}>
               {statusConfig.label}
             </Text>
           </View>
-          <View style={styles.roleTag}>
-            <Ionicons
-              name={isMyRequest ? "arrow-up-outline" : "arrow-down-outline"}
-              size={10}
-              color={Colors.light.textSecondary}
-            />
-            <Text style={styles.roleTagText}>
-              {isMyRequest ? "Requested" : "Fulfilling"}
+          <View style={[styles.roleBadge, { backgroundColor: roleConfig.bg }]}>
+            <Ionicons name={roleConfig.icon as any} size={11} color={roleConfig.color} />
+            <Text style={[styles.roleLabel, { color: roleConfig.color }]}>
+              {roleConfig.label}
             </Text>
           </View>
         </View>
@@ -94,28 +98,121 @@ function OrderCard({ item, onPress, userId }: { item: any; onPress: () => void; 
   );
 }
 
+function FilterChip({
+  label,
+  active,
+  count,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  count?: number;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      style={[styles.filterChip, active && styles.filterChipActive]}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onPress();
+      }}
+    >
+      <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
+        {label}
+      </Text>
+      {count !== undefined && count > 0 && (
+        <View style={[styles.filterChipCount, active && styles.filterChipCountActive]}>
+          <Text style={[styles.filterChipCountText, active && styles.filterChipCountTextActive]}>
+            {count}
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
 export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const { requests, user } = useApp();
   const userId = user?.id;
   const [activeTab, setActiveTab] = useState<Tab>("active");
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
+  const [historyFilter, setHistoryFilter] = useState<HistoryFilter>("all");
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
-  const myOrders = requests.filter(
-    (r) => r.creatorId === userId || r.acceptedBy === userId,
+  const myOrders = useMemo(
+    () => requests.filter((r) => r.creatorId === userId || r.acceptedBy === userId),
+    [requests, userId]
   );
 
-  const activeOrders = myOrders.filter(
-    (r) => r.status === "open" || r.status === "accepted" || r.status === "submitted",
+  const activeOrders = useMemo(
+    () => myOrders.filter((r) => ["open", "accepted", "submitted"].includes(r.status)),
+    [myOrders]
   );
-  const pastOrders = myOrders.filter((r) => r.status === "completed");
 
-  const data = activeTab === "active" ? activeOrders : pastOrders;
+  const historyOrders = useMemo(
+    () => myOrders.filter((r) => r.status === "completed"),
+    [myOrders]
+  );
+
+  const requestedActive = useMemo(
+    () => activeOrders.filter((r) => r.creatorId === userId),
+    [activeOrders, userId]
+  );
+  const fulfillingActive = useMemo(
+    () => activeOrders.filter((r) => r.acceptedBy === userId && r.creatorId !== userId),
+    [activeOrders, userId]
+  );
+  const requestedHistory = useMemo(
+    () => historyOrders.filter((r) => r.creatorId === userId),
+    [historyOrders, userId]
+  );
+  const fulfilledHistory = useMemo(
+    () => historyOrders.filter((r) => r.acceptedBy === userId && r.creatorId !== userId),
+    [historyOrders, userId]
+  );
+
+  const filteredData = useMemo(() => {
+    if (activeTab === "active") {
+      if (activeFilter === "requested") return requestedActive;
+      if (activeFilter === "fulfilling") return fulfillingActive;
+      return activeOrders;
+    } else {
+      if (historyFilter === "requested") return requestedHistory;
+      if (historyFilter === "fulfilled") return fulfilledHistory;
+      return historyOrders;
+    }
+  }, [activeTab, activeFilter, historyFilter, activeOrders, historyOrders, requestedActive, fulfillingActive, requestedHistory, fulfilledHistory]);
 
   const handlePress = useCallback((id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push({ pathname: "/request-detail/[id]", params: { id } });
   }, []);
+
+  const handleTabChange = (tab: Tab) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setActiveTab(tab);
+    if (tab === "active") setActiveFilter("all");
+    else setHistoryFilter("all");
+  };
+
+  const emptyLabel =
+    activeTab === "active"
+      ? activeFilter === "requested"
+        ? "No active requests"
+        : activeFilter === "fulfilling"
+        ? "Not fulfilling any requests"
+        : "No active orders"
+      : historyFilter === "requested"
+      ? "No completed requests"
+      : historyFilter === "fulfilled"
+      ? "No fulfilled requests yet"
+      : "No history yet";
+
+  const emptySubtitle =
+    activeTab === "active"
+      ? "Create a request or accept one from the map to get started"
+      : "Completed requests will appear here";
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -124,72 +221,94 @@ export default function OrdersScreen() {
         size={36}
         color={Colors.light.border}
       />
-      <Text style={styles.emptyTitle}>
-        {activeTab === "active" ? "No active orders" : "No past orders"}
-      </Text>
-      <Text style={styles.emptySubtitle}>
-        {activeTab === "active"
-          ? "Accept a request or create one to get started"
-          : "Completed orders will appear here"}
-      </Text>
+      <Text style={styles.emptyTitle}>{emptyLabel}</Text>
+      <Text style={styles.emptySubtitle}>{emptySubtitle}</Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <View
-        style={[styles.header, { paddingTop: insets.top + 14 + webInsetTop }]}
-      >
+      <View style={[styles.header, { paddingTop: insets.top + 14 + webInsetTop }]}>
         <Text style={styles.headerTitle}>Orders</Text>
+
         <View style={styles.tabRow}>
-          <Pressable
-            style={[
-              styles.tabBtn,
-              activeTab === "active" && styles.tabBtnActive,
-            ]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setActiveTab("active");
-            }}
-          >
-            <Text
-              style={[
-                styles.tabBtnText,
-                activeTab === "active" && styles.tabBtnTextActive,
-              ]}
-            >
-              Active
-            </Text>
-            {activeOrders.length > 0 && (
-              <View style={styles.tabBadge}>
-                <Text style={styles.tabBadgeText}>{activeOrders.length}</Text>
-              </View>
-            )}
-          </Pressable>
-          <Pressable
-            style={[
-              styles.tabBtn,
-              activeTab === "past" && styles.tabBtnActive,
-            ]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setActiveTab("past");
-            }}
-          >
-            <Text
-              style={[
-                styles.tabBtnText,
-                activeTab === "past" && styles.tabBtnTextActive,
-              ]}
-            >
-              Past
-            </Text>
-          </Pressable>
+          {(["active", "history"] as Tab[]).map((tab) => {
+            const count = tab === "active" ? activeOrders.length : 0;
+            const isActive = activeTab === tab;
+            return (
+              <Pressable
+                key={tab}
+                style={[styles.tabBtn, isActive && styles.tabBtnActive]}
+                onPress={() => handleTabChange(tab)}
+              >
+                <Text style={[styles.tabBtnText, isActive && styles.tabBtnTextActive]}>
+                  {tab === "active" ? "Active" : "History"}
+                </Text>
+                {tab === "active" && count > 0 && (
+                  <View style={styles.tabBadge}>
+                    <Text style={styles.tabBadgeText}>{count}</Text>
+                  </View>
+                )}
+              </Pressable>
+            );
+          })}
         </View>
       </View>
 
+      <View style={styles.filterBar}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterBarContent}
+        >
+          {activeTab === "active" ? (
+            <>
+              <FilterChip
+                label="All"
+                active={activeFilter === "all"}
+                count={activeOrders.length}
+                onPress={() => setActiveFilter("all")}
+              />
+              <FilterChip
+                label="Requested"
+                active={activeFilter === "requested"}
+                count={requestedActive.length}
+                onPress={() => setActiveFilter("requested")}
+              />
+              <FilterChip
+                label="Fulfilling"
+                active={activeFilter === "fulfilling"}
+                count={fulfillingActive.length}
+                onPress={() => setActiveFilter("fulfilling")}
+              />
+            </>
+          ) : (
+            <>
+              <FilterChip
+                label="All"
+                active={historyFilter === "all"}
+                count={historyOrders.length}
+                onPress={() => setHistoryFilter("all")}
+              />
+              <FilterChip
+                label="Requested"
+                active={historyFilter === "requested"}
+                count={requestedHistory.length}
+                onPress={() => setHistoryFilter("requested")}
+              />
+              <FilterChip
+                label="Fulfilled"
+                active={historyFilter === "fulfilled"}
+                count={fulfilledHistory.length}
+                onPress={() => setHistoryFilter("fulfilled")}
+              />
+            </>
+          )}
+        </ScrollView>
+      </View>
+
       <FlatList
-        data={data}
+        data={filteredData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <OrderCard item={item} onPress={() => handlePress(item.id)} userId={userId} />
@@ -206,10 +325,7 @@ export default function OrdersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.background,
-  },
+  container: { flex: 1, backgroundColor: Colors.light.background },
   header: {
     backgroundColor: "#fff",
     paddingHorizontal: 20,
@@ -223,9 +339,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontFamily: "Archivo_600SemiBold",
   },
-  tabRow: {
-    flexDirection: "row",
-  },
+  tabRow: { flexDirection: "row" },
   tabBtn: {
     flex: 1,
     flexDirection: "row",
@@ -236,9 +350,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
-  tabBtnActive: {
-    borderBottomColor: Colors.light.tint,
-  },
+  tabBtnActive: { borderBottomColor: Colors.light.tint },
   tabBtnText: {
     fontSize: 14,
     color: Colors.light.textSecondary,
@@ -259,14 +371,68 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontFamily: "Archivo_600SemiBold",
   },
+  filterBar: {
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
+  },
+  filterBarContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+    flexDirection: "row",
+  },
+  filterChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F7",
+    borderWidth: 1.5,
+    borderColor: "transparent",
+  },
+  filterChipActive: {
+    backgroundColor: "rgba(124,58,237,0.08)",
+    borderColor: Colors.light.tint,
+  },
+  filterChipText: {
+    fontSize: 13,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_500Medium",
+  },
+  filterChipTextActive: {
+    color: Colors.light.tint,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  filterChipCount: {
+    backgroundColor: "#E5E5EA",
+    borderRadius: 8,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    minWidth: 18,
+    alignItems: "center",
+  },
+  filterChipCountActive: {
+    backgroundColor: Colors.light.tint,
+  },
+  filterChipCountText: {
+    fontSize: 10,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  filterChipCountTextActive: {
+    color: "#fff",
+  },
   orderCard: {
     marginHorizontal: 16,
     marginBottom: 10,
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.04)",
+    borderColor: "rgba(0,0,0,0.04)",
   },
   orderTop: {
     flexDirection: "row",
@@ -289,7 +455,7 @@ const styles = StyleSheet.create({
   orderReward: {
     fontSize: 16,
     color: Colors.light.tint,
-    fontFamily: "Archivo_600SemiBold",
+    fontFamily: "Archivo_700Bold",
   },
   orderAddress: {
     fontSize: 13,
@@ -305,37 +471,39 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.04)",
+    borderTopColor: "rgba(0,0,0,0.04)",
   },
   orderMeta: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    paddingHorizontal: 10,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
   },
   statusLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Archivo_500Medium",
   },
-  roleTag: {
+  roleBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
+    gap: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
-  roleTagText: {
+  roleLabel: {
     fontSize: 11,
-    color: Colors.light.textSecondary,
-    fontFamily: "Archivo_400Regular",
+    fontFamily: "Archivo_600SemiBold",
   },
   orderCategory: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
@@ -355,5 +523,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 40,
     fontFamily: "Archivo_400Regular",
+    lineHeight: 20,
   },
 });
