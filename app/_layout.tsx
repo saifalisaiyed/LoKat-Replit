@@ -2,10 +2,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, Image, StyleSheet, Platform } from "react-native";
+import { View, Text, Image, StyleSheet, Platform, Animated as RNAnimated } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { Ionicons } from "@expo/vector-icons";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { AppProvider } from "@/lib/store";
@@ -18,7 +17,6 @@ import Animated, {
   withDelay,
   withSequence,
   withSpring,
-  withRepeat,
   runOnJS,
   Easing,
 } from "react-native-reanimated";
@@ -32,70 +30,103 @@ import {
 
 SplashScreen.preventAutoHideAsync();
 
-const SPLASH_DURATION = 3600;
-const IRIS_SIZE = 1200; // large enough to cover screen diagonal on any device
-const LOGO_SIZE = 110;
+const SPLASH_DURATION = 3800;
+const STAGE_SIZE = 300;
+const STAGE_CENTER = STAGE_SIZE / 2;
+const LOGO_SIZE = 100;
+const PARTICLE_COUNT = 32;
 
 function BrandedSplash({ onFinish }: { onFinish: () => void }) {
-  // Iris overlay — dark circle that contracts, revealing content beneath
-  const irisScale = useSharedValue(1);
+  // Generate stable particle positions once
+  const particleData = React.useRef(
+    Array.from({ length: PARTICLE_COUNT }, (_, i) => {
+      const angle = (i / PARTICLE_COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+      const radius = 80 + Math.random() * 110;
+      const palette = ["#7C3AED", "#7C3AED", "#9B6EF8", "rgba(255,255,255,0.85)", "#C4B5FD", "#7C3AED"];
+      return {
+        startX: Math.cos(angle) * radius,
+        startY: Math.sin(angle) * radius,
+        size: 2.5 + Math.random() * 3.5,
+        color: palette[Math.floor(Math.random() * palette.length)],
+        delay: Math.floor(Math.random() * 220),
+      };
+    })
+  ).current;
 
-  // Logo — fades/focuses in as the iris opens
-  const logoScale = useSharedValue(0.82);
+  // RN Animated values for particles (avoids hook-in-loop restriction)
+  const particleAnims = React.useRef(
+    particleData.map((p) => ({
+      x: new RNAnimated.Value(p.startX),
+      y: new RNAnimated.Value(p.startY),
+      opacity: new RNAnimated.Value(0),
+    }))
+  ).current;
+
+  // Reanimated for logo, burst, text, screen
+  const logoScale = useSharedValue(0.7);
   const logoOpacity = useSharedValue(0);
-
-  // Lens aperture ring — faint circle that appears around logo after iris opens
-  const ringOpacity = useSharedValue(0);
-  const ringScale = useSharedValue(0.7);
-
-  // Brief white lens-flash at the moment iris fully opens
-  const flashOpacity = useSharedValue(0);
-
-  // Location pin — pulses once below the logo
-  const pinScale = useSharedValue(0);
-  const pinOpacity = useSharedValue(0);
-
-  // Text
+  const burstScale = useSharedValue(0.3);
+  const burstOpacity = useSharedValue(0);
   const nameOpacity = useSharedValue(0);
   const nameY = useSharedValue(22);
   const taglineOpacity = useSharedValue(0);
-
-  // Screen fade-out
   const screenOpacity = useSharedValue(1);
 
   useEffect(() => {
-    // 1. Iris contracts — dark aperture opens to reveal logo
-    irisScale.value = withTiming(0, {
-      duration: 1000,
-      easing: Easing.bezier(0.4, 0, 0.2, 1),
+    // 1. All particles drift inward from their start positions, converging to center
+    const particleAnimations = particleData.map((p, i) => {
+      const anim = particleAnims[i];
+      return RNAnimated.parallel([
+        // Position track
+        RNAnimated.sequence([
+          RNAnimated.delay(p.delay),
+          RNAnimated.parallel([
+            RNAnimated.timing(anim.x, {
+              toValue: 0,
+              duration: 1150,
+              easing: Easing.out(Easing.quad) as any,
+              useNativeDriver: true,
+            }),
+            RNAnimated.timing(anim.y, {
+              toValue: 0,
+              duration: 1150,
+              easing: Easing.out(Easing.quad) as any,
+              useNativeDriver: true,
+            }),
+          ]),
+        ]),
+        // Opacity track: appear → travel → fade as they arrive
+        RNAnimated.sequence([
+          RNAnimated.delay(p.delay),
+          RNAnimated.timing(anim.opacity, { toValue: 0.9, duration: 200, useNativeDriver: true }),
+          RNAnimated.delay(700),
+          RNAnimated.timing(anim.opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+        ]),
+      ]);
     });
 
-    // 2. Logo focuses into view as iris opens
-    logoOpacity.value = withDelay(150, withTiming(1, { duration: 700 }));
-    logoScale.value = withDelay(150, withSpring(1, { damping: 14, stiffness: 100 }));
+    RNAnimated.parallel(particleAnimations).start();
 
-    // 3. Aperture ring appears around logo as iris finishes
-    ringOpacity.value = withDelay(900, withTiming(0.35, { duration: 400 }));
-    ringScale.value = withDelay(900, withSpring(1, { damping: 12, stiffness: 120 }));
+    // 2. Logo appears when particles converge
+    logoOpacity.value = withDelay(1100, withTiming(1, { duration: 500 }));
+    logoScale.value = withDelay(1100, withSpring(1, { damping: 10, stiffness: 130 }));
 
-    // 4. Lens flash at the snap point
-    flashOpacity.value = withDelay(950, withSequence(
-      withTiming(0.55, { duration: 60 }),
-      withTiming(0, { duration: 350, easing: Easing.out(Easing.ease) })
+    // 3. Burst ring expands outward at convergence moment
+    burstOpacity.value = withDelay(1100, withSequence(
+      withTiming(0.9, { duration: 60 }),
+      withTiming(0, { duration: 520, easing: Easing.out(Easing.ease) })
     ));
+    burstScale.value = withDelay(1100, withTiming(2.4, {
+      duration: 580,
+      easing: Easing.out(Easing.ease),
+    }));
 
-    // 5. Location pin drops in below logo with a bounce
-    pinOpacity.value = withDelay(1050, withTiming(1, { duration: 200 }));
-    pinScale.value = withDelay(1050, withSpring(1, { damping: 6, stiffness: 180 }));
+    // 4. Text
+    nameOpacity.value = withDelay(1400, withTiming(1, { duration: 450 }));
+    nameY.value = withDelay(1400, withSpring(0, { damping: 14, stiffness: 120 }));
+    taglineOpacity.value = withDelay(1650, withTiming(1, { duration: 450 }));
 
-    // 6. App name slides up
-    nameOpacity.value = withDelay(1180, withTiming(1, { duration: 450 }));
-    nameY.value = withDelay(1180, withSpring(0, { damping: 14, stiffness: 120 }));
-
-    // 7. Tagline fades in
-    taglineOpacity.value = withDelay(1400, withTiming(1, { duration: 450 }));
-
-    // 8. Fade out
+    // 5. Fade out
     const timer = setTimeout(() => {
       screenOpacity.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.ease) }, () => {
         runOnJS(onFinish)();
@@ -106,19 +137,13 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
   }, []);
 
   const containerStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }));
-  const irisStyle = useAnimatedStyle(() => ({ transform: [{ scale: irisScale.value }] }));
   const logoStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
     transform: [{ scale: logoScale.value }],
   }));
-  const ringStyle = useAnimatedStyle(() => ({
-    opacity: ringOpacity.value,
-    transform: [{ scale: ringScale.value }],
-  }));
-  const flashStyle = useAnimatedStyle(() => ({ opacity: flashOpacity.value }));
-  const pinStyle = useAnimatedStyle(() => ({
-    opacity: pinOpacity.value,
-    transform: [{ scale: pinScale.value }],
+  const burstStyle = useAnimatedStyle(() => ({
+    opacity: burstOpacity.value,
+    transform: [{ scale: burstScale.value }],
   }));
   const nameStyle = useAnimatedStyle(() => ({
     opacity: nameOpacity.value,
@@ -128,20 +153,64 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
 
   return (
     <Animated.View style={[splashStyles.container, containerStyle]}>
+      {/* Fixed-size stage — all particles and logo positioned absolutely within it */}
+      <View style={splashStyles.stage}>
 
-      {/* Content: logo + pin + text — revealed as iris opens */}
-      <View style={splashStyles.centerStage}>
-        {/* Aperture ring around logo */}
-        <Animated.View style={[splashStyles.apertureRing, ringStyle]} />
+        {/* Particles — each starts at (STAGE_CENTER + startX/Y), animated to STAGE_CENTER */}
+        {particleData.map((p, i) => {
+          const anim = particleAnims[i];
+          return (
+            <RNAnimated.View
+              key={i}
+              style={{
+                position: "absolute",
+                left: STAGE_CENTER - p.size / 2,
+                top: STAGE_CENTER - p.size / 2,
+                width: p.size,
+                height: p.size,
+                borderRadius: p.size / 2,
+                backgroundColor: p.color,
+                opacity: anim.opacity,
+                transform: [{ translateX: anim.x }, { translateY: anim.y }],
+              }}
+            />
+          );
+        })}
 
-        {/* Logo */}
-        <Animated.View style={[splashStyles.logoWrap, logoStyle]}>
-          <Image source={lokatLogo} style={splashStyles.logoImage} />
-        </Animated.View>
+        {/* Burst ring — expands from logo size outward */}
+        <Animated.View
+          style={[
+            {
+              position: "absolute",
+              left: STAGE_CENTER - (LOGO_SIZE + 14) / 2,
+              top: STAGE_CENTER - (LOGO_SIZE + 14) / 2,
+              width: LOGO_SIZE + 14,
+              height: LOGO_SIZE + 14,
+              borderRadius: (LOGO_SIZE + 14) / 2,
+              borderWidth: 2,
+              borderColor: "#7C3AED",
+            },
+            burstStyle,
+          ]}
+        />
 
-        {/* Location pin below logo */}
-        <Animated.View style={[splashStyles.pinWrap, pinStyle]}>
-          <Ionicons name="location" size={30} color="#7C3AED" />
+        {/* Logo — revealed when particles converge */}
+        <Animated.View
+          style={[
+            {
+              position: "absolute",
+              left: STAGE_CENTER - LOGO_SIZE / 2,
+              top: STAGE_CENTER - LOGO_SIZE / 2,
+              width: LOGO_SIZE,
+              height: LOGO_SIZE,
+              borderRadius: LOGO_SIZE / 2,
+              overflow: "hidden",
+              backgroundColor: "#2D1B69",
+            },
+            logoStyle,
+          ]}
+        >
+          <Image source={lokatLogo} style={{ width: LOGO_SIZE, height: LOGO_SIZE }} />
         </Animated.View>
       </View>
 
@@ -151,14 +220,6 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
       <Animated.Text style={[splashStyles.tagline, taglineStyle]}>
         Seek the Moment. Anywhere, Anytime.
       </Animated.Text>
-
-      {/* Iris overlay — rendered on top so it hides content until it opens */}
-      <View style={splashStyles.irisContainer}>
-        <Animated.View style={[splashStyles.iris, irisStyle]} />
-      </View>
-
-      {/* Lens flash — on top of everything */}
-      <Animated.View style={[splashStyles.flash, flashStyle]} pointerEvents="none" />
     </Animated.View>
   );
 }
@@ -170,34 +231,10 @@ const splashStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  centerStage: {
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  apertureRing: {
-    position: "absolute",
-    width: LOGO_SIZE + 28,
-    height: LOGO_SIZE + 28,
-    borderRadius: (LOGO_SIZE + 28) / 2,
-    borderWidth: 1,
-    borderColor: "rgba(124, 58, 237, 0.5)",
-    top: -14,
-    left: -14,
-  },
-  logoWrap: {
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
-    borderRadius: LOGO_SIZE / 2,
-    overflow: "hidden",
-    backgroundColor: "#2D1B69",
-  },
-  logoImage: {
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
-  },
-  pinWrap: {
-    marginTop: 10,
-    alignItems: "center",
+  stage: {
+    width: STAGE_SIZE,
+    height: STAGE_SIZE,
+    marginBottom: 16,
   },
   appName: {
     fontSize: 40,
@@ -211,21 +248,6 @@ const splashStyles = StyleSheet.create({
     fontFamily: "Archivo_400Regular",
     marginTop: 8,
     letterSpacing: 0.2,
-  },
-  irisContainer: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iris: {
-    width: IRIS_SIZE,
-    height: IRIS_SIZE,
-    borderRadius: IRIS_SIZE / 2,
-    backgroundColor: "#0A0F1C",
-  },
-  flash: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#fff",
   },
 });
 
