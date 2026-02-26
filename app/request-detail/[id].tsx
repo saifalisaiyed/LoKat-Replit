@@ -104,14 +104,25 @@ export default function RequestDetailScreen() {
   const handleAccept = async () => {
     if (!isAuthenticated) { setAuthPromptVisible(true); return; }
     if (isAccepting) return;
-    setIsAccepting(true);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    const ok = await acceptRequest(request.id);
-    setIsAccepting(false);
-    if (ok) {
-      router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
-    } else {
-      Alert.alert("Could not accept", "You may not be logged in or this request is no longer available. Please try again.");
+    try {
+      const baseUrl = getApiUrl();
+      const url = new URL(`/api/requests/${request.id}/accept`, baseUrl);
+      const res = await fetch(url.toString(), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      const result = await res.json();
+      setIsAccepting(false);
+      if (res.ok) {
+        router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
+      } else {
+        Alert.alert("Could not accept", result.message || "Failed to accept request");
+      }
+    } catch (e: any) {
+      setIsAccepting(false);
+      console.error("Accept request error:", e);
+      Alert.alert("Error", "Network error. Please try again.");
     }
   };
 
