@@ -428,18 +428,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/directions", async (req: Request, res: Response) => {
     const { originLat, originLng, destLat, destLng } = req.query as Record<string, string>;
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!apiKey || !originLat || !originLng || !destLat || !destLng) {
+    if (!originLat || !originLng || !destLat || !destLng) {
       return res.json({ polyline: [] });
     }
-    try {
-      const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originLat},${originLng}&destination=${destLat},${destLng}&mode=walking&key=${apiKey}`;
-      const resp = await fetch(url);
-      const data: any = await resp.json();
-      if (data.status !== "OK" || !data.routes?.length) {
-        return res.json({ polyline: [] });
-      }
-      const encoded: string = data.routes[0].overview_polyline.points;
+
+    function decodeGooglePolyline(encoded: string): { latitude: number; longitude: number }[] {
       const polyline: { latitude: number; longitude: number }[] = [];
       let index = 0, lat = 0, lng = 0;
       while (index < encoded.length) {
@@ -451,11 +444,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lng += (result & 1) ? ~(result >> 1) : result >> 1;
         polyline.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
       }
-      return res.json({ polyline });
-    } catch (e) {
-      console.error("Directions error:", e);
-      return res.json({ polyline: [] });
+      return polyline;
     }
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (apiKey) {
+      try {
+        const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originLat},${originLng}&destination=${destLat},${destLng}&mode=walking&key=${apiKey}`;
+        const resp = await fetch(url);
+        const data: any = await resp.json();
+        if (data.status === "OK" && data.routes?.length) {
+          const polyline = decodeGooglePolyline(data.routes[0].overview_polyline.points);
+          return res.json({ polyline });
+        }
+        console.log("Google Directions status:", data.status, "— falling back to OSRM");
+      } catch (e) {
+        console.log("Google Directions failed, falling back to OSRM:", e);
+      }
+    }
+
+    try {
+      const osrmUrl = `https://router.project-osrm.org/route/v1/foot/${originLng},${originLat};${destLng},${destLat}?overview=full&geometries=geojson`;
+      const resp = await fetch(osrmUrl);
+      const data: any = await resp.json();
+      if (data.code === "Ok" && data.routes?.length) {
+        const coords: [number, number][] = data.routes[0].geometry.coordinates;
+        const polyline = coords.map(([lng, lat]) => ({ latitude: lat, longitude: lng }));
+        return res.json({ polyline });
+      }
+      console.log("OSRM also failed:", data.code);
+    } catch (e) {
+      console.error("OSRM error:", e);
+    }
+
+    return res.json({ polyline: [] });
   });
 
   app.get("/api/profile/:id", async (req: Request, res: Response) => {

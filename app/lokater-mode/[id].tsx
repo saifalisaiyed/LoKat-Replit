@@ -327,13 +327,12 @@ var dLat=${request.latitude},dLng=${request.longitude};
 var route=${routeJson};
 var map=L.map('map',{center:[uLat,uLng],zoom:16,zoomControl:false,attributionControl:false});
 L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom:20}).addTo(map);
+var bounds=L.latLngBounds([[uLat,uLng],[dLat,dLng]]);
+map.fitBounds(bounds,{padding:[80,80]});
 if(route.length>1){
   L.polyline(route,{color:'#fff',weight:10,opacity:0.5}).addTo(map);
   L.polyline(route,{color:'#4285F4',weight:6,opacity:1,lineJoin:'round',lineCap:'round'}).addTo(map);
   map.fitBounds(L.polyline(route).getBounds(),{padding:[80,80]});
-} else {
-  L.polyline([[uLat,uLng],[dLat,dLng]],{color:'${Colors.light.tint}',weight:4,opacity:0.7,dashArray:'8,12'}).addTo(map);
-  map.fitBounds([[uLat,uLng],[dLat,dLng]],{padding:[60,60]});
 }
 var userIcon=L.divIcon({html:'<div style="width:20px;height:20px;border-radius:10px;background:#4285F4;border:3px solid #fff;box-shadow:0 0 8px rgba(66,133,244,0.6)"></div>',className:'',iconSize:[20,20],iconAnchor:[10,10]});
 L.marker([uLat,uLng],{icon:userIcon}).addTo(map);

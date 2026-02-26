@@ -81,15 +81,6 @@ export default function NavigationMap({
         </>
       )}
 
-      {!hasRoute && (
-        <Polyline
-          coordinates={[userLocation, destination]}
-          strokeColor={Colors.light.tint}
-          strokeWidth={4}
-          lineDashPattern={[8, 12]}
-        />
-      )}
-
       <Marker coordinate={destination}>
         <View style={styles.destOuter}>
           <View style={styles.destInner} />
