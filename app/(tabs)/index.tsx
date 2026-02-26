@@ -175,7 +175,7 @@ function RequestCard({ item, onPress, userCoords }: { item: any; onPress: () => 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ abandoned?: string }>();
-  const { getRequestsByCategory, activeRequestId, isAuthenticated, user } = useApp();
+  const { getRequestsByCategory, activeRequestId, isAuthenticated, user, abandonRequest } = useApp();
   const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
@@ -210,11 +210,11 @@ export default function HomeScreen() {
     }
   }, [params.abandoned]);
 
+  const [activeRequestPrompt, setActiveRequestPrompt] = useState(true);
+
   useEffect(() => {
-    if (activeRequestId && params.abandoned !== "1") {
-      router.replace({ pathname: "/lokater-mode/[id]", params: { id: activeRequestId } });
-    }
-  }, [activeRequestId, params.abandoned]);
+    setActiveRequestPrompt(true);
+  }, [activeRequestId]);
 
   const initialRegion = {
     latitude: 40.758,
@@ -797,6 +797,37 @@ export default function HomeScreen() {
         context={authPromptContext}
       />
 
+      {activeRequestId && activeRequestPrompt && (
+        <View
+          style={[
+            styles.activeRequestBanner,
+            { top: insets.top + (Platform.OS === "web" ? 67 : 0) + 8 },
+          ]}
+        >
+          <Ionicons name="walk" size={18} color="#fff" />
+          <Text style={styles.activeRequestBannerText} numberOfLines={1}>
+            You have an active request
+          </Text>
+          <Pressable
+            style={styles.activeRequestBannerBtn}
+            onPress={() =>
+              router.push({ pathname: "/lokater-mode/[id]", params: { id: activeRequestId } })
+            }
+          >
+            <Text style={styles.activeRequestBannerBtnText}>Continue</Text>
+          </Pressable>
+          <Pressable
+            hitSlop={10}
+            onPress={async () => {
+              setActiveRequestPrompt(false);
+              await abandonRequest(activeRequestId);
+            }}
+          >
+            <Ionicons name="close" size={18} color="rgba(255,255,255,0.7)" />
+          </Pressable>
+        </View>
+      )}
+
       {toastVisible && (
         <Animated.View
           style={[
@@ -820,6 +851,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
+  },
+  activeRequestBanner: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: Colors.light.tint,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 100,
+  },
+  activeRequestBannerText: {
+    flex: 1,
+    color: "#fff",
+    fontSize: 14,
+    fontFamily: "Archivo_500Medium",
+  },
+  activeRequestBannerBtn: {
+    backgroundColor: "rgba(255,255,255,0.25)",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  activeRequestBannerBtnText: {
+    color: "#fff",
+    fontSize: 13,
+    fontFamily: "Archivo_600SemiBold",
   },
   toast: {
     position: "absolute",
