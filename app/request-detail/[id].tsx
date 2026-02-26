@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
+import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
@@ -104,6 +105,7 @@ export default function RequestDetailScreen() {
   const handleAccept = async () => {
     if (!isAuthenticated) { setAuthPromptVisible(true); return; }
     if (isAccepting) return;
+    setIsAccepting(true);
     try {
       const baseUrl = getApiUrl();
       const url = new URL(`/api/requests/${request.id}/accept`, baseUrl);
