@@ -17,7 +17,7 @@ import Colors from "@/constants/colors";
 import { CATEGORIES, type Category, type RequestStatus } from "@/lib/types";
 
 type Tab = "active" | "history";
-type ActiveFilter = "all" | "requested" | "fulfilling";
+type ActiveFilter = "all" | "requested";
 type HistoryFilter = "all" | "requested" | "fulfilled";
 
 function getStatusConfig(status: RequestStatus) {
@@ -159,10 +159,6 @@ export default function OrdersScreen() {
     () => activeOrders.filter((r) => r.creatorId === userId),
     [activeOrders, userId]
   );
-  const fulfillingActive = useMemo(
-    () => activeOrders.filter((r) => r.acceptedBy === userId && r.creatorId !== userId),
-    [activeOrders, userId]
-  );
   const requestedHistory = useMemo(
     () => historyOrders.filter((r) => r.creatorId === userId),
     [historyOrders, userId]
@@ -175,14 +171,13 @@ export default function OrdersScreen() {
   const filteredData = useMemo(() => {
     if (activeTab === "active") {
       if (activeFilter === "requested") return requestedActive;
-      if (activeFilter === "fulfilling") return fulfillingActive;
       return activeOrders;
     } else {
       if (historyFilter === "requested") return requestedHistory;
       if (historyFilter === "fulfilled") return fulfilledHistory;
       return historyOrders;
     }
-  }, [activeTab, activeFilter, historyFilter, activeOrders, historyOrders, requestedActive, fulfillingActive, requestedHistory, fulfilledHistory]);
+  }, [activeTab, activeFilter, historyFilter, activeOrders, historyOrders, requestedActive, requestedHistory, fulfilledHistory]);
 
   const handlePress = useCallback((id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -200,11 +195,9 @@ export default function OrdersScreen() {
     activeTab === "active"
       ? activeFilter === "requested"
         ? "No active requests"
-        : activeFilter === "fulfilling"
-        ? "Not fulfilling any requests"
         : "No active orders"
       : historyFilter === "requested"
-      ? "No completed requests"
+      ? "No completed requests yet"
       : historyFilter === "fulfilled"
       ? "No fulfilled requests yet"
       : "No history yet";
@@ -274,12 +267,6 @@ export default function OrdersScreen() {
                 active={activeFilter === "requested"}
                 count={requestedActive.length}
                 onPress={() => setActiveFilter("requested")}
-              />
-              <FilterChip
-                label="Fulfilling"
-                active={activeFilter === "fulfilling"}
-                count={fulfillingActive.length}
-                onPress={() => setActiveFilter("fulfilling")}
               />
             </>
           ) : (
