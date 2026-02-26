@@ -211,10 +211,10 @@ export default function HomeScreen() {
   }, [params.abandoned]);
 
   useEffect(() => {
-    if (activeRequestId) {
+    if (activeRequestId && params.abandoned !== "1") {
       router.replace({ pathname: "/lokater-mode/[id]", params: { id: activeRequestId } });
     }
-  }, [activeRequestId]);
+  }, [activeRequestId, params.abandoned]);
 
   const initialRegion = {
     latitude: 40.758,

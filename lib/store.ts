@@ -282,6 +282,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const abandonRequest = useCallback(
     async (id: string) => {
+      setActiveRequestId(null);
       try {
         await apiRequest("PATCH", `/api/requests/${id}/abandon`);
         await fetchRequests();
@@ -290,7 +291,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         console.error("Abandon request error:", e);
       }
     },
-    [],
+    [setActiveRequestId],
   );
 
   const submitPhoto = useCallback(
