@@ -57,13 +57,11 @@ export default function ReceiptScreen() {
 
   const handleDone = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.dismissAll();
     router.replace("/(tabs)");
   };
 
   const handleViewOrders = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.dismissAll();
     router.replace("/(tabs)/orders");
   };
 

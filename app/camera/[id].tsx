@@ -176,7 +176,6 @@ export default function CameraScreen() {
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      router.dismissAll();
       router.replace({
         pathname: "/receipt/[id]",
         params: {

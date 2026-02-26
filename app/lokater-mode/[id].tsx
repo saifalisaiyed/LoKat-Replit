@@ -207,7 +207,6 @@ export default function LoKaterModeScreen() {
   };
 
   const navigateHomeAbandoned = useCallback(() => {
-    router.dismissAll();
     router.replace({ pathname: "/(tabs)", params: { abandoned: "1" } });
   }, []);
 

@@ -9,6 +9,7 @@ import {
   Dimensions,
   Modal,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -98,11 +99,20 @@ export default function RequestDetailScreen() {
     longitudeDelta: 0.01,
   };
 
-  const handleAccept = () => {
+  const [isAccepting, setIsAccepting] = useState(false);
+
+  const handleAccept = async () => {
     if (!isAuthenticated) { setAuthPromptVisible(true); return; }
+    if (isAccepting) return;
+    setIsAccepting(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    acceptRequest(request.id);
-    router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
+    const ok = await acceptRequest(request.id);
+    setIsAccepting(false);
+    if (ok) {
+      router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
+    } else {
+      Alert.alert("Could not accept", "You may not be logged in or this request is no longer available. Please try again.");
+    }
   };
 
   const handleIgnore = () => {
@@ -117,25 +127,19 @@ export default function RequestDetailScreen() {
 
   const handleAbandon = () => {
     setMenuVisible(false);
-    if (Platform.OS === "web") {
+    const doAbandon = () => {
       abandonRequest(request.id);
-      router.dismissAll();
-      router.replace("/(tabs)");
+      router.replace({ pathname: "/(tabs)", params: { abandoned: "1" } });
+    };
+    if (Platform.OS === "web") {
+      doAbandon();
     } else {
       Alert.alert(
         "Abandon Request",
         "Are you sure? The request will become available for other LoKaters.",
         [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Abandon",
-            style: "destructive",
-            onPress: () => {
-              abandonRequest(request.id);
-              router.dismissAll();
-              router.replace("/(tabs)");
-            },
-          },
+          { text: "Keep Going", style: "cancel" },
+          { text: "Abandon", style: "destructive", onPress: doAbandon },
         ]
       );
     }
@@ -278,11 +282,16 @@ export default function RequestDetailScreen() {
             <Text style={styles.ignoreBtnText}>Ignore</Text>
           </Pressable>
           <Pressable
-            style={({ pressed }) => [styles.acceptBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
+            style={({ pressed }) => [styles.acceptBtn, isAccepting && { opacity: 0.7 }, pressed && !isAccepting && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={handleAccept}
+            disabled={isAccepting}
           >
-            <Feather name="check" size={20} color="#fff" />
-            <Text style={styles.acceptBtnText}>Accept</Text>
+            {isAccepting ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Feather name="check" size={20} color="#fff" />
+            )}
+            <Text style={styles.acceptBtnText}>{isAccepting ? "Accepting..." : "Accept"}</Text>
           </Pressable>
         </View>
       )}

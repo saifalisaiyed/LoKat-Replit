@@ -48,7 +48,7 @@ interface AppContextValue {
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
   createRequest: (req: Omit<PhotoRequest, "id" | "creatorId" | "status" | "createdAt">) => void;
-  acceptRequest: (id: string) => void;
+  acceptRequest: (id: string) => Promise<boolean>;
   abandonRequest: (id: string) => void;
   submitPhoto: (id: string, photoUri: string) => Promise<void>;
   uploadAndSubmitPhoto: (requestId: string, uploadURL: string) => Promise<void>;
@@ -266,13 +266,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const acceptRequest = useCallback(
-    async (id: string) => {
+    async (id: string): Promise<boolean> => {
       try {
         await apiRequest("PATCH", `/api/requests/${id}/accept`);
         await fetchRequests();
         await fetchNotifications();
+        return true;
       } catch (e) {
         console.error("Accept request error:", e);
+        return false;
       }
     },
     [],
