@@ -5,6 +5,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, Image, StyleSheet, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { Ionicons } from "@expo/vector-icons";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { AppProvider } from "@/lib/store";
@@ -30,77 +31,130 @@ import {
 
 SplashScreen.preventAutoHideAsync();
 
-const SPLASH_DURATION = 3000;
+const SPLASH_DURATION = 3200;
 
 function BrandedSplash({ onFinish }: { onFinish: () => void }) {
-  const logoScale = useSharedValue(0.6);
+  // Pin drop
+  const pinY = useSharedValue(-220);
+  const pinOpacity = useSharedValue(1);
+
+  // Ripple rings
+  const r1Scale = useSharedValue(0);
+  const r1Opacity = useSharedValue(0);
+  const r2Scale = useSharedValue(0);
+  const r2Opacity = useSharedValue(0);
+  const r3Scale = useSharedValue(0);
+  const r3Opacity = useSharedValue(0);
+
+  // Logo swap
+  const logoScale = useSharedValue(0.4);
   const logoOpacity = useSharedValue(0);
-  const textOpacity = useSharedValue(0);
-  const textTranslateY = useSharedValue(12);
+
+  // Text
+  const nameOpacity = useSharedValue(0);
+  const nameY = useSharedValue(24);
   const taglineOpacity = useSharedValue(0);
-  const glowScale = useSharedValue(0);
-  const fadeOut = useSharedValue(1);
+
+  // Screen fade-out
+  const screenOpacity = useSharedValue(1);
 
   useEffect(() => {
-    logoOpacity.value = withTiming(1, { duration: 500 });
-    logoScale.value = withSpring(1, { damping: 12, stiffness: 100 });
-    glowScale.value = withDelay(200, withSpring(1, { damping: 15, stiffness: 80 }));
-    textOpacity.value = withDelay(400, withTiming(1, { duration: 500 }));
-    textTranslateY.value = withDelay(400, withSpring(0, { damping: 14, stiffness: 120 }));
-    taglineOpacity.value = withDelay(700, withTiming(1, { duration: 500 }));
+    // 1. Pin drops with a satisfying bounce
+    pinY.value = withSpring(0, { damping: 7, stiffness: 90, mass: 1 });
 
+    // 2. On impact (~550ms), three ripple rings expand outward
+    r1Scale.value = withDelay(520, withTiming(1, { duration: 750, easing: Easing.out(Easing.ease) }));
+    r1Opacity.value = withDelay(520, withSequence(
+      withTiming(0.85, { duration: 60 }),
+      withTiming(0, { duration: 690, easing: Easing.out(Easing.ease) })
+    ));
+
+    r2Scale.value = withDelay(660, withTiming(1, { duration: 750, easing: Easing.out(Easing.ease) }));
+    r2Opacity.value = withDelay(660, withSequence(
+      withTiming(0.55, { duration: 60 }),
+      withTiming(0, { duration: 690, easing: Easing.out(Easing.ease) })
+    ));
+
+    r3Scale.value = withDelay(800, withTiming(1, { duration: 750, easing: Easing.out(Easing.ease) }));
+    r3Opacity.value = withDelay(800, withSequence(
+      withTiming(0.3, { duration: 60 }),
+      withTiming(0, { duration: 690, easing: Easing.out(Easing.ease) })
+    ));
+
+    // 3. Pin fades out, logo springs in at same position
+    pinOpacity.value = withDelay(580, withTiming(0, { duration: 220 }));
+    logoOpacity.value = withDelay(680, withTiming(1, { duration: 350 }));
+    logoScale.value = withDelay(680, withSpring(1, { damping: 11, stiffness: 140 }));
+
+    // 4. App name slides up
+    nameOpacity.value = withDelay(950, withTiming(1, { duration: 450 }));
+    nameY.value = withDelay(950, withSpring(0, { damping: 14, stiffness: 120 }));
+
+    // 5. Tagline fades in
+    taglineOpacity.value = withDelay(1200, withTiming(1, { duration: 450 }));
+
+    // 6. Fade out entire splash
     const timer = setTimeout(() => {
-      fadeOut.value = withTiming(0, { duration: 400, easing: Easing.out(Easing.ease) }, () => {
+      screenOpacity.value = withTiming(0, { duration: 450, easing: Easing.out(Easing.ease) }, () => {
         runOnJS(onFinish)();
       });
-    }, SPLASH_DURATION - 400);
+    }, SPLASH_DURATION - 450);
 
     return () => clearTimeout(timer);
   }, []);
 
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: fadeOut.value,
+  const containerStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }));
+  const pinStyle = useAnimatedStyle(() => ({
+    opacity: pinOpacity.value,
+    transform: [{ translateY: pinY.value }],
   }));
-
-  const logoAnimStyle = useAnimatedStyle(() => ({
+  const r1Style = useAnimatedStyle(() => ({
+    opacity: r1Opacity.value,
+    transform: [{ scale: r1Scale.value }],
+  }));
+  const r2Style = useAnimatedStyle(() => ({
+    opacity: r2Opacity.value,
+    transform: [{ scale: r2Scale.value }],
+  }));
+  const r3Style = useAnimatedStyle(() => ({
+    opacity: r3Opacity.value,
+    transform: [{ scale: r3Scale.value }],
+  }));
+  const logoStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
     transform: [{ scale: logoScale.value }],
   }));
-
-  const glowAnimStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: glowScale.value }],
-    opacity: glowScale.value * 0.5,
+  const nameStyle = useAnimatedStyle(() => ({
+    opacity: nameOpacity.value,
+    transform: [{ translateY: nameY.value }],
   }));
-
-  const textAnimStyle = useAnimatedStyle(() => ({
-    opacity: textOpacity.value,
-    transform: [{ translateY: textTranslateY.value }],
-  }));
-
-  const taglineAnimStyle = useAnimatedStyle(() => ({
-    opacity: taglineOpacity.value,
-  }));
+  const taglineStyle = useAnimatedStyle(() => ({ opacity: taglineOpacity.value }));
 
   return (
     <Animated.View style={[splashStyles.container, containerStyle]}>
-      <View style={splashStyles.content}>
-        <View style={splashStyles.logoArea}>
-          <Animated.View style={[splashStyles.glow, glowAnimStyle]} />
-          <Animated.View style={[splashStyles.logoCircle, logoAnimStyle]}>
-            <Image source={lokatLogo} style={splashStyles.logoImage} />
-          </Animated.View>
-        </View>
+      <View style={splashStyles.centerStage}>
+        {/* Ripple rings — all absolutely centered */}
+        <Animated.View style={[splashStyles.ripple, { width: 180, height: 180, borderRadius: 90 }, r1Style]} />
+        <Animated.View style={[splashStyles.ripple, { width: 280, height: 280, borderRadius: 140 }, r2Style]} />
+        <Animated.View style={[splashStyles.ripple, { width: 380, height: 380, borderRadius: 190 }, r3Style]} />
 
-        <Animated.Text style={[splashStyles.appName, textAnimStyle]}>
-          LoKat
-        </Animated.Text>
+        {/* Map pin drops in */}
+        <Animated.View style={[splashStyles.pinWrap, pinStyle]}>
+          <Ionicons name="location" size={80} color="#7C3AED" />
+        </Animated.View>
 
-        <Animated.Text style={[splashStyles.tagline, taglineAnimStyle]}>
-          Seek the Moment. Anywhere, Anytime.
-        </Animated.Text>
+        {/* Logo replaces the pin */}
+        <Animated.View style={[splashStyles.logoWrap, logoStyle]}>
+          <Image source={lokatLogo} style={splashStyles.logoImage} />
+        </Animated.View>
       </View>
 
-      <View style={{ height: 20 }} />
+      <Animated.Text style={[splashStyles.appName, nameStyle]}>
+        LoKat
+      </Animated.Text>
+      <Animated.Text style={[splashStyles.tagline, taglineStyle]}>
+        Seek the Moment. Anywhere, Anytime.
+      </Animated.Text>
     </Animated.View>
   );
 }
@@ -112,53 +166,47 @@ const splashStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  content: {
-    alignItems: "center",
-  },
-  logoArea: {
-    position: "relative",
+  centerStage: {
+    width: 380,
+    height: 200,
     alignItems: "center",
     justifyContent: "center",
-    width: 140,
-    height: 140,
-    marginBottom: 24,
+    marginBottom: 28,
   },
-  glow: {
+  ripple: {
     position: "absolute",
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: "rgba(124, 58, 237, 0.2)",
+    borderWidth: 2,
+    borderColor: "#7C3AED",
   },
-  logoCircle: {
-    width: 100,
-    height: 100,
+  pinWrap: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoWrap: {
+    position: "absolute",
+    width: 90,
+    height: 90,
     alignItems: "center",
     justifyContent: "center",
   },
   logoImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 24,
+    width: 90,
+    height: 90,
+    borderRadius: 22,
   },
   appName: {
-    fontSize: 38,
+    fontSize: 40,
     color: "#FFFFFF",
     fontFamily: "Archivo_700Bold",
-    letterSpacing: -1,
+    letterSpacing: -1.5,
   },
   tagline: {
-    fontSize: 16,
-    color: "rgba(255, 255, 255, 0.6)",
+    fontSize: 15,
+    color: "rgba(255, 255, 255, 0.55)",
     fontFamily: "Archivo_400Regular",
-    marginTop: 6,
-  },
-  footerText: {
-    position: "absolute",
-    bottom: Platform.OS === "web" ? 50 : 60,
-    fontSize: 12,
-    color: "rgba(255, 255, 255, 0.3)",
-    fontFamily: "Archivo_400Regular",
+    marginTop: 8,
+    letterSpacing: 0.2,
   },
 });
 
