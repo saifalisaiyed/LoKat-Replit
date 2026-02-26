@@ -6,6 +6,7 @@ import { storage, verifyPassword, hashPassword } from "./storage";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { getUncachableStripeClient } from "./stripeClient";
+import { getUncachableResendClient } from "./resend";
 
 declare module "express-session" {
   interface SessionData {
@@ -200,32 +201,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentUser = await storage.getUser(req.session.userId!);
       const userEmail = currentUser?.email || "Not provided";
 
-      const apiKey = process.env.RESEND_API_KEY;
-      if (apiKey) {
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "LoKat App <onboarding@resend.dev>",
-            to: ["lokat.official@gmail.com"],
-            subject: `[LoKat ${feedbackType}] from ${sender}`,
-            html: `
-              <h2>New ${feedbackType} from LoKat App</h2>
-              <p><strong>From:</strong> ${sender}</p>
-              <p><strong>Account Email:</strong> ${userEmail}</p>
-              <p><strong>Type:</strong> ${feedbackType}</p>
-              <hr/>
-              <p><strong>Message:</strong></p>
-              <p>${message.trim().replace(/\n/g, "<br/>")}</p>
-              <hr/>
-              <p style="color:#888;font-size:12px;">Sent from LoKat mobile app</p>
-            `,
-          }),
+      try {
+        const { client: resend, fromEmail } = await getUncachableResendClient();
+        await resend.emails.send({
+          from: `LoKat App <${fromEmail}>`,
+          to: ["lokat.official@gmail.com"],
+          subject: `[LoKat ${feedbackType}] from ${sender}`,
+          html: `
+            <h2>New ${feedbackType} from LoKat App</h2>
+            <p><strong>From:</strong> ${sender}</p>
+            <p><strong>Account Email:</strong> ${userEmail}</p>
+            <p><strong>Type:</strong> ${feedbackType}</p>
+            <hr/>
+            <p><strong>Message:</strong></p>
+            <p>${message.trim().replace(/\n/g, "<br/>")}</p>
+            <hr/>
+            <p style="color:#888;font-size:12px;">Sent from LoKat mobile app</p>
+          `,
         });
-      } else {
+      } catch (emailErr) {
+        console.error("Resend email error:", emailErr);
         console.log(`[FEEDBACK] ${feedbackType} from ${sender} (${userEmail}): ${message.trim()}`);
       }
 
