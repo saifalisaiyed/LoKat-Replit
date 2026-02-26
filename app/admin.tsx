@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Platform,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -81,6 +82,31 @@ export default function AdminScreen() {
     fetchData();
   };
 
+  const handleClearAll = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Alert.alert(
+      "Clear All Requests",
+      "This will permanently delete every request in the database. Use this to reset for fresh testing. Continue?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete All",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await apiRequest("DELETE", "/api/admin/requests");
+              setRequests([]);
+              setStats((s) => s ? { ...s, totalRequests: 0, openRequests: 0, acceptedRequests: 0, completedRequests: 0 } : s);
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            } catch (e) {
+              Alert.alert("Error", "Failed to delete requests.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   if (!user?.isAdmin) {
     return (
       <View style={[styles.container, { paddingTop: insets.top + 20 + webInsetTop }]}>
@@ -136,8 +162,14 @@ export default function AdminScreen() {
           <Ionicons name="chevron-back" size={22} color={Colors.light.text} />
         </Pressable>
         <Text style={styles.headerTitle}>Admin Panel</Text>
-        <View style={styles.adminBadge}>
-          <Ionicons name="shield-checkmark" size={14} color="#fff" />
+        <View style={styles.headerRight}>
+          <Pressable style={styles.clearBtn} onPress={handleClearAll}>
+            <Ionicons name="trash-outline" size={16} color="#EF4444" />
+            <Text style={styles.clearBtnText}>Clear</Text>
+          </Pressable>
+          <View style={styles.adminBadge}>
+            <Ionicons name="shield-checkmark" size={14} color="#fff" />
+          </View>
         </View>
       </View>
 
@@ -277,6 +309,26 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  clearBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#EF4444",
+  },
+  clearBtnText: {
+    color: "#EF4444",
+    fontSize: 13,
+    fontFamily: "Archivo_600SemiBold",
   },
   statsGrid: {
     flexDirection: "row",

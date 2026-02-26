@@ -684,6 +684,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/admin/requests", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const count = await storage.deleteAllRequests();
+      return res.json({ deleted: count });
+    } catch (e) {
+      console.error("Admin delete requests error:", e);
+      return res.status(500).json({ message: "Failed to delete requests" });
+    }
+  });
+
   app.get(/^\/public-objects\/(.+)$/, async (req: Request, res: Response) => {
     const filePath = req.path.replace("/public-objects/", "");
     const objectStorageService = new ObjectStorageService();

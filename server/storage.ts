@@ -60,6 +60,7 @@ export interface IStorage {
   createMessage(requestId: string, senderId: string, text: string): Promise<Message>;
 
   getAllRequestsAdmin(statusFilter?: string): Promise<PhotoRequest[]>;
+  deleteAllRequests(): Promise<number>;
   getAllUsersAdmin(): Promise<User[]>;
   getAdminStats(): Promise<{ totalUsers: number; totalRequests: number; openRequests: number; acceptedRequests: number; completedRequests: number; totalEarnings: number }>;
 }
@@ -388,6 +389,11 @@ export class DatabaseStorage implements IStorage {
         .orderBy(desc(photoRequests.createdAt));
     }
     return db.select().from(photoRequests).orderBy(desc(photoRequests.createdAt));
+  }
+
+  async deleteAllRequests(): Promise<number> {
+    const result = await db.delete(photoRequests);
+    return result.rowCount ?? 0;
   }
 
   async getAllUsersAdmin(): Promise<User[]> {
