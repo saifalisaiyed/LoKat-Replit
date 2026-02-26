@@ -44,7 +44,7 @@ const SECTIONS = [
   },
   {
     title: "4. Your Controls",
-    body: "You're always in control:\n• Location Access: Can be turned off anytime in device settings\n• Notifications: Fully customizable\n• Account Deletion: Request at support@lokat.ai",
+    body: "You're always in control:\n• Location Access: Can be turned off anytime in device settings\n• Notifications: Fully customizable\n• Account Deletion: Request at lokat.official@gmail.com",
   },
   {
     title: "5. Data Security",
@@ -115,7 +115,7 @@ export default function PrivacyPolicyScreen() {
           <Feather name="mail" size={16} color={Colors.light.tint} />
           <View style={{ flex: 1 }}>
             <Text style={styles.contactTitle}>Questions?</Text>
-            <Text style={styles.contactBody}>Reach out to us at support@lokat.ai</Text>
+            <Text style={styles.contactBody}>Reach out to us at lokat.official@gmail.com</Text>
           </View>
         </View>
 

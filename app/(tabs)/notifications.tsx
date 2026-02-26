@@ -8,6 +8,7 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -97,10 +98,23 @@ export default function NotificationsScreen() {
     </View>
   );
 
+  const canGoBack = router.canGoBack();
+
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 14 + webInsetTop }]}>
-        <Text style={styles.headerTitle}>Notifications</Text>
+        <View style={styles.headerLeft}>
+          {canGoBack && (
+            <Pressable
+              onPress={() => router.back()}
+              style={styles.backBtn}
+              hitSlop={8}
+            >
+              <Feather name="arrow-left" size={20} color={Colors.light.text} />
+            </Pressable>
+          )}
+          <Text style={styles.headerTitle}>Notifications</Text>
+        </View>
         {unreadCount > 0 && (
           <Pressable
             onPress={() => {
@@ -145,6 +159,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  backBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: "#F5F5F7",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 2,
   },
   headerTitle: {
     fontSize: 22,
