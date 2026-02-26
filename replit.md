@@ -4,6 +4,11 @@
 LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins on a map to request photos at specific locations with orientation, angle, and timing preferences. LoKaters browse nearby requests, go to the location, take photos, and earn money.
 
 ## Recent Changes
+- 2026-02-26: Stripe payment flow complete: photo submission → `/api/payments/complete-submission` → Stripe PaymentIntent created → LoKater earnings credited → receipt screen with animation
+- 2026-02-26: `app/receipt/[id].tsx` — animated success screen showing earned amount, new wallet balance, Stripe reference, timestamp
+- 2026-02-26: `completeRequestWithPayment` and `updateUserStripeCustomerId` added to storage.ts
+- 2026-02-26: `POST /api/payments/complete-submission` endpoint; `GET /api/stripe/publishable-key` endpoint; webhook route `/api/stripe/webhook`
+- 2026-02-26: Stripe initialized at server startup via `stripe-replit-sync`; `stripeCustomerId` on users table, `stripePaymentIntentId` on photo_requests
 - 2026-02-22: Admin panel: admin@lokat.app/admin1234 can view all requests (all statuses), user stats, filter by status
 - 2026-02-22: Three test accounts: seeker@lokat.app/demo1234, lokater@lokat.app/demo1234, admin@lokat.app/admin1234
 - 2026-02-22: isAdmin field on users table, requireAdmin middleware, admin API endpoints

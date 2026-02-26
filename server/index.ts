@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import * as fs from "fs";
 import * as path from "path";
+import { WebhookHandlers } from "./webhookHandlers";
 
 const app = express();
 const log = console.log;
@@ -225,6 +226,24 @@ function setupErrorHandler(app: express.Application) {
   });
 }
 
+async function initStripe() {
+  try {
+    const { runMigrations } = await import("stripe-replit-sync");
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) throw new Error("DATABASE_URL required");
+
+    await runMigrations({ databaseUrl });
+    const { getStripeSync } = await import("./stripeClient");
+    const stripeSync = await getStripeSync();
+    const webhookBaseUrl = `https://${process.env.REPLIT_DOMAINS?.split(",")[0] || process.env.REPLIT_DEV_DOMAIN}`;
+    await stripeSync.findOrCreateManagedWebhook(`${webhookBaseUrl}/api/stripe/webhook`);
+    stripeSync.syncBackfill().catch((err: Error) => console.error("Stripe backfill error:", err));
+    log("Stripe initialized");
+  } catch (err) {
+    console.error("Stripe init error (non-fatal):", err);
+  }
+}
+
 (async () => {
   setupCors(app);
   setupBodyParsing(app);
@@ -232,9 +251,27 @@ function setupErrorHandler(app: express.Application) {
 
   configureExpoAndLanding(app);
 
+  // Stripe webhook — uses rawBody captured by express.json verify
+  app.post("/api/stripe/webhook", async (req: Request, res: Response) => {
+    const signature = req.headers["stripe-signature"];
+    if (!signature) return res.status(400).json({ error: "Missing signature" });
+    try {
+      const sig = Array.isArray(signature) ? signature[0] : signature;
+      const rawBody = (req as any).rawBody as Buffer;
+      if (!rawBody) return res.status(400).json({ error: "No raw body" });
+      await WebhookHandlers.processWebhook(rawBody, sig);
+      return res.json({ received: true });
+    } catch (err: any) {
+      console.error("Webhook error:", err.message);
+      return res.status(400).json({ error: "Webhook error" });
+    }
+  });
+
   const server = await registerRoutes(app);
 
   setupErrorHandler(app);
+
+  await initStripe();
 
   const port = parseInt(process.env.PORT || "5000", 10);
   server.listen(

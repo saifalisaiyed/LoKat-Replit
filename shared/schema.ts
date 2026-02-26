@@ -26,6 +26,7 @@ export const users = pgTable("users", {
   averageRating: doublePrecision("average_rating").notNull().default(0),
   totalRatings: integer("total_ratings").notNull().default(0),
   isAdmin: boolean("is_admin").notNull().default(false),
+  stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -52,6 +53,7 @@ export const photoRequests = pgTable("photo_requests", {
   photoUri: text("photo_uri"),
   submittedAt: text("submitted_at"),
   note: text("note"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

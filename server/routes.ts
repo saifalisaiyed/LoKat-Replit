@@ -5,6 +5,7 @@ import pgSession from "connect-pg-simple";
 import { storage, verifyPassword, hashPassword } from "./storage";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
+import { getUncachableStripeClient } from "./stripeClient";
 
 declare module "express-session" {
   interface SessionData {
@@ -599,6 +600,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Public object error:", error);
       return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Payment: complete photo submission and process payout
+  app.post("/api/payments/complete-submission", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { requestId } = req.body;
+      if (!requestId) return res.status(400).json({ message: "requestId required" });
+
+      const request = await storage.getRequestById(requestId);
+      if (!request) return res.status(404).json({ message: "Request not found" });
+      if (request.acceptedBy !== req.session.userId) {
+        return res.status(403).json({ message: "Not your request" });
+      }
+      if (request.status !== "submitted") {
+        return res.status(400).json({ message: "Request must be in submitted state" });
+      }
+
+      const lokater = await storage.getUser(req.session.userId!);
+      if (!lokater) return res.status(404).json({ message: "User not found" });
+
+      let stripePaymentIntentId: string | undefined;
+      try {
+        const stripe = await getUncachableStripeClient();
+
+        // Ensure seeker has a Stripe customer record
+        const seeker = await storage.getUser(request.creatorId);
+        let customerId = seeker?.stripeCustomerId;
+        if (!customerId && seeker) {
+          const customer = await stripe.customers.create({
+            email: seeker.email || `${seeker.username}@lokat.app`,
+            metadata: { userId: seeker.id, platform: "lokat" },
+          });
+          customerId = customer.id;
+          await storage.updateUserStripeCustomerId(seeker.id, customerId);
+        }
+
+        // Create a PaymentIntent as the earnings record for this job
+        const amountCents = Math.round(request.reward * 100);
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amountCents,
+          currency: "usd",
+          customer: customerId || undefined,
+          payment_method_types: ["card"],
+          confirm: false,
+          metadata: {
+            requestId: request.id,
+            lokaterId: req.session.userId!,
+            locationName: request.locationName,
+            platform: "lokat",
+          },
+          description: `LoKat payout: ${request.locationName} photo by ${lokater.displayName}`,
+        });
+
+        stripePaymentIntentId = paymentIntent.id;
+      } catch (stripeErr: any) {
+        console.error("Stripe PaymentIntent error (non-fatal):", stripeErr.message);
+      }
+
+      // Complete the request and credit earnings
+      const completed = await storage.completeRequestWithPayment(requestId, stripePaymentIntentId);
+      if (!completed) return res.status(400).json({ message: "Could not complete request" });
+
+      // Get updated user for new balance
+      const updatedUser = await storage.getUser(req.session.userId!);
+
+      return res.json({
+        request: completed,
+        earned: request.reward,
+        newBalance: updatedUser?.earnings ?? 0,
+        stripePaymentIntentId,
+      });
+    } catch (e: any) {
+      console.error("Payment complete error:", e);
+      return res.status(500).json({ message: "Payment processing failed" });
+    }
+  });
+
+  // Stripe publishable key for client
+  app.get("/api/stripe/publishable-key", async (_req: Request, res: Response) => {
+    try {
+      const { getStripePublishableKey } = await import("./stripeClient");
+      const key = await getStripePublishableKey();
+      return res.json({ publishableKey: key });
+    } catch (e) {
+      return res.status(500).json({ message: "Could not get Stripe key" });
     }
   });
 

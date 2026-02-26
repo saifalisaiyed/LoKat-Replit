@@ -186,6 +186,10 @@ function RootLayoutNav() {
         name="camera/[id]"
         options={{ headerShown: false, presentation: "fullScreenModal" }}
       />
+      <Stack.Screen
+        name="receipt/[id]"
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
     </Stack>
   );
 }

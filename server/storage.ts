@@ -246,6 +246,37 @@ export class DatabaseStorage implements IStorage {
     return req;
   }
 
+  async completeRequestWithPayment(id: string, stripePaymentIntentId?: string): Promise<PhotoRequest | undefined> {
+    const [req] = await db
+      .update(photoRequests)
+      .set({ status: "completed", ...(stripePaymentIntentId ? { stripePaymentIntentId } : {}) })
+      .where(and(eq(photoRequests.id, id), eq(photoRequests.status, "submitted")))
+      .returning();
+    if (req && req.acceptedBy) {
+      await this.addUserEarnings(req.acceptedBy, req.reward);
+      await this.incrementUserStat(req.acceptedBy, "requestsFulfilled");
+      await this.createNotification(
+        req.acceptedBy,
+        "Payment received!",
+        `$${req.reward.toFixed(2)} has been added to your balance for ${req.locationName}`,
+        "completed",
+        id,
+      );
+      await this.createNotification(
+        req.creatorId,
+        "Photo delivered",
+        `Your photo of ${req.locationName} has been delivered!`,
+        "completed",
+        id,
+      );
+    }
+    return req;
+  }
+
+  async updateUserStripeCustomerId(userId: string, stripeCustomerId: string): Promise<void> {
+    await db.update(users).set({ stripeCustomerId }).where(eq(users.id, userId));
+  }
+
   async deleteRequest(id: string, userId: string): Promise<boolean> {
     const result = await db
       .delete(photoRequests)

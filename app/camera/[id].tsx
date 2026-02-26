@@ -18,6 +18,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { uploadFileToStorage } from "@/client/utils/objectStorageExpo";
+import { getApiUrl } from "@/lib/query-client";
 
 export default function CameraScreen() {
   const insets = useSafeAreaInsets();
@@ -102,6 +103,7 @@ export default function CameraScreen() {
     if (!capturedUri || !id || isUploading) return;
     setIsUploading(true);
     try {
+      // Step 1: Upload photo and set status to "submitted"
       if (Platform.OS !== "web") {
         const file = new File(capturedUri);
         const uploadURL = await uploadFileToStorage(file);
@@ -109,9 +111,36 @@ export default function CameraScreen() {
       } else {
         await submitPhoto(id, capturedUri);
       }
+
+      // Step 2: Complete submission and process payment via Stripe
+      const baseUrl = getApiUrl();
+      const paymentRes = await fetch(`${baseUrl}api/payments/complete-submission`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: id }),
+      });
+
+      const paymentData = paymentRes.ok ? await paymentRes.json() : null;
+      const earned = paymentData?.earned ?? request?.reward ?? 0;
+      const newBalance = paymentData?.newBalance ?? 0;
+      const intentId = paymentData?.stripePaymentIntentId ?? "";
+      const locationName = request?.locationName ?? "";
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
       router.dismissAll();
-      router.replace("/(tabs)");
+      router.replace({
+        pathname: "/receipt/[id]",
+        params: {
+          id,
+          earned: String(earned),
+          newBalance: String(newBalance),
+          intentId,
+          locationName,
+          reward: String(request?.reward ?? earned),
+        },
+      });
     } catch (e) {
       console.error("Photo upload error:", e);
       setIsUploading(false);
