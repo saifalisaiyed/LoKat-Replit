@@ -3,6 +3,11 @@
 ## Overview
 LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins on a map to request photos at specific locations with orientation, angle, and timing preferences. LoKaters browse nearby requests, go to the location, take photos, and earn money.
 
+## Product Decisions
+- **Target platforms**: iOS App Store + Android Play Store only. Web preview exists for Replit development only, not for public distribution.
+- **No phone/email verification at signup**: Deferred — can add SMS (Twilio) or email OTP (Resend) before public launch. Twilio integration available in Replit but not yet connected.
+- **Camera only — no gallery picker**: LoKaters can only submit live camera captures. No `ImagePicker`/gallery access anywhere in the codebase. GPS is captured at shutter press for verification.
+
 ## Recent Changes
 - 2026-02-26: Profile page fully wired: settings gear → edit-profile; Notifications menu → notifications tab; Withdraw/History → payment-methods/transaction-history; Privacy & Security, Help, Terms all navigate to new screens; Contact Us opens mailto; member since date shown; all dead buttons removed
 - 2026-02-26: New screens: `app/transaction-history.tsx` (completed requests with earn/spend summary), `app/payment-methods.tsx` (wallet + withdraw modal), `app/privacy-security.tsx` (change password, location toggle, delete account), `app/help.tsx` (FAQ accordion by category), `app/terms.tsx` (scrollable T&C)
