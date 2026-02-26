@@ -267,6 +267,29 @@ export default function LoKaterModeScreen() {
     }
   }, [id, abandonRequest, navigateHomeAbandoned]);
 
+  const distance =
+    userLocation && request
+      ? haversineDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          request.latitude,
+          request.longitude
+        )
+      : null;
+
+  const bearing =
+    userLocation && request
+      ? getBearing(
+          userLocation.latitude,
+          userLocation.longitude,
+          request.latitude,
+          request.longitude
+        )
+      : 0;
+
+  const isCloseEnough = distance !== null && distance < 300;
+  const isVeryClose = distance !== null && distance < 100;
+
   const handleTakePhoto = useCallback(() => {
     if (!isCloseEnough) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -290,27 +313,6 @@ export default function LoKaterModeScreen() {
       </View>
     );
   }
-
-  const distance = userLocation
-    ? haversineDistance(
-        userLocation.latitude,
-        userLocation.longitude,
-        request.latitude,
-        request.longitude
-      )
-    : null;
-
-  const bearing = userLocation
-    ? getBearing(
-        userLocation.latitude,
-        userLocation.longitude,
-        request.latitude,
-        request.longitude
-      )
-    : 0;
-
-  const isCloseEnough = distance !== null && distance < 300;
-  const isVeryClose = distance !== null && distance < 100;
 
   const routeJson = JSON.stringify(routePolyline.map((p) => [p.latitude, p.longitude]));
   const mapHtml = userLocation
