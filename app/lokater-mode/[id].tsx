@@ -233,9 +233,17 @@ export default function LoKaterModeScreen() {
   }, [id, abandonRequest]);
 
   const handleTakePhoto = useCallback(() => {
+    if (!isCloseEnough) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    router.push({ pathname: "/camera/[id]", params: { id: id! } });
-  }, [id]);
+    router.push({
+      pathname: "/camera/[id]",
+      params: {
+        id: id!,
+        userLat: String(userLocation?.latitude ?? ""),
+        userLng: String(userLocation?.longitude ?? ""),
+      },
+    });
+  }, [id, isCloseEnough, userLocation]);
 
   if (!request) {
     return (
@@ -440,20 +448,32 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             style={({ pressed }) => [
               styles.photoBtn,
               { flex: 1 },
-              isCloseEnough && styles.photoBtnActive,
-              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+              isCloseEnough ? styles.photoBtnActive : styles.photoBtnLocked,
+              isCloseEnough && pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
             ]}
             onPress={handleTakePhoto}
+            disabled={!isCloseEnough}
           >
-            <Ionicons name="camera" size={22} color="#fff" />
-            <Text style={styles.photoBtnText}>Take Photo</Text>
+            <Ionicons
+              name={isCloseEnough ? "camera" : "lock-closed"}
+              size={22}
+              color={isCloseEnough ? "#fff" : "rgba(255,255,255,0.5)"}
+            />
+            <Text style={[styles.photoBtnText, !isCloseEnough && { color: "rgba(255,255,255,0.5)" }]}>
+              {isCloseEnough ? "Take Photo" : "Get Closer"}
+            </Text>
           </Pressable>
         </View>
 
         {!isCloseEnough && distance !== null && (
-          <Text style={styles.distanceHint}>
-            Walk closer to the destination to get the best shot
-          </Text>
+          <View style={styles.distanceHintRow}>
+            <Ionicons name="navigate-circle-outline" size={14} color={Colors.light.textSecondary} />
+            <Text style={styles.distanceHint}>
+              {distance < 500
+                ? `${Math.round(distance)}m away — walk to the spot to unlock camera`
+                : `${(distance / 1000).toFixed(1)}km away — navigate to the destination`}
+            </Text>
+          </View>
         )}
       </View>
 
@@ -804,17 +824,35 @@ const styles = StyleSheet.create({
   },
   photoBtnActive: {
     backgroundColor: Colors.light.accent,
+    shadowColor: Colors.light.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  photoBtnLocked: {
+    backgroundColor: "rgba(124,58,237,0.25)",
+    borderWidth: 1.5,
+    borderColor: "rgba(124,58,237,0.3)",
   },
   photoBtnText: {
     fontSize: 17,
     color: "#fff",
     fontFamily: "Archivo_600SemiBold",
   },
+  distanceHintRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    marginTop: 4,
+  },
   distanceHint: {
     textAlign: "center",
     fontSize: 12,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
+    flex: 1,
   },
   menuOverlay: {
     flex: 1,

@@ -22,7 +22,7 @@ import { getApiUrl } from "@/lib/query-client";
 
 export default function CameraScreen() {
   const insets = useSafeAreaInsets();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, userLat, userLng } = useLocalSearchParams<{ id: string; userLat?: string; userLng?: string }>();
   const { requests, submitPhoto, uploadAndSubmitPhoto } = useApp();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>("back");
@@ -31,6 +31,10 @@ export default function CameraScreen() {
   const [isUploading, setIsUploading] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
+  // GPS captured at moment of photo — most accurate for verification
+  const capturedLocationRef = useRef<{ latitude: number; longitude: number } | null>(
+    userLat && userLng ? { latitude: parseFloat(userLat), longitude: parseFloat(userLng) } : null
+  );
 
   const request = requests.find((r) => r.id === id);
 
@@ -81,9 +85,32 @@ export default function CameraScreen() {
     setIsCapturing(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     try {
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.8,
-      });
+      // Snapshot GPS at the exact moment of capture for server-side verification
+      if (Platform.OS !== "web") {
+        try {
+          const Location = require("expo-location");
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+          capturedLocationRef.current = {
+            latitude: loc.coords.latitude,
+            longitude: loc.coords.longitude,
+          };
+        } catch (_) {
+          // keep the userLat/userLng fallback from navigation
+        }
+      } else if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            capturedLocationRef.current = {
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+            };
+          },
+          () => {},
+          { enableHighAccuracy: true, timeout: 3000 }
+        );
+      }
+
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
       if (photo?.uri) {
         setCapturedUri(photo.uri);
       }
@@ -114,14 +141,34 @@ export default function CameraScreen() {
 
       // Step 2: Complete submission and process payment via Stripe
       const baseUrl = getApiUrl();
+      const capturedLocation = capturedLocationRef.current;
       const paymentRes = await fetch(`${baseUrl}api/payments/complete-submission`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requestId: id }),
+        body: JSON.stringify({
+          requestId: id,
+          latitude: capturedLocation?.latitude,
+          longitude: capturedLocation?.longitude,
+        }),
       });
 
-      const paymentData = paymentRes.ok ? await paymentRes.json() : null;
+      if (!paymentRes.ok) {
+        const errorData = await paymentRes.json().catch(() => ({}));
+        setIsUploading(false);
+        if (errorData.code === "TOO_FAR") {
+          Alert.alert(
+            "Location Mismatch",
+            `Your photo was taken ${errorData.distanceMeters}m from the target. Please go to the exact location and retake.`,
+            [{ text: "OK" }]
+          );
+        } else {
+          Alert.alert("Submission Failed", errorData.message || "Could not complete submission.");
+        }
+        return;
+      }
+
+      const paymentData = await paymentRes.json();
       const earned = paymentData?.earned ?? request?.reward ?? 0;
       const newBalance = paymentData?.newBalance ?? 0;
       const intentId = paymentData?.stripePaymentIntentId ?? "";

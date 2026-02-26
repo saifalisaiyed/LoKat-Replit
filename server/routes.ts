@@ -606,7 +606,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Payment: complete photo submission and process payout
   app.post("/api/payments/complete-submission", requireAuth, async (req: Request, res: Response) => {
     try {
-      const { requestId } = req.body;
+      const { requestId, latitude, longitude } = req.body;
       if (!requestId) return res.status(400).json({ message: "requestId required" });
 
       const request = await storage.getRequestById(requestId);
@@ -616,6 +616,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (request.status !== "submitted") {
         return res.status(400).json({ message: "Request must be in submitted state" });
+      }
+
+      // Server-side location verification: reject if photo taken too far from target
+      if (typeof latitude === "number" && typeof longitude === "number") {
+        const toRad = (d: number) => (d * Math.PI) / 180;
+        const R = 6371e3;
+        const dLat = toRad(request.latitude - latitude);
+        const dLon = toRad(request.longitude - longitude);
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(toRad(latitude)) * Math.cos(toRad(request.latitude)) * Math.sin(dLon / 2) ** 2;
+        const distanceMeters = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        if (distanceMeters > 300) {
+          return res.status(400).json({
+            message: `Photo was taken ${Math.round(distanceMeters)}m from the target. Must be within 300m.`,
+            code: "TOO_FAR",
+            distanceMeters: Math.round(distanceMeters),
+          });
+        }
       }
 
       const lokater = await storage.getUser(req.session.userId!);
