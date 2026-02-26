@@ -233,15 +233,22 @@ export default function HomeScreen() {
   const categoryFiltered = getRequestsByCategory(selectedCategory);
 
   const openRequests = useMemo(() => {
-    if (locationFilter === "anywhere") return categoryFiltered;
+    let filtered = categoryFiltered;
+    
+    // For admins, show everything. For users, show only open.
+    if (user && !user.isAdmin) {
+      filtered = filtered.filter((r) => r.status === "open");
+    }
+
+    if (locationFilter === "anywhere") return filtered;
     if (locationFilter === "near-me") {
-      if (!myCoords) return categoryFiltered;
-      return categoryFiltered.filter((r) =>
+      if (!myCoords) return filtered;
+      return filtered.filter((r) =>
         getDistanceKm(myCoords.latitude, myCoords.longitude, r.latitude, r.longitude) <= 25
       );
     }
-    return categoryFiltered;
-  }, [categoryFiltered, locationFilter, myCoords]);
+    return filtered;
+  }, [categoryFiltered, locationFilter, myCoords, user]);
 
   const handleMarkerPress = useCallback((id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

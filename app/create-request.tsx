@@ -101,6 +101,8 @@ export default function CreateRequestScreen() {
       timing,
       reward: 5,
       note: note || undefined,
+      scheduledDate: timing === "scheduled" ? scheduledDate?.toISOString() : undefined,
+      scheduledTime: timing === "scheduled" ? scheduledTime?.toISOString() : undefined,
     });
     setShowConfirmation(true);
     Animated.timing(confirmAnim, {

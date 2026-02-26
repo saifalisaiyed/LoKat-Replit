@@ -45,6 +45,7 @@ export const photoRequests = pgTable("photo_requests", {
   angle: text("angle").notNull().default("eye-level"),
   timing: text("timing").notNull().default("now"),
   scheduledTime: text("scheduled_time"),
+  scheduledDate: text("scheduled_date"),
   reward: doublePrecision("reward").notNull().default(5),
   status: text("status").notNull().default("open"),
   acceptedBy: varchar("accepted_by").references(() => users.id),
