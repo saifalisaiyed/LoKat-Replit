@@ -178,7 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(req.session.userId!);
       if (!user) return res.status(404).json({ message: "User not found" });
       if (!verifyPassword(currentPassword, user.password)) {
-        return res.status(401).json({ message: "Current password is incorrect" });
+        return res.status(400).json({ message: "Current password is incorrect" });
       }
       const hashed = hashPassword(newPassword);
       const ok = await storage.changePassword(user.id, hashed);
@@ -186,6 +186,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json({ message: "Password changed successfully" });
     } catch (e) {
       return res.status(500).json({ message: "Failed to change password" });
+    }
+  });
+
+  app.post("/api/feedback", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { type, message, senderName } = req.body;
+      if (!message || !message.trim()) {
+        return res.status(400).json({ message: "Message is required" });
+      }
+      const feedbackType = type === "bug" ? "Bug Report" : "Feedback";
+      const sender = senderName?.trim() || "Anonymous";
+      const currentUser = await storage.getUser(req.session.userId!);
+      const userEmail = currentUser?.email || "Not provided";
+
+      const apiKey = process.env.RESEND_API_KEY;
+      if (apiKey) {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "LoKat App <onboarding@resend.dev>",
+            to: ["lokat.official@gmail.com"],
+            subject: `[LoKat ${feedbackType}] from ${sender}`,
+            html: `
+              <h2>New ${feedbackType} from LoKat App</h2>
+              <p><strong>From:</strong> ${sender}</p>
+              <p><strong>Account Email:</strong> ${userEmail}</p>
+              <p><strong>Type:</strong> ${feedbackType}</p>
+              <hr/>
+              <p><strong>Message:</strong></p>
+              <p>${message.trim().replace(/\n/g, "<br/>")}</p>
+              <hr/>
+              <p style="color:#888;font-size:12px;">Sent from LoKat mobile app</p>
+            `,
+          }),
+        });
+      } else {
+        console.log(`[FEEDBACK] ${feedbackType} from ${sender} (${userEmail}): ${message.trim()}`);
+      }
+
+      return res.json({ message: "Feedback sent successfully" });
+    } catch (e) {
+      console.error("Feedback error:", e);
+      return res.status(500).json({ message: "Failed to send feedback" });
     }
   });
 

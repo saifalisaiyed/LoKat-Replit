@@ -235,12 +235,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const changePassword = async (currentPassword: string, newPassword: string) => {
     try {
-      const res = await apiRequest("POST", "/api/auth/change-password", { currentPassword, newPassword });
+      const baseUrl = getApiUrl();
+      const url = new URL("/api/auth/change-password", baseUrl);
+      const res = await fetch(url.toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+        credentials: "include",
+      });
       const result = await res.json();
       if (!res.ok) return { ok: false, error: result.message || "Failed to change password" };
       return { ok: true };
     } catch (e: any) {
-      return { ok: false, error: e.message || "Failed to change password" };
+      return { ok: false, error: "Network error. Please try again." };
     }
   };
 

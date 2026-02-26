@@ -203,9 +203,9 @@ export default function ProfileScreen() {
         <Text style={styles.sectionLabel}>Support</Text>
         <View style={styles.menuGroup}>
           <MenuItem
-            icon="help-circle"
-            label="Help Center"
-            onPress={() => router.push("/help")}
+            icon="message-square"
+            label="Send Feedback"
+            onPress={() => router.push("/feedback")}
           />
           <View style={styles.menuDivider} />
           <MenuItem

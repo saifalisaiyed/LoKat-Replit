@@ -193,7 +193,7 @@ function RootLayoutNav() {
       <Stack.Screen name="transaction-history" options={{ headerShown: false }} />
       <Stack.Screen name="privacy-security" options={{ headerShown: false }} />
       <Stack.Screen name="payment-methods" options={{ headerShown: false }} />
-      <Stack.Screen name="help" options={{ headerShown: false }} />
+      <Stack.Screen name="feedback" options={{ headerShown: false }} />
       <Stack.Screen name="terms" options={{ headerShown: false }} />
     </Stack>
   );
