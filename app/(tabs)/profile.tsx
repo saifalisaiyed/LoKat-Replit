@@ -219,6 +219,12 @@ export default function ProfileScreen() {
             label="Terms & Conditions"
             onPress={() => router.push("/terms")}
           />
+          <View style={styles.menuDivider} />
+          <MenuItem
+            icon="shield"
+            label="Privacy Policy"
+            onPress={() => router.push("/privacy-policy")}
+          />
         </View>
       </View>
 
