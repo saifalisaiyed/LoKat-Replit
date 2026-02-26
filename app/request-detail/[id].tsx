@@ -242,7 +242,7 @@ export default function RequestDetailScreen() {
             />
             <View style={styles.detailDivider} />
             <DetailRow
-              icon={request.angle === "looking-up" ? "arrow-up-circle-outline" : request.angle === "looking-down" ? "arrow-down-circle-outline" : "remove-circle-outline"}
+              icon={request.angle === "looking-up" ? "arrow-up-circle-outline" : request.angle === "looking-down" ? "arrow-down-circle-outline" : "eye-outline"}
               label="Angle"
               value={request.angle.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
             />
