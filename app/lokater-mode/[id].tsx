@@ -459,7 +459,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
           { paddingBottom: Platform.OS === "web" ? 34 + 16 : insets.bottom + 16 },
         ]}
       >
-        {isVeryClose && (
+        {isCloseEnough && (
           <View style={styles.arrivedBanner}>
             <Ionicons
               name="checkmark-circle"
