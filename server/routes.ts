@@ -426,6 +426,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/directions", async (req: Request, res: Response) => {
+    const { originLat, originLng, destLat, destLng } = req.query as Record<string, string>;
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey || !originLat || !originLng || !destLat || !destLng) {
+      return res.json({ polyline: [] });
+    }
+    try {
+      const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originLat},${originLng}&destination=${destLat},${destLng}&mode=walking&key=${apiKey}`;
+      const resp = await fetch(url);
+      const data: any = await resp.json();
+      if (data.status !== "OK" || !data.routes?.length) {
+        return res.json({ polyline: [] });
+      }
+      const encoded: string = data.routes[0].overview_polyline.points;
+      const polyline: { latitude: number; longitude: number }[] = [];
+      let index = 0, lat = 0, lng = 0;
+      while (index < encoded.length) {
+        let b: number, shift = 0, result = 0;
+        do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+        lat += (result & 1) ? ~(result >> 1) : result >> 1;
+        shift = 0; result = 0;
+        do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+        lng += (result & 1) ? ~(result >> 1) : result >> 1;
+        polyline.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
+      }
+      return res.json({ polyline });
+    } catch (e) {
+      console.error("Directions error:", e);
+      return res.json({ polyline: [] });
+    }
+  });
+
   app.get("/api/profile/:id", async (req: Request, res: Response) => {
     try {
       const user = await storage.getUser(paramId(req));

@@ -4,6 +4,10 @@
 LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins on a map to request photos at specific locations with orientation, angle, and timing preferences. LoKaters browse nearby requests, go to the location, take photos, and earn money.
 
 ## Recent Changes
+- 2026-02-26: Live walking route on navigation map: Google Maps Directions API via `/api/directions` endpoint; native map has tilted camera tracking user position/heading with blue route polyline; web Leaflet map draws real route; fallback to straight dashed line if no route
+- 2026-02-26: Fixed auth cookie issue: removed expo/fetch import from query-client.ts so native global fetch handles session cookies properly
+- 2026-02-26: Fixed double-abandon bug: abandonRequest now immediately clears activeRequestId; home redirect useEffect guards against abandoned=1 param
+- 2026-02-26: Fixed accept/abandon navigation crashes: removed all router.dismissAll() calls; handleAccept awaits result and only navigates on success
 - 2026-02-26: Location verification: camera locked until within 300m; GPS captured at shutter press; server rejects if >300m from target (returns TOO_FAR error with distance)
 - 2026-02-26: Stripe payment flow complete: photo submission → `/api/payments/complete-submission` → Stripe PaymentIntent created → LoKater earnings credited → receipt screen with animation
 - 2026-02-26: `app/receipt/[id].tsx` — animated success screen showing earned amount, new wallet balance, Stripe reference, timestamp

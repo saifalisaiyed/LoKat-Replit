@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
+import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import NavigationMap from "@/components/NavigationMap";
 import Animated, {
@@ -132,7 +133,9 @@ export default function LoKaterModeScreen() {
   } | null>(null);
   const [locationError, setLocationError] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
+  const [routePolyline, setRoutePolyline] = useState<{ latitude: number; longitude: number }[]>([]);
   const watchRef = useRef<any>(null);
+  const lastFetchOriginRef = useRef<{ latitude: number; longitude: number } | null>(null);
 
   const request = requests.find((r) => r.id === id);
 
@@ -142,6 +145,12 @@ export default function LoKaterModeScreen() {
       stopTracking();
     };
   }, []);
+
+  useEffect(() => {
+    if (userLocation && request) {
+      fetchRoute(userLocation, { latitude: request.latitude, longitude: request.longitude });
+    }
+  }, [userLocation, request?.id]);
 
   const startTracking = async () => {
     try {
@@ -205,6 +214,30 @@ export default function LoKaterModeScreen() {
       }
     }
   };
+
+  const fetchRoute = useCallback(async (
+    origin: { latitude: number; longitude: number },
+    dest: { latitude: number; longitude: number }
+  ) => {
+    if (lastFetchOriginRef.current) {
+      const dx = origin.latitude - lastFetchOriginRef.current.latitude;
+      const dy = origin.longitude - lastFetchOriginRef.current.longitude;
+      const distDeg = Math.sqrt(dx * dx + dy * dy);
+      if (distDeg < 0.0009) return;
+    }
+    lastFetchOriginRef.current = origin;
+    try {
+      const base = getApiUrl();
+      const url = `${base}api/directions?originLat=${origin.latitude}&originLng=${origin.longitude}&destLat=${dest.latitude}&destLng=${dest.longitude}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.polyline && data.polyline.length > 1) {
+        setRoutePolyline(data.polyline);
+      }
+    } catch (e) {
+      console.log("Route fetch error:", e);
+    }
+  }, []);
 
   const navigateHomeAbandoned = useCallback(() => {
     router.replace({ pathname: "/(tabs)", params: { abandoned: "1" } });
@@ -279,6 +312,7 @@ export default function LoKaterModeScreen() {
   const isCloseEnough = distance !== null && distance < 300;
   const isVeryClose = distance !== null && distance < 100;
 
+  const routeJson = JSON.stringify(routePolyline.map((p) => [p.latitude, p.longitude]));
   const mapHtml = userLocation
     ? `<!DOCTYPE html>
 <html><head>
@@ -290,17 +324,22 @@ export default function LoKaterModeScreen() {
 <script>
 var uLat=${userLocation.latitude},uLng=${userLocation.longitude};
 var dLat=${request.latitude},dLng=${request.longitude};
-var midLat=(uLat+dLat)/2,midLng=(uLng+dLng)/2;
-var map=L.map('map',{center:[midLat,midLng],zoom:15,zoomControl:false,attributionControl:false});
+var route=${routeJson};
+var map=L.map('map',{center:[uLat,uLng],zoom:16,zoomControl:false,attributionControl:false});
 L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom:20}).addTo(map);
-var bounds=L.latLngBounds([[uLat,uLng],[dLat,dLng]]);
-map.fitBounds(bounds,{padding:[60,60]});
-L.polyline([[uLat,uLng],[dLat,dLng]],{color:'${Colors.light.tint}',weight:4,opacity:0.7,dashArray:'8,12'}).addTo(map);
-var userIcon=L.divIcon({html:'<div style="width:20px;height:20px;border-radius:10px;background:#3B82F6;border:3px solid #fff;box-shadow:0 0 8px rgba(59,130,246,0.5)"></div>',className:'',iconSize:[20,20],iconAnchor:[10,10]});
+if(route.length>1){
+  L.polyline(route,{color:'#fff',weight:10,opacity:0.5}).addTo(map);
+  L.polyline(route,{color:'#4285F4',weight:6,opacity:1,lineJoin:'round',lineCap:'round'}).addTo(map);
+  map.fitBounds(L.polyline(route).getBounds(),{padding:[80,80]});
+} else {
+  L.polyline([[uLat,uLng],[dLat,dLng]],{color:'${Colors.light.tint}',weight:4,opacity:0.7,dashArray:'8,12'}).addTo(map);
+  map.fitBounds([[uLat,uLng],[dLat,dLng]],{padding:[60,60]});
+}
+var userIcon=L.divIcon({html:'<div style="width:20px;height:20px;border-radius:10px;background:#4285F4;border:3px solid #fff;box-shadow:0 0 8px rgba(66,133,244,0.6)"></div>',className:'',iconSize:[20,20],iconAnchor:[10,10]});
 L.marker([uLat,uLng],{icon:userIcon}).addTo(map);
 var destIcon=L.divIcon({html:'<div style="width:32px;height:32px;border-radius:16px;background:${Colors.light.tint};border:3px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>',className:'',iconSize:[32,32],iconAnchor:[16,16]});
 L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
-window.addEventListener('message',function(event){try{var data=typeof event.data==='string'?JSON.parse(event.data):event.data;if(data.type==='centerLocation'){map.setView([data.lat,data.lng],16,{animate:true});}}catch(e){}});
+window.addEventListener('message',function(event){try{var data=typeof event.data==='string'?JSON.parse(event.data):event.data;if(data.type==='centerLocation'){map.setView([data.lat,data.lng],16,{animate:true});}if(data.type==='updateRoute'&&data.route.length>1){map.eachLayer(function(l){if(l instanceof L.Polyline)map.removeLayer(l);});L.polyline(data.route,{color:'#fff',weight:10,opacity:0.5}).addTo(map);L.polyline(data.route,{color:'#4285F4',weight:6,opacity:1}).addTo(map);}}catch(e){}});
 </script></body></html>`
     : "";
 
@@ -322,6 +361,8 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
                 latitude: request.latitude,
                 longitude: request.longitude,
               }}
+              routePolyline={routePolyline}
+              bearing={bearing}
             />
           )
         ) : (
