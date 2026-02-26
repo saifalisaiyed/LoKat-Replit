@@ -467,7 +467,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
               color={Colors.light.accent}
             />
             <Text style={styles.arrivedText}>
-              You've arrived at the location!
+              You're in range — find the perfect angle
             </Text>
           </View>
         )}
