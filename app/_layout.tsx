@@ -211,10 +211,8 @@ export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
+    SplashScreen.hideAsync();
+  }, []);
 
   const handleSplashFinish = useCallback(() => {
     setShowSplash(false);
