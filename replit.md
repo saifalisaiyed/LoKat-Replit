@@ -4,6 +4,9 @@
 LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins on a map to request photos at specific locations with orientation, angle, and timing preferences. LoKaters browse nearby requests, go to the location, take photos, and earn money.
 
 ## Recent Changes
+- 2026-02-26: Profile page fully wired: settings gear → edit-profile; Notifications menu → notifications tab; Withdraw/History → payment-methods/transaction-history; Privacy & Security, Help, Terms all navigate to new screens; Contact Us opens mailto; member since date shown; all dead buttons removed
+- 2026-02-26: New screens: `app/transaction-history.tsx` (completed requests with earn/spend summary), `app/payment-methods.tsx` (wallet + withdraw modal), `app/privacy-security.tsx` (change password, location toggle, delete account), `app/help.tsx` (FAQ accordion by category), `app/terms.tsx` (scrollable T&C)
+- 2026-02-26: `createdAt` added to AuthUser and UserProfile; member since date shown on profile card
 - 2026-02-26: Live walking route on navigation map: Google Maps Directions API via `/api/directions` endpoint; native map has tilted camera tracking user position/heading with blue route polyline; web Leaflet map draws real route; fallback to straight dashed line if no route
 - 2026-02-26: Fixed auth cookie issue: removed expo/fetch import from query-client.ts so native global fetch handles session cookies properly
 - 2026-02-26: Fixed double-abandon bug: abandonRequest now immediately clears activeRequestId; home redirect useEffect guards against abandoned=1 param

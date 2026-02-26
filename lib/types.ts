@@ -64,6 +64,7 @@ export interface UserProfile {
   requestsFulfilled: number;
   averageRating: number;
   totalRatings: number;
+  createdAt?: string;
 }
 
 export interface Rating {

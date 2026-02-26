@@ -32,6 +32,7 @@ interface AuthUser {
   averageRating: number;
   totalRatings: number;
   isAdmin: boolean;
+  createdAt?: string;
 }
 
 interface AppContextValue {
@@ -102,6 +103,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       requestsFulfilled: user.requestsFulfilled || 0,
       averageRating: user.averageRating || 0,
       totalRatings: user.totalRatings || 0,
+      createdAt: user.createdAt,
     };
   }, [user]);
 

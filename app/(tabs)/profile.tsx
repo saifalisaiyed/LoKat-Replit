@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   Pressable,
   ScrollView,
   Platform,
+  Linking,
+  Alert,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,17 +17,31 @@ import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import AuthPromptModal from "@/components/AuthPromptModal";
 
+function formatMemberSince(iso?: string) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { profile, logout, isAuthenticated, user } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [authPromptVisible, setAuthPromptVisible] = useState(false);
 
-
   const handleLogout = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     await logout();
   };
+
+  const handleContactUs = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Linking.openURL("mailto:support@lokat.app?subject=LoKat Support").catch(() => {
+      Alert.alert("Contact Us", "Email us at support@lokat.app");
+    });
+  };
+
+  const memberSince = formatMemberSince(profile.createdAt);
 
   if (!isAuthenticated) {
     return (
@@ -66,7 +82,14 @@ export default function ProfileScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 20 + webInsetTop }]}>
         <View style={styles.headerTop}>
           <Text style={styles.headerTitle}>Profile</Text>
-          <Pressable style={styles.settingsBtn} hitSlop={8}>
+          <Pressable
+            style={styles.settingsBtn}
+            hitSlop={8}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push("/edit-profile");
+            }}
+          >
             <Feather name="settings" size={20} color={Colors.light.text} />
           </Pressable>
         </View>
@@ -74,12 +97,15 @@ export default function ProfileScreen() {
         <View style={styles.profileRow}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
-              {profile.name.split(" ").map(n => n[0]).join("").toUpperCase()}
+              {profile.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
             </Text>
           </View>
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{profile.name}</Text>
             <Text style={styles.subtitle}>{profile.email || profile.phone || "Add your details"}</Text>
+            {memberSince && (
+              <Text style={styles.memberSince}>Member since {memberSince}</Text>
+            )}
           </View>
           <Pressable
             style={styles.editBtn}
@@ -125,12 +151,24 @@ export default function ProfileScreen() {
             <Text style={styles.earningsAmount}>${profile.earnings.toFixed(2)}</Text>
           </View>
           <View style={styles.earningsActions}>
-            <Pressable style={styles.earningsActionBtn}>
+            <Pressable
+              style={({ pressed }) => [styles.earningsActionBtn, pressed && { backgroundColor: "#F8F8FA" }]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/payment-methods");
+              }}
+            >
               <Feather name="download" size={16} color={Colors.light.tint} />
               <Text style={styles.earningsActionText}>Withdraw</Text>
             </Pressable>
             <View style={styles.earningsActionDivider} />
-            <Pressable style={styles.earningsActionBtn}>
+            <Pressable
+              style={({ pressed }) => [styles.earningsActionBtn, pressed && { backgroundColor: "#F8F8FA" }]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/transaction-history");
+              }}
+            >
               <Feather name="clock" size={16} color={Colors.light.textSecondary} />
               <Text style={[styles.earningsActionText, { color: Colors.light.textSecondary }]}>History</Text>
             </Pressable>
@@ -141,22 +179,46 @@ export default function ProfileScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Account</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="credit-card" label="Payment Methods" />
+          <MenuItem
+            icon="credit-card"
+            label="Payment Methods"
+            onPress={() => router.push("/payment-methods")}
+          />
           <View style={styles.menuDivider} />
-          <MenuItem icon="bell" label="Notifications" />
+          <MenuItem
+            icon="bell"
+            label="Notifications"
+            onPress={() => router.push("/(tabs)/notifications")}
+          />
           <View style={styles.menuDivider} />
-          <MenuItem icon="shield" label="Privacy & Security" />
+          <MenuItem
+            icon="shield"
+            label="Privacy & Security"
+            onPress={() => router.push("/privacy-security")}
+          />
         </View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Support</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="help-circle" label="Help Center" />
+          <MenuItem
+            icon="help-circle"
+            label="Help Center"
+            onPress={() => router.push("/help")}
+          />
           <View style={styles.menuDivider} />
-          <MenuItem icon="message-circle" label="Contact Us" />
+          <MenuItem
+            icon="message-circle"
+            label="Contact Us"
+            onPress={handleContactUs}
+          />
           <View style={styles.menuDivider} />
-          <MenuItem icon="file-text" label="Terms & Conditions" />
+          <MenuItem
+            icon="file-text"
+            label="Terms & Conditions"
+            onPress={() => router.push("/terms")}
+          />
         </View>
       </View>
 
@@ -192,13 +254,25 @@ export default function ProfileScreen() {
   );
 }
 
-function MenuItem({ icon, label }: { icon: string; label: string }) {
+function MenuItem({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: string;
+  label: string;
+  onPress: () => void;
+}) {
   return (
     <Pressable
       style={({ pressed }) => [
         styles.menuItem,
         pressed && { backgroundColor: "#F8F8FA" },
       ]}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onPress();
+      }}
     >
       <View style={styles.menuIconWrap}>
         <Feather name={icon as any} size={18} color={Colors.light.textSecondary} />
@@ -319,6 +393,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
+  },
+  memberSince: {
+    fontSize: 11,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+    marginTop: 1,
+    opacity: 0.7,
   },
   editBtn: {
     width: 32,
