@@ -5,6 +5,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, Image, StyleSheet, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { Ionicons } from "@expo/vector-icons";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { AppProvider } from "@/lib/store";
@@ -31,79 +32,70 @@ import {
 
 SplashScreen.preventAutoHideAsync();
 
-const SPLASH_DURATION = 3400;
-const PULSE_SIZE = 110; // logo circle diameter
-const PULSE_INTERVAL = 420; // ms between each ring launch
+const SPLASH_DURATION = 3600;
+const IRIS_SIZE = 1200; // large enough to cover screen diagonal on any device
+const LOGO_SIZE = 110;
 
 function BrandedSplash({ onFinish }: { onFinish: () => void }) {
-  // Logo
-  const logoScale = useSharedValue(0.5);
+  // Iris overlay — dark circle that contracts, revealing content beneath
+  const irisScale = useSharedValue(1);
+
+  // Logo — fades/focuses in as the iris opens
+  const logoScale = useSharedValue(0.82);
   const logoOpacity = useSharedValue(0);
 
-  // Background purple glow that breathes
-  const bgGlow = useSharedValue(0);
+  // Lens aperture ring — faint circle that appears around logo after iris opens
+  const ringOpacity = useSharedValue(0);
+  const ringScale = useSharedValue(0.7);
 
-  // 4 radar pulse rings — each loops independently
-  const p1Scale = useSharedValue(1);
-  const p1Opacity = useSharedValue(0);
-  const p2Scale = useSharedValue(1);
-  const p2Opacity = useSharedValue(0);
-  const p3Scale = useSharedValue(1);
-  const p3Opacity = useSharedValue(0);
-  const p4Scale = useSharedValue(1);
-  const p4Opacity = useSharedValue(0);
+  // Brief white lens-flash at the moment iris fully opens
+  const flashOpacity = useSharedValue(0);
+
+  // Location pin — pulses once below the logo
+  const pinScale = useSharedValue(0);
+  const pinOpacity = useSharedValue(0);
 
   // Text
   const nameOpacity = useSharedValue(0);
-  const nameY = useSharedValue(20);
+  const nameY = useSharedValue(22);
   const taglineOpacity = useSharedValue(0);
 
   // Screen fade-out
   const screenOpacity = useSharedValue(1);
 
-  const launchPulse = (scale: ReturnType<typeof useSharedValue>, opacity: ReturnType<typeof useSharedValue>, delay: number) => {
-    scale.value = withDelay(delay, withRepeat(
-      withTiming(2.8, { duration: 1400, easing: Easing.out(Easing.ease) }),
-      -1,
-      false
-    ));
-    opacity.value = withDelay(delay, withRepeat(
-      withSequence(
-        withTiming(0.75, { duration: 80 }),
-        withTiming(0, { duration: 1320, easing: Easing.out(Easing.ease) })
-      ),
-      -1,
-      false
-    ));
-  };
-
   useEffect(() => {
-    // 1. Logo springs in
-    logoOpacity.value = withTiming(1, { duration: 500 });
-    logoScale.value = withSpring(1, { damping: 10, stiffness: 120 });
+    // 1. Iris contracts — dark aperture opens to reveal logo
+    irisScale.value = withTiming(0, {
+      duration: 1000,
+      easing: Easing.bezier(0.4, 0, 0.2, 1),
+    });
 
-    // 2. Background glow breathes slowly
-    bgGlow.value = withDelay(300, withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.4, { duration: 1600, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
+    // 2. Logo focuses into view as iris opens
+    logoOpacity.value = withDelay(150, withTiming(1, { duration: 700 }));
+    logoScale.value = withDelay(150, withSpring(1, { damping: 14, stiffness: 100 }));
+
+    // 3. Aperture ring appears around logo as iris finishes
+    ringOpacity.value = withDelay(900, withTiming(0.35, { duration: 400 }));
+    ringScale.value = withDelay(900, withSpring(1, { damping: 12, stiffness: 120 }));
+
+    // 4. Lens flash at the snap point
+    flashOpacity.value = withDelay(950, withSequence(
+      withTiming(0.55, { duration: 60 }),
+      withTiming(0, { duration: 350, easing: Easing.out(Easing.ease) })
     ));
 
-    // 3. Four radar rings staggered — start after logo is visible
-    launchPulse(p1Scale, p1Opacity, 500);
-    launchPulse(p2Scale, p2Opacity, 500 + PULSE_INTERVAL);
-    launchPulse(p3Scale, p3Opacity, 500 + PULSE_INTERVAL * 2);
-    launchPulse(p4Scale, p4Opacity, 500 + PULSE_INTERVAL * 3);
+    // 5. Location pin drops in below logo with a bounce
+    pinOpacity.value = withDelay(1050, withTiming(1, { duration: 200 }));
+    pinScale.value = withDelay(1050, withSpring(1, { damping: 6, stiffness: 180 }));
 
-    // 4. Text
-    nameOpacity.value = withDelay(850, withTiming(1, { duration: 500 }));
-    nameY.value = withDelay(850, withSpring(0, { damping: 14, stiffness: 120 }));
-    taglineOpacity.value = withDelay(1100, withTiming(1, { duration: 500 }));
+    // 6. App name slides up
+    nameOpacity.value = withDelay(1180, withTiming(1, { duration: 450 }));
+    nameY.value = withDelay(1180, withSpring(0, { damping: 14, stiffness: 120 }));
 
-    // 5. Fade out
+    // 7. Tagline fades in
+    taglineOpacity.value = withDelay(1400, withTiming(1, { duration: 450 }));
+
+    // 8. Fade out
     const timer = setTimeout(() => {
       screenOpacity.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.ease) }, () => {
         runOnJS(onFinish)();
@@ -114,15 +106,20 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
   }, []);
 
   const containerStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }));
-  const bgGlowStyle = useAnimatedStyle(() => ({ opacity: bgGlow.value }));
+  const irisStyle = useAnimatedStyle(() => ({ transform: [{ scale: irisScale.value }] }));
   const logoStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
     transform: [{ scale: logoScale.value }],
   }));
-  const p1Style = useAnimatedStyle(() => ({ opacity: p1Opacity.value, transform: [{ scale: p1Scale.value }] }));
-  const p2Style = useAnimatedStyle(() => ({ opacity: p2Opacity.value, transform: [{ scale: p2Scale.value }] }));
-  const p3Style = useAnimatedStyle(() => ({ opacity: p3Opacity.value, transform: [{ scale: p3Scale.value }] }));
-  const p4Style = useAnimatedStyle(() => ({ opacity: p4Opacity.value, transform: [{ scale: p4Scale.value }] }));
+  const ringStyle = useAnimatedStyle(() => ({
+    opacity: ringOpacity.value,
+    transform: [{ scale: ringScale.value }],
+  }));
+  const flashStyle = useAnimatedStyle(() => ({ opacity: flashOpacity.value }));
+  const pinStyle = useAnimatedStyle(() => ({
+    opacity: pinOpacity.value,
+    transform: [{ scale: pinScale.value }],
+  }));
   const nameStyle = useAnimatedStyle(() => ({
     opacity: nameOpacity.value,
     transform: [{ translateY: nameY.value }],
@@ -131,19 +128,20 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
 
   return (
     <Animated.View style={[splashStyles.container, containerStyle]}>
-      {/* Breathing background glow */}
-      <Animated.View style={[splashStyles.bgGlow, bgGlowStyle]} />
 
+      {/* Content: logo + pin + text — revealed as iris opens */}
       <View style={splashStyles.centerStage}>
-        {/* Radar pulse rings — all absolutely centered, same starting size as logo */}
-        <Animated.View style={[splashStyles.pulseRing, p1Style]} />
-        <Animated.View style={[splashStyles.pulseRing, p2Style]} />
-        <Animated.View style={[splashStyles.pulseRing, p3Style]} />
-        <Animated.View style={[splashStyles.pulseRing, p4Style]} />
+        {/* Aperture ring around logo */}
+        <Animated.View style={[splashStyles.apertureRing, ringStyle]} />
 
-        {/* Logo at center */}
+        {/* Logo */}
         <Animated.View style={[splashStyles.logoWrap, logoStyle]}>
           <Image source={lokatLogo} style={splashStyles.logoImage} />
+        </Animated.View>
+
+        {/* Location pin below logo */}
+        <Animated.View style={[splashStyles.pinWrap, pinStyle]}>
+          <Ionicons name="location" size={30} color="#7C3AED" />
         </Animated.View>
       </View>
 
@@ -153,6 +151,14 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
       <Animated.Text style={[splashStyles.tagline, taglineStyle]}>
         Seek the Moment. Anywhere, Anytime.
       </Animated.Text>
+
+      {/* Iris overlay — rendered on top so it hides content until it opens */}
+      <View style={splashStyles.irisContainer}>
+        <Animated.View style={[splashStyles.iris, irisStyle]} />
+      </View>
+
+      {/* Lens flash — on top of everything */}
+      <Animated.View style={[splashStyles.flash, flashStyle]} pointerEvents="none" />
     </Animated.View>
   );
 }
@@ -164,43 +170,34 @@ const splashStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  bgGlow: {
-    position: "absolute",
-    width: 500,
-    height: 500,
-    borderRadius: 250,
-    backgroundColor: "rgba(124, 58, 237, 0.18)",
-    alignSelf: "center",
-    top: "50%",
-    marginTop: -310,
-  },
   centerStage: {
-    width: PULSE_SIZE,
-    height: PULSE_SIZE,
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 36,
+    marginBottom: 32,
   },
-  pulseRing: {
+  apertureRing: {
     position: "absolute",
-    width: PULSE_SIZE,
-    height: PULSE_SIZE,
-    borderRadius: PULSE_SIZE / 2,
-    borderWidth: 1.5,
-    borderColor: "#7C3AED",
+    width: LOGO_SIZE + 28,
+    height: LOGO_SIZE + 28,
+    borderRadius: (LOGO_SIZE + 28) / 2,
+    borderWidth: 1,
+    borderColor: "rgba(124, 58, 237, 0.5)",
+    top: -14,
+    left: -14,
   },
   logoWrap: {
-    width: PULSE_SIZE,
-    height: PULSE_SIZE,
-    borderRadius: PULSE_SIZE / 2,
-    alignItems: "center",
-    justifyContent: "center",
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+    borderRadius: LOGO_SIZE / 2,
     overflow: "hidden",
     backgroundColor: "#2D1B69",
   },
   logoImage: {
-    width: PULSE_SIZE,
-    height: PULSE_SIZE,
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+  },
+  pinWrap: {
+    marginTop: 10,
+    alignItems: "center",
   },
   appName: {
     fontSize: 40,
@@ -214,6 +211,21 @@ const splashStyles = StyleSheet.create({
     fontFamily: "Archivo_400Regular",
     marginTop: 8,
     letterSpacing: 0.2,
+  },
+  irisContainer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iris: {
+    width: IRIS_SIZE,
+    height: IRIS_SIZE,
+    borderRadius: IRIS_SIZE / 2,
+    backgroundColor: "#0A0F1C",
+  },
+  flash: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "#fff",
   },
 });
 
