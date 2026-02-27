@@ -174,7 +174,7 @@ const splashStyles = StyleSheet.create({
     fontSize: 38,
     color: "#FFFFFF",
     fontFamily: "Archivo_700Bold",
-    letterSpacing: -1,
+    letterSpacing: 0.5,
   },
   tagline: {
     fontSize: 16,
