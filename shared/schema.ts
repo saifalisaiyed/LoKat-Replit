@@ -27,6 +27,7 @@ export const users = pgTable("users", {
   stripeCustomerId: text("stripe_customer_id"),
   hasPaymentMethod: boolean("has_payment_method").notNull().default(false),
   payoutInfo: text("payout_info"),
+  expoPushToken: text("expo_push_token"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

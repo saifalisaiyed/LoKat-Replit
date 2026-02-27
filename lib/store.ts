@@ -9,6 +9,7 @@ import {
 } from "react";
 import React from "react";
 import { apiRequest, getApiUrl } from "./query-client";
+import { usePushNotifications } from "./usePushNotifications";
 import { fetch } from "expo/fetch";
 import type {
   PhotoRequest,
@@ -89,6 +90,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!user;
+
+  usePushNotifications(isAuthenticated);
 
   const profile: UserProfile = useMemo(() => {
     if (!user) return { name: "Guest", email: "", phone: "", earnings: 0, requestsCreated: 0, requestsFulfilled: 0 };

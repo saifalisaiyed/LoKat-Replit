@@ -1,4 +1,4 @@
-import { eq, desc, and, or, ne, sql, asc } from "drizzle-orm";
+import { eq, desc, and, or, ne, sql, asc, inArray } from "drizzle-orm";
 import { db } from "./db";
 import {
   users,
@@ -13,6 +13,7 @@ import {
   type Message,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { sendPushToUser, sendPushToUsers } from "./pushNotifications";
 import * as crypto from "crypto";
 
 export function hashPassword(password: string): string {
@@ -62,6 +63,8 @@ export interface IStorage {
   deleteAllRequests(): Promise<number>;
   getAllUsersAdmin(): Promise<User[]>;
   getAdminStats(): Promise<{ totalUsers: number; totalRequests: number; openRequests: number; acceptedRequests: number; completedRequests: number; totalEarnings: number }>;
+  updateUserPushToken(userId: string, token: string): Promise<void>;
+  getAllUserIdsExcept(excludeUserId: string): Promise<string[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -184,12 +187,20 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(photoRequests.id, id), eq(photoRequests.status, "open")))
       .returning();
     if (req) {
+      const lokater = await this.getUser(userId);
+      const lokaterName = lokater?.displayName || "A LoKater";
       await this.createNotification(
-        userId,
-        "Request accepted",
-        `You accepted the request for ${req.locationName}`,
+        req.creatorId,
+        "Someone's on their way!",
+        `${lokaterName} accepted your request for ${req.locationName}`,
         "accepted",
         id,
+      );
+      await sendPushToUser(
+        req.creatorId,
+        "Someone's on their way! 📍",
+        `${lokaterName} accepted your request for ${req.locationName}`,
+        { requestId: id, type: "accepted" },
       );
     }
     return req;
@@ -217,10 +228,16 @@ export class DatabaseStorage implements IStorage {
     if (req) {
       await this.createNotification(
         req.creatorId,
-        "Photo submitted",
-        `Photo for ${req.locationName} has been submitted`,
+        "Photo ready!",
+        `Your photo of ${req.locationName} has been taken`,
         "submitted",
         id,
+      );
+      await sendPushToUser(
+        req.creatorId,
+        "Your photo is ready! 📸",
+        `Your photo of ${req.locationName} has been taken. Processing payment…`,
+        { requestId: id, type: "submitted" },
       );
     }
     return req;
@@ -264,13 +281,34 @@ export class DatabaseStorage implements IStorage {
       );
       await this.createNotification(
         req.creatorId,
-        "Photo delivered",
+        "Photo delivered!",
         `Your photo of ${req.locationName} has been delivered!`,
         "completed",
         id,
       );
+      await sendPushToUser(
+        req.acceptedBy,
+        "💰 Payment received!",
+        `$${req.reward.toFixed(2)} added to your balance for ${req.locationName}`,
+        { requestId: id, type: "completed" },
+      );
+      await sendPushToUser(
+        req.creatorId,
+        "📷 Photo delivered!",
+        `Your photo of ${req.locationName} is ready to view`,
+        { requestId: id, type: "completed" },
+      );
     }
     return req;
+  }
+
+  async updateUserPushToken(userId: string, token: string): Promise<void> {
+    await db.update(users).set({ expoPushToken: token }).where(eq(users.id, userId));
+  }
+
+  async getAllUserIdsExcept(excludeUserId: string): Promise<string[]> {
+    const rows = await db.select({ id: users.id }).from(users).where(ne(users.id, excludeUserId));
+    return rows.map((r) => r.id);
   }
 
   async updateUserStripeCustomerId(userId: string, stripeCustomerId: string): Promise<void> {

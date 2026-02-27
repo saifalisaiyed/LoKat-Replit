@@ -120,6 +120,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  app.post("/api/auth/push-token", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { token } = req.body;
+      if (!token || typeof token !== "string") {
+        return res.status(400).json({ message: "token is required" });
+      }
+      await storage.updateUserPushToken(req.session.userId!, token);
+      return res.json({ ok: true });
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to register push token" });
+    }
+  });
+
   app.get("/api/auth/me", async (req: Request, res: Response) => {
     if (!req.session.userId) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -283,6 +296,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/requests", requireAuth, async (req: Request, res: Response) => {
     try {
       const request = await storage.createRequest(req.session.userId!, req.body);
+      const { sendPushToUsers } = await import("./pushNotifications");
+      const otherUserIds = await storage.getAllUserIdsExcept(req.session.userId!);
+      if (otherUserIds.length > 0) {
+        sendPushToUsers(
+          otherUserIds,
+          "New photo request nearby 📍",
+          `$${Number(req.body.reward || 5).toFixed(2)} — ${req.body.locationName || "A new location"}`,
+          { type: "new_request", requestId: request.id },
+        ).catch(() => {});
+      }
       return res.status(201).json(request);
     } catch (e: any) {
       console.error("Create request error:", e);
@@ -424,13 +447,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const msg = await storage.createMessage(paramId(req), req.session.userId!, text.trim());
       const recipientId = req.session.userId === request.creatorId ? request.acceptedBy : request.creatorId;
       if (recipientId) {
-        const senderLabel = req.session.userId === request.creatorId ? "Seeker" : "LoKater";
+        const sender = await storage.getUser(req.session.userId!);
+        const senderName = sender?.displayName || (req.session.userId === request.creatorId ? "Seeker" : "LoKater");
+        const preview = text.trim().substring(0, 60);
         await storage.createNotification(
           recipientId,
-          "New message",
-          `${senderLabel}: ${text.trim().substring(0, 50)}`,
+          `Message from ${senderName}`,
+          preview,
           "message",
           request.id,
+        );
+        const { sendPushToUser } = await import("./pushNotifications");
+        await sendPushToUser(
+          recipientId,
+          `💬 ${senderName}`,
+          preview,
+          { requestId: request.id, type: "message" },
         );
       }
       return res.status(201).json(msg);

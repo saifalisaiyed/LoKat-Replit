@@ -35,7 +35,18 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/lokat-logo.png",
+          "color": "#7C3AED",
+          "sounds": [],
+          "androidMode": "default",
+          "androidCollapsedTitle": "LoKat",
+          "iosDisplayInForeground": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
