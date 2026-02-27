@@ -252,6 +252,36 @@ export default function RequestDetailScreen() {
             </View>
           </View>
 
+          {/* Accepted status card — shown to the seeker only while lokater is working */}
+          {isMyRequest && request.status === "accepted" && (
+            <View style={styles.acceptedCard}>
+              <View style={styles.acceptedIconWrap}>
+                <Ionicons name="walk" size={22} color={Colors.light.tint} />
+              </View>
+              <View style={styles.acceptedInfo}>
+                <Text style={styles.acceptedTitle}>LoKater accepted your request</Text>
+                <Text style={styles.acceptedSub}>
+                  They're heading to the location now. Use the chat below to share extra details or updates.
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* Submitted status card — shown to seeker when photo has been sent */}
+          {isMyRequest && request.status === "submitted" && (
+            <View style={[styles.acceptedCard, styles.submittedCard]}>
+              <View style={[styles.acceptedIconWrap, { backgroundColor: "rgba(123,192,67,0.12)" }]}>
+                <Ionicons name="checkmark-circle" size={22} color={Colors.light.accent} />
+              </View>
+              <View style={styles.acceptedInfo}>
+                <Text style={[styles.acceptedTitle, { color: Colors.light.accent }]}>Photo submitted!</Text>
+                <Text style={styles.acceptedSub}>
+                  The LoKater has sent their photo. Check your completed requests to view it.
+                </Text>
+              </View>
+            </View>
+          )}
+
           <View style={styles.detailsCard}>
             <DetailRow
               icon="phone-portrait-outline"
@@ -394,15 +424,12 @@ export default function RequestDetailScreen() {
       {request.status === "accepted" && isMyRequest && (
         <View style={[styles.actionBar, { paddingBottom: Platform.OS === "web" ? 34 + 8 : insets.bottom + 12 }]}>
           <Pressable
-            style={({ pressed }) => [styles.chatBtn, pressed && { opacity: 0.7 }]}
+            style={({ pressed }) => [styles.chatFullBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={() => router.push({ pathname: "/chat/[id]", params: { id: request.id } })}
           >
-            <Ionicons name="chatbubble-outline" size={20} color={Colors.light.tint} />
+            <Ionicons name="chatbubble-ellipses" size={20} color="#fff" />
+            <Text style={styles.chatFullBtnText}>Message LoKater</Text>
           </Pressable>
-          <View style={styles.activeBanner}>
-            <Ionicons name="walk-outline" size={20} color={Colors.light.tint} />
-            <Text style={styles.activeText}>LoKater is on the way</Text>
-          </View>
         </View>
       )}
 
@@ -572,9 +599,29 @@ const styles = StyleSheet.create({
     width: 52, height: 52, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.light.tint,
     alignItems: "center" as const, justifyContent: "center" as const, backgroundColor: "rgba(124,58,237,0.06)",
   },
+  chatFullBtn: {
+    flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const,
+    gap: 10, paddingVertical: 16, borderRadius: 12, backgroundColor: Colors.light.tint,
+  },
+  chatFullBtnText: { fontSize: 16, color: "#fff", fontFamily: "Archivo_600SemiBold" },
   activeBanner: {
     flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const, gap: 8,
     paddingVertical: 14, backgroundColor: "rgba(124,58,237,0.08)", borderRadius: 12,
   },
   activeText: { fontSize: 15, color: Colors.light.tint, fontFamily: "Archivo_600SemiBold" },
+  acceptedCard: {
+    flexDirection: "row" as const, alignItems: "flex-start" as const, gap: 14,
+    backgroundColor: "rgba(124,58,237,0.07)", borderRadius: 14, padding: 14,
+    borderWidth: 1, borderColor: "rgba(124,58,237,0.18)",
+  },
+  submittedCard: {
+    backgroundColor: "rgba(123,192,67,0.07)", borderColor: "rgba(123,192,67,0.25)",
+  },
+  acceptedIconWrap: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(124,58,237,0.12)",
+    alignItems: "center" as const, justifyContent: "center" as const, flexShrink: 0,
+  },
+  acceptedInfo: { flex: 1, gap: 4 },
+  acceptedTitle: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: Colors.light.tint },
+  acceptedSub: { fontSize: 13, fontFamily: "Archivo_400Regular", color: Colors.light.textSecondary, lineHeight: 18 },
 });
