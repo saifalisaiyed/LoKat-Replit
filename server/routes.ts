@@ -388,49 +388,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ratings", requireAuth, async (req: Request, res: Response) => {
-    try {
-      const { requestId, toUserId, score, comment } = req.body;
-      if (!requestId || !toUserId || !score) {
-        return res.status(400).json({ message: "requestId, toUserId, and score are required" });
-      }
-      if (score < 1 || score > 5) {
-        return res.status(400).json({ message: "Score must be between 1 and 5" });
-      }
-      const existing = await storage.getRatingByRequestAndUser(requestId, req.session.userId!);
-      if (existing) {
-        return res.status(409).json({ message: "You already rated this request" });
-      }
-      const request = await storage.getRequestById(requestId);
-      if (!request || request.status !== "completed") {
-        return res.status(400).json({ message: "Can only rate completed requests" });
-      }
-      const rating = await storage.createRating(requestId, req.session.userId!, toUserId, score, comment);
-      return res.status(201).json(rating);
-    } catch (e) {
-      console.error("Rating error:", e);
-      return res.status(500).json({ message: "Failed to create rating" });
-    }
-  });
-
-  app.get("/api/ratings/:userId", async (req: Request, res: Response) => {
-    try {
-      const ratings = await storage.getRatingsForUser(paramId(req));
-      return res.json(ratings);
-    } catch (e) {
-      return res.status(500).json({ message: "Failed to fetch ratings" });
-    }
-  });
-
-  app.get("/api/ratings/check/:requestId", requireAuth, async (req: Request, res: Response) => {
-    try {
-      const rating = await storage.getRatingByRequestAndUser(paramId(req), req.session.userId!);
-      return res.json({ rated: !!rating, rating: rating || null });
-    } catch (e) {
-      return res.status(500).json({ message: "Failed to check rating" });
-    }
-  });
-
   app.get("/api/messages/:requestId", requireAuth, async (req: Request, res: Response) => {
     try {
       const request = await storage.getRequestById(paramId(req));
@@ -543,8 +500,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         displayName: user.displayName,
         requestsCreated: user.requestsCreated,
         requestsFulfilled: user.requestsFulfilled,
-        averageRating: user.averageRating,
-        totalRatings: user.totalRatings,
         createdAt: user.createdAt,
       });
     } catch (e) {
@@ -758,46 +713,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const lokater = await storage.getUser(req.session.userId!);
       if (!lokater) return res.status(404).json({ message: "User not found" });
 
-      let stripePaymentIntentId: string | undefined;
+      // Charge the seeker's saved card via Stripe
+      const stripe = await getUncachableStripeClient();
+      const seeker = await storage.getUser(request.creatorId);
+
+      if (!seeker?.stripeCustomerId) {
+        return res.status(402).json({
+          message: "Seeker has no payment method on file.",
+          code: "NO_PAYMENT_METHOD",
+        });
+      }
+
+      // Find the seeker's saved card
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer: seeker.stripeCustomerId,
+        type: "card",
+        limit: 1,
+      });
+
+      if (paymentMethods.data.length === 0) {
+        return res.status(402).json({
+          message: "Seeker has no card on file.",
+          code: "NO_PAYMENT_METHOD",
+        });
+      }
+
+      const paymentMethodId = paymentMethods.data[0].id;
+      const amountCents = Math.round(request.reward * 100);
+
+      // Confirm the charge off-session (seeker is not present)
+      let paymentIntent;
       try {
-        const stripe = await getUncachableStripeClient();
-
-        // Ensure seeker has a Stripe customer record
-        const seeker = await storage.getUser(request.creatorId);
-        let customerId = seeker?.stripeCustomerId;
-        if (!customerId && seeker) {
-          const customer = await stripe.customers.create({
-            email: seeker.email || `${seeker.username}@lokat.app`,
-            metadata: { userId: seeker.id, platform: "lokat" },
-          });
-          customerId = customer.id;
-          await storage.updateUserStripeCustomerId(seeker.id, customerId);
-        }
-
-        // Create a PaymentIntent as the earnings record for this job
-        const amountCents = Math.round(request.reward * 100);
-        const paymentIntent = await stripe.paymentIntents.create({
+        paymentIntent = await stripe.paymentIntents.create({
           amount: amountCents,
           currency: "usd",
-          customer: customerId || undefined,
-          payment_method_types: ["card"],
-          confirm: false,
+          customer: seeker.stripeCustomerId,
+          payment_method: paymentMethodId,
+          confirm: true,
+          off_session: true,
+          description: `LoKat: ${request.locationName} by ${lokater.displayName}`,
           metadata: {
             requestId: request.id,
             lokaterId: req.session.userId!,
-            locationName: request.locationName,
+            seekerId: request.creatorId,
             platform: "lokat",
           },
-          description: `LoKat payout: ${request.locationName} photo by ${lokater.displayName}`,
         });
-
-        stripePaymentIntentId = paymentIntent.id;
       } catch (stripeErr: any) {
-        console.error("Stripe PaymentIntent error (non-fatal):", stripeErr.message);
+        console.error("Stripe charge failed:", stripeErr.message);
+        const code = stripeErr.code || "PAYMENT_FAILED";
+        return res.status(402).json({
+          message: "Payment could not be processed. The seeker may need to update their card.",
+          code,
+          stripeError: stripeErr.message,
+        });
       }
 
-      // Complete the request and credit earnings
-      const completed = await storage.completeRequestWithPayment(requestId, stripePaymentIntentId);
+      if (paymentIntent.status !== "succeeded") {
+        return res.status(402).json({
+          message: "Payment was not confirmed. Please try again.",
+          code: "PAYMENT_NOT_CONFIRMED",
+          paymentIntentStatus: paymentIntent.status,
+        });
+      }
+
+      // Complete the request and credit LoKater earnings
+      const completed = await storage.completeRequestWithPayment(requestId, paymentIntent.id);
       if (!completed) return res.status(400).json({ message: "Could not complete request" });
 
       // Get updated user for new balance
@@ -807,7 +788,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         request: completed,
         earned: request.reward,
         newBalance: updatedUser?.earnings ?? 0,
-        stripePaymentIntentId,
+        stripePaymentIntentId: paymentIntent.id,
       });
     } catch (e: any) {
       console.error("Payment complete error:", e);

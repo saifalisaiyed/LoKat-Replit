@@ -36,6 +36,7 @@ export interface PhotoRequest {
   angle: Angle;
   timing: Timing;
   scheduledTime?: string;
+  scheduledDate?: string;
   reward: number;
   status: RequestStatus;
   createdAt: string;
@@ -62,19 +63,7 @@ export interface UserProfile {
   earnings: number;
   requestsCreated: number;
   requestsFulfilled: number;
-  averageRating: number;
-  totalRatings: number;
   createdAt?: string;
-}
-
-export interface Rating {
-  id: string;
-  requestId: string;
-  fromUserId: string;
-  toUserId: string;
-  score: number;
-  comment?: string;
-  createdAt: string;
 }
 
 export interface ChatMessage {

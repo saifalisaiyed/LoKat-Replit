@@ -672,10 +672,10 @@ export default function CameraScreen() {
               </View>
             </View>
 
-            {request.notes ? (
+            {request.note ? (
               <View style={styles.instructionsNotes}>
                 <Ionicons name="chatbubble-outline" size={15} color={Colors.light.tint} />
-                <Text style={styles.instructionsNotesText}>{request.notes}</Text>
+                <Text style={styles.instructionsNotesText}>{request.note}</Text>
               </View>
             ) : null}
 

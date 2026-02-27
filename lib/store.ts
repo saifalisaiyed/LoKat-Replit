@@ -16,7 +16,6 @@ import type {
   RequestStatus,
   Notification,
   Category,
-  Rating,
   ChatMessage,
 } from "./types";
 
@@ -29,8 +28,6 @@ interface AuthUser {
   earnings: number;
   requestsCreated: number;
   requestsFulfilled: number;
-  averageRating: number;
-  totalRatings: number;
   isAdmin: boolean;
   hasPaymentMethod: boolean;
   payoutInfo?: string | null;
@@ -64,8 +61,6 @@ interface AppContextValue {
   getRequestsByCategory: (category: Category | null) => PhotoRequest[];
   refreshRequests: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  submitRating: (requestId: string, toUserId: string, score: number, comment?: string) => Promise<{ ok: boolean; error?: string }>;
-  checkRating: (requestId: string) => Promise<{ rated: boolean; rating: Rating | null }>;
   getMessages: (requestId: string) => Promise<ChatMessage[]>;
   sendMessage: (requestId: string, text: string) => Promise<ChatMessage | null>;
 }
@@ -96,7 +91,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!user;
 
   const profile: UserProfile = useMemo(() => {
-    if (!user) return { name: "Guest", email: "", phone: "", earnings: 0, requestsCreated: 0, requestsFulfilled: 0, averageRating: 0, totalRatings: 0 };
+    if (!user) return { name: "Guest", email: "", phone: "", earnings: 0, requestsCreated: 0, requestsFulfilled: 0 };
     return {
       name: user.displayName || user.username,
       email: user.email || "",
@@ -104,8 +99,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       earnings: user.earnings || 0,
       requestsCreated: user.requestsCreated || 0,
       requestsFulfilled: user.requestsFulfilled || 0,
-      averageRating: user.averageRating || 0,
-      totalRatings: user.totalRatings || 0,
       createdAt: user.createdAt,
     };
   }, [user]);
@@ -416,32 +409,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const refreshRequests = fetchRequests;
 
-  const submitRating = useCallback(
-    async (requestId: string, toUserId: string, score: number, comment?: string) => {
-      try {
-        await apiRequest("POST", "/api/ratings", { requestId, toUserId, score, comment });
-        return { ok: true };
-      } catch (e: any) {
-        return { ok: false, error: e.message || "Failed to submit rating" };
-      }
-    },
-    [],
-  );
-
-  const checkRating = useCallback(
-    async (requestId: string): Promise<{ rated: boolean; rating: Rating | null }> => {
-      try {
-        const baseUrl = getApiUrl();
-        const res = await fetch(`${baseUrl}api/ratings/check/${requestId}`, { credentials: "include" });
-        if (res.ok) {
-          return await res.json();
-        }
-      } catch (e) {}
-      return { rated: false, rating: null };
-    },
-    [],
-  );
-
   const getMessages = useCallback(
     async (requestId: string): Promise<ChatMessage[]> => {
       try {
@@ -499,8 +466,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       getRequestsByCategory,
       refreshRequests,
       refreshProfile,
-      submitRating,
-      checkRating,
       getMessages,
       sendMessage,
     }),
@@ -524,8 +489,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       markAllNotificationsRead,
       unreadCount,
       getRequestsByCategory,
-      submitRating,
-      checkRating,
       getMessages,
       sendMessage,
     ],

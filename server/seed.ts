@@ -58,8 +58,6 @@ async function seed() {
       displayName: "Street Photographer",
       requestsFulfilled: 3,
       earnings: 22.50,
-      averageRating: 4.7,
-      totalRatings: 3,
       isAdmin: false,
     })
     .onConflictDoNothing();
