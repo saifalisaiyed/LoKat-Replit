@@ -365,15 +365,24 @@ export default function HomeScreen() {
         if (status === "granted") {
           const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
           if (mapRef.current) {
-            if (mapRef.current.animateToRegion) {
+            if (mapRef.current.animateCamera) {
+              mapRef.current.animateCamera({
+                center: {
+                  latitude: loc.coords.latitude,
+                  longitude: loc.coords.longitude,
+                },
+                zoom: 15,
+                altitude: 1000,
+                pitch: 0,
+                heading: 0,
+              }, { duration: 600 });
+            } else if (mapRef.current.animateToRegion) {
               mapRef.current.animateToRegion({
                 latitude: loc.coords.latitude,
                 longitude: loc.coords.longitude,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }, 500);
-            } else if (mapRef.current.centerToLocation) {
-              mapRef.current.centerToLocation(loc.coords.latitude, loc.coords.longitude);
             }
           }
         }

@@ -126,6 +126,7 @@ export default function LoKaterModeScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [instructionsVisible, setInstructionsVisible] = useState(false);
   const lokaterIframeRef = useRef<HTMLIFrameElement>(null);
+  const navMapRef = useRef<any>(null);
 
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
@@ -357,6 +358,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             />
           ) : (
             <NavigationMap
+              ref={navMapRef}
               userLocation={userLocation}
               destination={{
                 latitude: request.latitude,
@@ -445,8 +447,8 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
                 { enableHighAccuracy: true }
               );
             }
-          } else if (userLocation) {
-            // native handled by NavigationMap
+          } else {
+            navMapRef.current?.recenter();
           }
         }}
       >
