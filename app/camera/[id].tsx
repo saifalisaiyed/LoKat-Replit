@@ -93,7 +93,6 @@ export default function CameraScreen() {
   );
 
   // AR-lite state
-  const [deviceHeading, setDeviceHeading] = useState(0);
   const [liveLocation, setLiveLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -106,7 +105,12 @@ export default function CameraScreen() {
   const magnetometerRef = useRef<any>(null);
   const accelerometerRef = useRef<any>(null);
   const locationWatchRef = useRef<any>(null);
+  // Sensor data lives in refs — no React state, no re-renders
   const accelRef = useRef<{ x: number; y: number; z: number }>({ x: 0, y: 0, z: -1 });
+  const filteredHeadingRef = useRef(0);
+  const currentBearingRef = useRef<number | null>(null);
+  // Reanimated shared value drives the arrow directly on the UI thread
+  const arrowRotationSV = useSharedValue(0);
 
   const request = requests.find((r) => r.id === id);
 
@@ -115,30 +119,52 @@ export default function CameraScreen() {
     if (Platform.OS === "web" || !request) return;
 
     // Tilt-compensated compass heading using Magnetometer + Accelerometer.
-    // Works correctly when phone is held vertically (portrait) for photo-taking.
+    // 33ms ticks → 30fps, low-pass filter kills jitter, arrowRotationSV
+    // updated directly on the Reanimated UI thread — zero React re-renders.
     try {
       const { Magnetometer, Accelerometer } = require("expo-sensors");
-      Magnetometer.setUpdateInterval(80);
-      Accelerometer.setUpdateInterval(80);
+      // 33ms ≈ 30fps; accelerometer slightly faster so data is fresh when mag fires
+      Accelerometer.setUpdateInterval(25);
+      Magnetometer.setUpdateInterval(33);
 
-      // Keep latest accel values in a ref so magnetometer listener can read them
       accelerometerRef.current = Accelerometer.addListener((a: any) => {
         accelRef.current = a;
       });
 
       magnetometerRef.current = Magnetometer.addListener((m: any) => {
         const { x: ax, y: ay, z: az } = accelRef.current;
-        // Tilt angles from accelerometer
+
+        // Tilt-compensated heading (works in portrait / vertical hold)
         const pitch = Math.atan2(-ax, Math.sqrt(ay * ay + az * az));
-        const roll = Math.atan2(ay, az);
-        // Rotate magnetic field vector to horizontal plane
+        const roll  = Math.atan2(ay, az);
         const xh = m.x * Math.cos(pitch) + m.z * Math.sin(pitch);
         const yh =
           m.x * Math.sin(roll) * Math.sin(pitch) +
           m.y * Math.cos(roll) -
           m.z * Math.sin(roll) * Math.cos(pitch);
-        const heading = (Math.atan2(-yh, xh) * (180 / Math.PI) + 360) % 360;
-        setDeviceHeading(heading);
+        const rawHeading = (Math.atan2(-yh, xh) * (180 / Math.PI) + 360) % 360;
+
+        // Circular low-pass filter (α=0.4: responsive yet smooth)
+        const ALPHA = 0.4;
+        let hdiff = rawHeading - filteredHeadingRef.current;
+        if (hdiff >  180) hdiff -= 360;
+        if (hdiff < -180) hdiff += 360;
+        filteredHeadingRef.current = (filteredHeadingRef.current + hdiff * ALPHA + 360) % 360;
+
+        // Compute shortest-path rotation toward target pin
+        const bearing = currentBearingRef.current;
+        if (bearing !== null) {
+          const target = (bearing - filteredHeadingRef.current + 360) % 360;
+          // Keep the shared value as a running total to avoid wrap-around jumps
+          let rotDiff = target - (arrowRotationSV.value % 360);
+          if (rotDiff >  180) rotDiff -= 360;
+          if (rotDiff < -180) rotDiff += 360;
+          // Interpolate to next position in 80ms — buttery smooth between ticks
+          arrowRotationSV.value = withTiming(arrowRotationSV.value + rotDiff, {
+            duration: 80,
+            easing: Easing.out(Easing.quad),
+          });
+        }
       });
     } catch (_) {}
 
@@ -186,9 +212,15 @@ export default function CameraScreen() {
     );
   }, [liveLocation?.latitude, liveLocation?.longitude, request?.latitude, request?.longitude]);
 
-  // Arrow rotation: how far to rotate the up-arrow so it points toward target
-  const arrowRotation =
-    arBearing !== null ? (arBearing - deviceHeading + 360) % 360 : 0;
+  // Keep bearing ref fresh so the magnetometer listener (closure) can read it
+  useEffect(() => {
+    currentBearingRef.current = arBearing;
+  }, [arBearing]);
+
+  // Animated style for the arrow — runs on the UI thread, no React re-renders
+  const arrowAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${arrowRotationSV.value}deg` }],
+  }));
 
   // Pulse animation for compass ring when very close
   const pulseScale = useSharedValue(1);
@@ -495,15 +527,14 @@ export default function CameraScreen() {
           pointerEvents="none"
         >
           <Animated.View style={[styles.arCompassRing, pulseStyle]}>
-            <View
-              style={{
-                transform: [{ rotate: `${arrowRotation}deg` }],
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            <Animated.View
+              style={[
+                { alignItems: "center", justifyContent: "center" },
+                arrowAnimStyle,
+              ]}
             >
               <Ionicons name="arrow-up" size={22} color={Colors.light.tint} />
-            </View>
+            </Animated.View>
           </Animated.View>
           <Text style={styles.arDistText}>
             {arDistance !== null ? formatDist(arDistance) : "--"}
