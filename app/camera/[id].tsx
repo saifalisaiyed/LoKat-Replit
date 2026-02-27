@@ -75,7 +75,7 @@ export default function CameraScreen() {
   }>();
   const { requests, submitPhoto, uploadAndSubmitPhoto } = useApp();
   const [permission, requestPermission] = useCameraPermissions();
-  const [facing, setFacing] = useState<CameraType>("back");
+  const facing: CameraType = "back";
   const [capturedUri, setCapturedUri] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -102,8 +102,11 @@ export default function CameraScreen() {
       ? { latitude: parseFloat(userLat), longitude: parseFloat(userLng) }
       : null
   );
+  const [showInstructions, setShowInstructions] = useState(false);
   const magnetometerRef = useRef<any>(null);
+  const accelerometerRef = useRef<any>(null);
   const locationWatchRef = useRef<any>(null);
+  const accelRef = useRef<{ x: number; y: number; z: number }>({ x: 0, y: 0, z: -1 });
 
   const request = requests.find((r) => r.id === id);
 
@@ -111,14 +114,31 @@ export default function CameraScreen() {
   useEffect(() => {
     if (Platform.OS === "web" || !request) return;
 
-    // Magnetometer → compass heading
+    // Tilt-compensated compass heading using Magnetometer + Accelerometer.
+    // Works correctly when phone is held vertically (portrait) for photo-taking.
     try {
-      const { Magnetometer } = require("expo-sensors");
+      const { Magnetometer, Accelerometer } = require("expo-sensors");
       Magnetometer.setUpdateInterval(80);
-      magnetometerRef.current = Magnetometer.addListener((data: any) => {
-        // Portrait-mode heading: atan2(y, x), 0=East → normalize to compass
-        const angle = Math.atan2(data.y, data.x) * (180 / Math.PI);
-        setDeviceHeading((angle + 360) % 360);
+      Accelerometer.setUpdateInterval(80);
+
+      // Keep latest accel values in a ref so magnetometer listener can read them
+      accelerometerRef.current = Accelerometer.addListener((a: any) => {
+        accelRef.current = a;
+      });
+
+      magnetometerRef.current = Magnetometer.addListener((m: any) => {
+        const { x: ax, y: ay, z: az } = accelRef.current;
+        // Tilt angles from accelerometer
+        const pitch = Math.atan2(-ax, Math.sqrt(ay * ay + az * az));
+        const roll = Math.atan2(ay, az);
+        // Rotate magnetic field vector to horizontal plane
+        const xh = m.x * Math.cos(pitch) + m.z * Math.sin(pitch);
+        const yh =
+          m.x * Math.sin(roll) * Math.sin(pitch) +
+          m.y * Math.cos(roll) -
+          m.z * Math.sin(roll) * Math.cos(pitch);
+        const heading = (Math.atan2(-yh, xh) * (180 / Math.PI) + 360) % 360;
+        setDeviceHeading(heading);
       });
     } catch (_) {}
 
@@ -140,6 +160,7 @@ export default function CameraScreen() {
 
     return () => {
       magnetometerRef.current?.remove();
+      accelerometerRef.current?.remove();
       locationWatchRef.current?.remove();
     };
   }, [request?.id]);
@@ -348,11 +369,6 @@ export default function CameraScreen() {
     }
   };
 
-  const toggleFacing = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setFacing((f) => (f === "back" ? "front" : "back"));
-  };
-
   if (capturedUri) {
     return (
       <View style={styles.container}>
@@ -456,8 +472,15 @@ export default function CameraScreen() {
               </Text>
             </View>
           )}
-          <Pressable onPress={toggleFacing} hitSlop={12}>
-            <Ionicons name="camera-reverse" size={28} color="#fff" />
+          <Pressable
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowInstructions(true);
+            }}
+            hitSlop={12}
+            style={styles.infoBtn}
+          >
+            <Ionicons name="information-circle" size={28} color="#fff" />
           </Pressable>
         </View>
       </View>
@@ -573,6 +596,67 @@ export default function CameraScreen() {
           <View style={{ width: 50 }} />
         </View>
       </View>
+
+      {/* Instructions overlay */}
+      {showInstructions && request && (
+        <Pressable
+          style={styles.instructionsBackdrop}
+          onPress={() => setShowInstructions(false)}
+        >
+          <Pressable
+            style={[styles.instructionsSheet, { paddingBottom: insets.bottom + 24 }]}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View style={styles.instructionsDragger} />
+            <Text style={styles.instructionsTitle}>Shot Instructions</Text>
+
+            <View style={styles.instructionsGrid}>
+              <View style={styles.instructionsCell}>
+                <Ionicons name="phone-portrait-outline" size={18} color={Colors.light.tint} />
+                <Text style={styles.instructionsCellLabel}>Orientation</Text>
+                <Text style={styles.instructionsCellValue} numberOfLines={1}>
+                  {request.orientation}
+                </Text>
+              </View>
+              <View style={styles.instructionsCell}>
+                <Ionicons name="camera-outline" size={18} color={Colors.light.tint} />
+                <Text style={styles.instructionsCellLabel}>Angle</Text>
+                <Text style={styles.instructionsCellValue} numberOfLines={1}>
+                  {request.angle.replace(/-/g, " ")}
+                </Text>
+              </View>
+              <View style={styles.instructionsCell}>
+                <Ionicons name="time-outline" size={18} color={Colors.light.tint} />
+                <Text style={styles.instructionsCellLabel}>Timing</Text>
+                <Text style={styles.instructionsCellValue} numberOfLines={1}>
+                  {request.timing}
+                </Text>
+              </View>
+              <View style={styles.instructionsCell}>
+                <Ionicons name="location-outline" size={18} color={Colors.light.tint} />
+                <Text style={styles.instructionsCellLabel}>Location</Text>
+                <Text style={styles.instructionsCellValue} numberOfLines={1}>
+                  {request.locationName}
+                </Text>
+              </View>
+            </View>
+
+            {request.notes ? (
+              <View style={styles.instructionsNotes}>
+                <Ionicons name="chatbubble-outline" size={15} color={Colors.light.tint} />
+                <Text style={styles.instructionsNotesText}>{request.notes}</Text>
+              </View>
+            ) : null}
+
+            <Pressable
+              style={({ pressed }) => [styles.instructionsDoneBtn, pressed && { opacity: 0.8 }]}
+              onPress={() => setShowInstructions(false)}
+            >
+              <Text style={styles.instructionsDoneBtnText}>Got it</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -814,6 +898,96 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   submitPhotoBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  infoBtn: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  // Instructions overlay
+  instructionsBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+    zIndex: 100,
+  },
+  instructionsSheet: {
+    backgroundColor: "#1A1B2E",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 12,
+    paddingHorizontal: 20,
+    gap: 16,
+  },
+  instructionsDragger: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    alignSelf: "center",
+    marginBottom: 4,
+  },
+  instructionsTitle: {
+    fontSize: 18,
+    fontFamily: "Archivo_700Bold",
+    color: "#fff",
+    textAlign: "center",
+  },
+  instructionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  instructionsCell: {
+    flex: 1,
+    minWidth: "40%",
+    backgroundColor: "rgba(255,255,255,0.07)",
+    borderRadius: 14,
+    padding: 14,
+    gap: 6,
+    alignItems: "flex-start",
+  },
+  instructionsCellLabel: {
+    fontSize: 11,
+    fontFamily: "Archivo_500Medium",
+    color: "rgba(255,255,255,0.45)",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  instructionsCellValue: {
+    fontSize: 14,
+    fontFamily: "Archivo_600SemiBold",
+    color: "#fff",
+    textTransform: "capitalize",
+  },
+  instructionsNotes: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "flex-start",
+    backgroundColor: "rgba(124,58,237,0.15)",
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "rgba(124,58,237,0.3)",
+  },
+  instructionsNotesText: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: "Archivo_400Regular",
+    color: "rgba(255,255,255,0.85)",
+    lineHeight: 20,
+  },
+  instructionsDoneBtn: {
+    backgroundColor: Colors.light.tint,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  instructionsDoneBtnText: {
     color: "#fff",
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
