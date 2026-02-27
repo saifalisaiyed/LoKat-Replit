@@ -330,6 +330,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/requests/:id/note", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { note } = req.body;
+      if (typeof note !== "string") return res.status(400).json({ message: "note must be a string" });
+      const updated = await storage.updateRequestNote(paramId(req), req.session.userId!, note.trim());
+      if (!updated) return res.status(404).json({ message: "Request not found or not yours" });
+      return res.json(updated);
+    } catch (e) {
+      return res.status(500).json({ message: "Failed to update note" });
+    }
+  });
+
   app.delete("/api/requests/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const deleted = await storage.deleteRequest(paramId(req), req.session.userId!);

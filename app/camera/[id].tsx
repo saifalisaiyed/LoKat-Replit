@@ -580,7 +580,7 @@ export default function CameraScreen() {
       )}
 
       {/* Notes card — above bottom bar */}
-      {request?.notes ? (
+      {request?.note ? (
         <View
           style={[
             styles.notesCard,
@@ -597,7 +597,7 @@ export default function CameraScreen() {
             color="rgba(255,255,255,0.75)"
           />
           <Text style={styles.notesText} numberOfLines={2}>
-            {request.notes}
+            {request.note}
           </Text>
         </View>
       ) : null}

@@ -45,6 +45,7 @@ export interface IStorage {
   submitPhoto(id: string, photoUri: string): Promise<PhotoRequest | undefined>;
   completeRequest(id: string): Promise<PhotoRequest | undefined>;
   deleteRequest(id: string, userId: string): Promise<boolean>;
+  updateRequestNote(id: string, userId: string, note: string): Promise<PhotoRequest | undefined>;
 
   getNotifications(userId: string): Promise<Notification[]>;
   createNotification(userId: string, title: string, body: string, type: string, requestId?: string): Promise<Notification>;
@@ -284,6 +285,15 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(photoRequests.id, id), eq(photoRequests.creatorId, userId)))
       .returning();
     return result.length > 0;
+  }
+
+  async updateRequestNote(id: string, userId: string, note: string): Promise<PhotoRequest | undefined> {
+    const [req] = await db
+      .update(photoRequests)
+      .set({ note: note || null })
+      .where(and(eq(photoRequests.id, id), eq(photoRequests.creatorId, userId)))
+      .returning();
+    return req;
   }
 
   async getNotifications(userId: string): Promise<Notification[]> {

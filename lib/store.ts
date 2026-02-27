@@ -55,6 +55,7 @@ interface AppContextValue {
   uploadAndSubmitPhoto: (requestId: string, uploadURL: string) => Promise<void>;
   completeRequest: (id: string) => void;
   deleteRequest: (id: string) => void;
+  updateRequestNote: (id: string, note: string) => Promise<{ ok: boolean; error?: string }>;
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
   unreadCount: number;
@@ -355,6 +356,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const updateRequestNote = useCallback(
+    async (id: string, note: string): Promise<{ ok: boolean; error?: string }> => {
+      try {
+        const res = await apiRequest("PATCH", `/api/requests/${id}/note`, { note });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { ok: false, error: data.message || "Failed to update note" };
+        }
+        await fetchRequests();
+        return { ok: true };
+      } catch (e: any) {
+        return { ok: false, error: e.message || "Network error" };
+      }
+    },
+    [],
+  );
+
   const markNotificationRead = useCallback(
     async (id: string) => {
       try {
@@ -472,6 +490,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       uploadAndSubmitPhoto,
       completeRequest,
       deleteRequest,
+      updateRequestNote,
       markNotificationRead,
       markAllNotificationsRead,
       unreadCount,
@@ -498,6 +517,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       uploadAndSubmitPhoto,
       completeRequest,
       deleteRequest,
+      updateRequestNote,
       markNotificationRead,
       markAllNotificationsRead,
       unreadCount,

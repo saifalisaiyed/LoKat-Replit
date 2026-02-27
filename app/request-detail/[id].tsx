@@ -10,6 +10,8 @@ import {
   Modal,
   Alert,
   ActivityIndicator,
+  TextInput,
+  KeyboardAvoidingView,
 } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -69,11 +71,14 @@ function DetailRow({ icon, label, value }: { icon: string; label: string; value:
 export default function RequestDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, acceptRequest, abandonRequest, deleteRequest, activeRequestId, user, isAuthenticated } = useApp();
+  const { requests, acceptRequest, abandonRequest, deleteRequest, updateRequestNote, activeRequestId, user, isAuthenticated } = useApp();
   const mapRef = useRef<any>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
   const [authPromptVisible, setAuthPromptVisible] = useState(false);
+  const [editingNote, setEditingNote] = useState(false);
+  const [noteText, setNoteText] = useState("");
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   const request = requests.find((r) => r.id === id);
   const userId = user?.id;
@@ -267,10 +272,69 @@ export default function RequestDetailScreen() {
             />
           </View>
 
-          {request.note && (
+          {/* Notes — seekers can add/edit when request is still active */}
+          {(request.note || (isMyRequest && (request.status === "open" || request.status === "accepted"))) && (
             <View style={styles.instructionsCard}>
-              <Text style={styles.instructionsTitle}>Instructions</Text>
-              <Text style={styles.instructionsText}>{request.note}</Text>
+              <View style={styles.instructionsHeader}>
+                <Text style={styles.instructionsTitle}>Instructions</Text>
+                {isMyRequest && (request.status === "open" || request.status === "accepted") && !editingNote && (
+                  <Pressable
+                    hitSlop={10}
+                    onPress={() => { setNoteText(request.note ?? ""); setEditingNote(true); }}
+                    style={styles.editNoteBtn}
+                  >
+                    <Ionicons name="pencil-outline" size={16} color={Colors.light.tint} />
+                    <Text style={styles.editNoteBtnText}>{request.note ? "Edit" : "Add"}</Text>
+                  </Pressable>
+                )}
+              </View>
+
+              {editingNote ? (
+                <>
+                  <TextInput
+                    style={styles.noteInput}
+                    value={noteText}
+                    onChangeText={setNoteText}
+                    placeholder="Describe what you're looking for — angle, framing, time of day…"
+                    placeholderTextColor={Colors.light.textSecondary}
+                    multiline
+                    autoFocus
+                    maxLength={500}
+                  />
+                  <View style={styles.noteActions}>
+                    <Pressable
+                      style={({ pressed }) => [styles.noteCancelBtn, pressed && { opacity: 0.7 }]}
+                      onPress={() => setEditingNote(false)}
+                      disabled={isSavingNote}
+                    >
+                      <Text style={styles.noteCancelText}>Cancel</Text>
+                    </Pressable>
+                    <Pressable
+                      style={({ pressed }) => [styles.noteSaveBtn, pressed && { opacity: 0.85 }, isSavingNote && { opacity: 0.6 }]}
+                      disabled={isSavingNote}
+                      onPress={async () => {
+                        setIsSavingNote(true);
+                        const result = await updateRequestNote(request.id, noteText);
+                        setIsSavingNote(false);
+                        if (result.ok) {
+                          setEditingNote(false);
+                        } else {
+                          Alert.alert("Save failed", result.error || "Could not save note.");
+                        }
+                      }}
+                    >
+                      {isSavingNote
+                        ? <ActivityIndicator size="small" color="#fff" />
+                        : <Text style={styles.noteSaveText}>Save</Text>
+                      }
+                    </Pressable>
+                  </View>
+                </>
+              ) : request.note ? (
+                <Text style={styles.instructionsText}>{request.note}</Text>
+              ) : (
+                <Text style={styles.noteEmptyText}>No instructions yet. Tap Edit to add some.</Text>
+              )}
             </View>
           )}
 
@@ -442,9 +506,23 @@ const styles = StyleSheet.create({
   detailLabel: { fontSize: 12, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
   detailValue: { fontSize: 15, color: Colors.light.text, marginTop: 1, fontFamily: "Archivo_500Medium" },
   detailDivider: { height: 1, backgroundColor: "rgba(0,0,0,0.04)", marginHorizontal: 14 },
-  instructionsCard: { backgroundColor: "rgba(123,192,67,0.06)", borderRadius: 12, padding: 16, borderLeftWidth: 3, borderLeftColor: Colors.light.accent },
-  instructionsTitle: { fontSize: 14, color: Colors.light.text, marginBottom: 6, fontFamily: "Archivo_600SemiBold" },
+  instructionsCard: { backgroundColor: "rgba(123,192,67,0.06)", borderRadius: 12, padding: 16, borderLeftWidth: 3, borderLeftColor: Colors.light.accent, gap: 10 },
+  instructionsHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  instructionsTitle: { fontSize: 14, color: Colors.light.text, fontFamily: "Archivo_600SemiBold" },
   instructionsText: { fontSize: 14, color: Colors.light.text, lineHeight: 20, fontFamily: "Archivo_400Regular" },
+  editNoteBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: "rgba(124,58,237,0.08)", borderRadius: 8, borderWidth: 1, borderColor: "rgba(124,58,237,0.2)" },
+  editNoteBtnText: { fontSize: 13, color: Colors.light.tint, fontFamily: "Archivo_500Medium" },
+  noteInput: {
+    backgroundColor: "#fff", borderRadius: 10, borderWidth: 1.5, borderColor: Colors.light.tint,
+    padding: 12, fontSize: 14, fontFamily: "Archivo_400Regular", color: Colors.light.text,
+    minHeight: 90, textAlignVertical: "top",
+  },
+  noteActions: { flexDirection: "row", gap: 10 },
+  noteCancelBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.light.border, alignItems: "center" },
+  noteCancelText: { fontSize: 14, color: Colors.light.textSecondary, fontFamily: "Archivo_500Medium" },
+  noteSaveBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: Colors.light.tint, alignItems: "center" },
+  noteSaveText: { fontSize: 14, color: "#fff", fontFamily: "Archivo_600SemiBold" },
+  noteEmptyText: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular", fontStyle: "italic" },
   photoSection: { gap: 8 },
   photoContainer: { borderRadius: 12, overflow: "hidden", backgroundColor: Colors.light.border },
   photo: { width: "100%", height: 300 },
