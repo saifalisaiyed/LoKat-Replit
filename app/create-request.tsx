@@ -99,7 +99,7 @@ export default function CreateRequestScreen() {
     cat: string;
     placeTypes?: string;
   }>();
-  const { createRequest } = useApp();
+  const { createRequest, user } = useApp();
 
   const parsedTypes: string[] = React.useMemo(() => {
     if (!paramPlaceTypes || paramPlaceTypes === "[]") return [];
@@ -128,6 +128,10 @@ export default function CreateRequestScreen() {
   const confirmAnim = useRef(new Animated.Value(0)).current;
 
   const handleSubmit = async () => {
+    if (!user?.hasPaymentMethod) {
+      router.push("/payment-setup");
+      return;
+    }
     if (isSubmitting) return;
     setIsSubmitting(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

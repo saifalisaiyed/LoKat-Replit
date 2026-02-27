@@ -109,6 +109,10 @@ export default function RequestDetailScreen() {
 
   const handleAccept = async () => {
     if (!isAuthenticated) { setAuthPromptVisible(true); return; }
+    if (!user?.payoutInfo) {
+      router.push("/payout-setup");
+      return;
+    }
     if (isAccepting) return;
     setIsAccepting(true);
     try {

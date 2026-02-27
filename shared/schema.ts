@@ -27,6 +27,8 @@ export const users = pgTable("users", {
   totalRatings: integer("total_ratings").notNull().default(0),
   isAdmin: boolean("is_admin").notNull().default(false),
   stripeCustomerId: text("stripe_customer_id"),
+  hasPaymentMethod: boolean("has_payment_method").notNull().default(false),
+  payoutInfo: text("payout_info"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

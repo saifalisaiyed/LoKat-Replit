@@ -32,6 +32,8 @@ interface AuthUser {
   averageRating: number;
   totalRatings: number;
   isAdmin: boolean;
+  hasPaymentMethod: boolean;
+  payoutInfo?: string | null;
   createdAt?: string;
 }
 

@@ -9,6 +9,7 @@ LoKat is a mobile app connecting photo seekers with LoKaters. Seekers drop pins 
 - **Camera only — no gallery picker**: LoKaters can only submit live camera captures. No `ImagePicker`/gallery access anywhere in the codebase. GPS is captured at shutter press for verification.
 
 ## Recent Changes
+- 2026-02-27: Payment gates added: seekers prompted for card (Stripe Checkout SetupMode via expo-web-browser) when posting first request; LoKaters prompted for payout info (PayPal email or bank details) when accepting first request. `hasPaymentMethod` + `payoutInfo` fields added to users table. New screens: `app/payment-setup.tsx`, `app/payout-setup.tsx`. Backend: `/api/payments/setup-session`, `/api/payments/payment-status`, `/api/auth/payout-info`, `/payment-success`, `/payment-cancel`.
 - 2026-02-26: Profile page fully wired: settings gear → edit-profile; Notifications menu → notifications tab; Withdraw/History → payment-methods/transaction-history; Privacy & Security, Help, Terms all navigate to new screens; Contact Us opens mailto; member since date shown; all dead buttons removed
 - 2026-02-26: New screens: `app/transaction-history.tsx` (completed requests with earn/spend summary), `app/payment-methods.tsx` (wallet + withdraw modal), `app/privacy-security.tsx` (change password, location toggle, delete account), `app/help.tsx` (FAQ accordion by category), `app/terms.tsx` (scrollable T&C)
 - 2026-02-26: `createdAt` added to AuthUser and UserProfile; member since date shown on profile card

@@ -46,6 +46,8 @@ export interface IStorage {
   completeRequest(id: string): Promise<PhotoRequest | undefined>;
   deleteRequest(id: string, userId: string): Promise<boolean>;
   updateRequestNote(id: string, userId: string, note: string): Promise<PhotoRequest | undefined>;
+  setHasPaymentMethod(userId: string): Promise<void>;
+  updatePayoutInfo(userId: string, info: string): Promise<void>;
 
   getNotifications(userId: string): Promise<Notification[]>;
   createNotification(userId: string, title: string, body: string, type: string, requestId?: string): Promise<Notification>;
@@ -294,6 +296,14 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(photoRequests.id, id), eq(photoRequests.creatorId, userId)))
       .returning();
     return req;
+  }
+
+  async setHasPaymentMethod(userId: string): Promise<void> {
+    await db.update(users).set({ hasPaymentMethod: true }).where(eq(users.id, userId));
+  }
+
+  async updatePayoutInfo(userId: string, info: string): Promise<void> {
+    await db.update(users).set({ payoutInfo: info }).where(eq(users.id, userId));
   }
 
   async getNotifications(userId: string): Promise<Notification[]> {

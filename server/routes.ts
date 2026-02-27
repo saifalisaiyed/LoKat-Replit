@@ -826,6 +826,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create a Stripe Checkout session in setup mode so the seeker can save a card
+  app.post("/api/payments/setup-session", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const stripe = await getUncachableStripeClient();
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email || `${user.username}@lokat.app`,
+          metadata: { userId: user.id, platform: "lokat" },
+        });
+        customerId = customer.id;
+        await storage.updateUserStripeCustomerId(user.id, customerId);
+      }
+
+      const domain = process.env.REPLIT_DEV_DOMAIN
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+        : "http://localhost:5000";
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "setup",
+        customer: customerId,
+        currency: "usd",
+        success_url: `${domain}/payment-success`,
+        cancel_url: `${domain}/payment-cancel`,
+      });
+
+      return res.json({ url: session.url, sessionId: session.id });
+    } catch (e: any) {
+      console.error("Setup session error:", e.message);
+      return res.status(500).json({ message: "Failed to create payment setup session" });
+    }
+  });
+
+  // Check whether the authed user has a saved payment method
+  app.get("/api/payments/payment-status", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      let hasPaymentMethod = user.hasPaymentMethod;
+
+      // Verify with Stripe if we haven't flagged it yet
+      if (!hasPaymentMethod && user.stripeCustomerId) {
+        try {
+          const stripe = await getUncachableStripeClient();
+          const methods = await stripe.paymentMethods.list({
+            customer: user.stripeCustomerId,
+            type: "card",
+            limit: 1,
+          });
+          if (methods.data.length > 0) {
+            hasPaymentMethod = true;
+            await storage.setHasPaymentMethod(user.id);
+          }
+        } catch (_) {}
+      }
+
+      return res.json({ hasPaymentMethod, payoutInfo: user.payoutInfo });
+    } catch (e: any) {
+      return res.status(500).json({ message: "Failed to check payment status" });
+    }
+  });
+
+  // Save LoKater payout info
+  app.patch("/api/auth/payout-info", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { payoutInfo } = req.body;
+      if (!payoutInfo || typeof payoutInfo !== "string") {
+        return res.status(400).json({ message: "payoutInfo is required" });
+      }
+      await storage.updatePayoutInfo(req.session.userId!, payoutInfo);
+      return res.json({ success: true });
+    } catch (e: any) {
+      return res.status(500).json({ message: "Failed to save payout info" });
+    }
+  });
+
+  // Simple HTML pages Stripe redirects to after setup
+  app.get("/payment-success", (_req: Request, res: Response) => {
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Card Saved</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#1A1B2E;color:#fff;text-align:center;padding:20px}
+.icon{font-size:64px;margin-bottom:16px}.title{font-size:24px;font-weight:700;margin-bottom:8px}.sub{color:#A1A1AA;font-size:16px}</style></head>
+<body><div><div class="icon">✅</div><div class="title">Card saved!</div>
+<div class="sub">You can close this window and return to LoKat.</div></div></body></html>`);
+  });
+
+  app.get("/payment-cancel", (_req: Request, res: Response) => {
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Cancelled</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#1A1B2E;color:#fff;text-align:center;padding:20px}
+.icon{font-size:64px;margin-bottom:16px}.title{font-size:24px;font-weight:700;margin-bottom:8px}.sub{color:#A1A1AA;font-size:16px}</style></head>
+<body><div><div class="icon">↩️</div><div class="title">Cancelled</div>
+<div class="sub">You can close this window and return to LoKat.</div></div></body></html>`);
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
