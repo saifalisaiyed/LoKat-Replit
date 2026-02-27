@@ -30,7 +30,7 @@ import {
 
 SplashScreen.preventAutoHideAsync();
 
-const SPLASH_DURATION = 3000;
+const SPLASH_DURATION = 4500;
 
 function BrandedSplash({ onFinish }: { onFinish: () => void }) {
   const logoOpacity = useSharedValue(0);
@@ -39,9 +39,9 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
   const fadeOut = useSharedValue(1);
 
   useEffect(() => {
-    logoOpacity.value = withTiming(1, { duration: 600 });
-    logoTranslateY.value = withSpring(0, { damping: 14, stiffness: 100 });
-    taglineOpacity.value = withDelay(500, withTiming(1, { duration: 500 }));
+    logoOpacity.value = withDelay(1500, withTiming(1, { duration: 600 }));
+    logoTranslateY.value = withDelay(1500, withSpring(0, { damping: 14, stiffness: 100 }));
+    taglineOpacity.value = withDelay(2000, withTiming(1, { duration: 500 }));
 
     const timer = setTimeout(() => {
       fadeOut.value = withTiming(0, { duration: 400, easing: Easing.out(Easing.ease) }, () => {
