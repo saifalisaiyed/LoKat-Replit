@@ -175,7 +175,7 @@ function RequestCard({ item, onPress, userCoords }: { item: any; onPress: () => 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ abandoned?: string }>();
-  const { getRequestsByCategory, activeRequestId, isAuthenticated, user, abandonRequest, requests } = useApp();
+  const { getRequestsByCategory, activeRequestId, isAuthenticated, user, abandonRequest } = useApp();
   const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
@@ -596,31 +596,6 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Active request pinned card — visible to the lokater who has claimed a request */}
-        {activeRequestId && (() => {
-          const activeReq = requests.find((r) => r.id === activeRequestId);
-          if (!activeReq) return null;
-          return (
-            <Pressable
-              style={({ pressed }) => [styles.activeReqCard, pressed && { opacity: 0.9 }]}
-              onPress={() => router.push({ pathname: "/lokater-mode/[id]", params: { id: activeRequestId } })}
-            >
-              <View style={styles.activeReqCardLeft}>
-                <View style={styles.activeReqBadge}>
-                  <Ionicons name="walk" size={11} color="#fff" />
-                  <Text style={styles.activeReqBadgeText}>ACTIVE</Text>
-                </View>
-                <Text style={styles.activeReqName} numberOfLines={1}>{activeReq.locationName}</Text>
-                <Text style={styles.activeReqAddr} numberOfLines={1}>{activeReq.address}</Text>
-              </View>
-              <View style={styles.activeReqContinueBtn}>
-                <Text style={styles.activeReqContinueText}>Continue</Text>
-                <Ionicons name="arrow-forward" size={14} color={Colors.light.tint} />
-              </View>
-            </Pressable>
-          );
-        })()}
-
         <View style={styles.feedHeader}>
           <Text style={[styles.sectionTitle, { marginBottom: 0, paddingHorizontal: 0 }]}>
             Incoming Requests ({openRequests.length})
@@ -885,65 +860,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
-  },
-  activeReqCard: {
-    marginHorizontal: 16,
-    marginBottom: 12,
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: Colors.light.tint,
-    padding: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: Colors.light.tint,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  activeReqCardLeft: {
-    flex: 1,
-    gap: 3,
-  },
-  activeReqBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: Colors.light.tint,
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    marginBottom: 2,
-  },
-  activeReqBadgeText: {
-    color: "#fff",
-    fontSize: 10,
-    fontFamily: "Archivo_700Bold",
-    letterSpacing: 0.5,
-  },
-  activeReqName: {
-    fontSize: 15,
-    fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.text,
-  },
-  activeReqAddr: {
-    fontSize: 12,
-    fontFamily: "Archivo_400Regular",
-    color: Colors.light.textSecondary,
-  },
-  activeReqContinueBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingLeft: 12,
-  },
-  activeReqContinueText: {
-    fontSize: 13,
-    fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.tint,
   },
   activeRequestBanner: {
     position: "absolute",
