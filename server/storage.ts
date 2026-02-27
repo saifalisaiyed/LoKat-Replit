@@ -312,6 +312,13 @@ export class DatabaseStorage implements IStorage {
     await db.update(users).set({ expoPushToken: token }).where(eq(users.id, userId));
   }
 
+  async releaseAcceptedRequestsByUser(userId: string): Promise<void> {
+    await db
+      .update(photoRequests)
+      .set({ status: "open", acceptedBy: null })
+      .where(and(eq(photoRequests.acceptedBy, userId), eq(photoRequests.status, "accepted")));
+  }
+
   async setResetToken(userId: string, token: string, expiry: Date): Promise<void> {
     await db.update(users).set({ resetToken: token, resetTokenExpiry: expiry }).where(eq(users.id, userId));
   }

@@ -114,7 +114,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/logout", (req: Request, res: Response) => {
+  app.post("/api/auth/logout", async (req: Request, res: Response) => {
+    const userId = req.session.userId;
+    if (userId) {
+      await storage.releaseAcceptedRequestsByUser(userId).catch(() => {});
+    }
     req.session.destroy(() => {
       res.json({ ok: true });
     });
