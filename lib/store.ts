@@ -10,7 +10,6 @@ import {
 import React from "react";
 import { apiRequest, getApiUrl } from "./query-client";
 import { usePushNotifications } from "./usePushNotifications";
-import { fetch } from "expo/fetch";
 import type {
   PhotoRequest,
   UserProfile,

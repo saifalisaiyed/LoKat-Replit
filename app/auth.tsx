@@ -19,6 +19,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
+import { getApiUrl } from "@/lib/query-client";
 
 const lokatLogo = require("@/assets/images/lokat-logo.png");
 
@@ -89,6 +90,72 @@ export default function AuthScreen() {
   const [countrySearch, setCountrySearch] = useState("");
   const phoneInputRef = useRef<TextInput>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
+
+  const [showForgot, setShowForgot] = useState(false);
+  const [fpStep, setFpStep] = useState<"email" | "code">("email");
+  const [fpEmail, setFpEmail] = useState("");
+  const [fpOTP, setFpOTP] = useState("");
+  const [fpNewPassword, setFpNewPassword] = useState("");
+  const [fpLoading, setFpLoading] = useState(false);
+  const [fpError, setFpError] = useState("");
+  const [fpSuccess, setFpSuccess] = useState(false);
+
+  const openForgot = () => {
+    setFpStep("email");
+    setFpEmail(email);
+    setFpOTP("");
+    setFpNewPassword("");
+    setFpError("");
+    setFpSuccess(false);
+    setShowForgot(true);
+  };
+
+  const handleForgotSend = async () => {
+    setFpError("");
+    if (!fpEmail.trim()) { setFpError("Please enter your email."); return; }
+    setFpLoading(true);
+    try {
+      const res = await fetch(getApiUrl("/api/auth/forgot-password"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: fpEmail.trim().toLowerCase() }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setFpError(d.message || "Something went wrong.");
+      } else {
+        setFpStep("code");
+      }
+    } catch {
+      setFpError("Network error. Please try again.");
+    } finally {
+      setFpLoading(false);
+    }
+  };
+
+  const handleForgotReset = async () => {
+    setFpError("");
+    if (!fpOTP.trim()) { setFpError("Enter the 6-digit code."); return; }
+    if (!fpNewPassword.trim() || fpNewPassword.trim().length < 6) { setFpError("Password must be at least 6 characters."); return; }
+    setFpLoading(true);
+    try {
+      const res = await fetch(getApiUrl("/api/auth/reset-password"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: fpEmail.trim().toLowerCase(), otp: fpOTP.trim(), newPassword: fpNewPassword.trim() }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFpError(d.message || "Something went wrong.");
+      } else {
+        setFpSuccess(true);
+      }
+    } catch {
+      setFpError("Network error. Please try again.");
+    } finally {
+      setFpLoading(false);
+    }
+  };
 
   const filteredCountries = countrySearch.trim()
     ? COUNTRY_CODES.filter(
@@ -256,6 +323,12 @@ export default function AuthScreen() {
             />
           </View>
 
+          {mode === "login" && (
+            <Pressable onPress={openForgot} hitSlop={8} style={styles.forgotRow}>
+              <Text style={styles.forgotText}>Forgot password?</Text>
+            </Pressable>
+          )}
+
           {error ? (
             <View style={styles.errorRow}>
               <Ionicons name="alert-circle" size={16} color="#EF4444" />
@@ -392,6 +465,102 @@ export default function AuthScreen() {
                 </Pressable>
               )}
             />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showForgot} animationType="slide" transparent onRequestClose={() => setShowForgot(false)}>
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setShowForgot(false)} />
+          <View style={[styles.modalContent, { paddingBottom: insets.bottom + 24 }]}>
+            <View style={styles.modalHandle} />
+            {fpSuccess ? (
+              <>
+                <View style={{ alignItems: "center", paddingVertical: 24 }}>
+                  <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(124,58,237,0.12)", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                    <Ionicons name="checkmark-circle" size={32} color={Colors.light.tint} />
+                  </View>
+                  <Text style={[styles.modalTitle, { marginBottom: 8 }]}>Password reset!</Text>
+                  <Text style={{ color: "#888", textAlign: "center", fontSize: 14, fontFamily: "Archivo_400Regular" }}>
+                    Your password has been updated. You can now log in.
+                  </Text>
+                </View>
+                <Pressable style={[styles.submitBtn, { marginTop: 8 }]} onPress={() => setShowForgot(false)}>
+                  <Text style={styles.submitBtnText}>Back to Login</Text>
+                </Pressable>
+              </>
+            ) : fpStep === "email" ? (
+              <>
+                <Text style={styles.modalTitle}>Forgot password</Text>
+                <Text style={{ color: "#888", fontSize: 14, fontFamily: "Archivo_400Regular", marginBottom: 20 }}>
+                  Enter your email and we'll send you a reset code.
+                </Text>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Email</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your email"
+                    placeholderTextColor="#B0B0B0"
+                    value={fpEmail}
+                    onChangeText={setFpEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+                {fpError ? (
+                  <View style={[styles.errorRow, { marginBottom: 8 }]}>
+                    <Ionicons name="alert-circle" size={15} color="#EF4444" />
+                    <Text style={styles.errorText}>{fpError}</Text>
+                  </View>
+                ) : null}
+                <Pressable style={[styles.submitBtn, fpLoading && { opacity: 0.7 }]} onPress={handleForgotSend} disabled={fpLoading}>
+                  {fpLoading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.submitBtnText}>Send code</Text>}
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text style={styles.modalTitle}>Enter your code</Text>
+                <Text style={{ color: "#888", fontSize: 14, fontFamily: "Archivo_400Regular", marginBottom: 20 }}>
+                  We sent a 6-digit code to {fpEmail}. Enter it below along with your new password.
+                </Text>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Reset code</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="6-digit code"
+                    placeholderTextColor="#B0B0B0"
+                    value={fpOTP}
+                    onChangeText={setFpOTP}
+                    keyboardType="number-pad"
+                    maxLength={6}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>New password</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Min 6 characters"
+                    placeholderTextColor="#B0B0B0"
+                    value={fpNewPassword}
+                    onChangeText={setFpNewPassword}
+                    secureTextEntry
+                  />
+                </View>
+                {fpError ? (
+                  <View style={[styles.errorRow, { marginBottom: 8 }]}>
+                    <Ionicons name="alert-circle" size={15} color="#EF4444" />
+                    <Text style={styles.errorText}>{fpError}</Text>
+                  </View>
+                ) : null}
+                <Pressable style={[styles.submitBtn, fpLoading && { opacity: 0.7 }]} onPress={handleForgotReset} disabled={fpLoading}>
+                  {fpLoading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.submitBtnText}>Reset password</Text>}
+                </Pressable>
+                <Pressable onPress={() => setFpStep("email")} hitSlop={8} style={{ alignItems: "center", marginTop: 12 }}>
+                  <Text style={styles.forgotText}>Resend code</Text>
+                </Pressable>
+              </>
+            )}
           </View>
         </View>
       </Modal>
@@ -585,6 +754,16 @@ const styles = StyleSheet.create({
   guestBtnText: {
     fontSize: 15,
     color: Colors.light.textSecondary,
+    fontFamily: "Archivo_500Medium",
+  },
+  forgotRow: {
+    alignSelf: "flex-end",
+    paddingVertical: 4,
+    marginBottom: 4,
+  },
+  forgotText: {
+    fontSize: 13,
+    color: Colors.light.tint,
     fontFamily: "Archivo_500Medium",
   },
   switchRow: {

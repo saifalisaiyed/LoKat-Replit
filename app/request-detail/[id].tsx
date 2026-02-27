@@ -280,7 +280,7 @@ export default function RequestDetailScreen() {
               <View style={styles.acceptedInfo}>
                 <Text style={[styles.acceptedTitle, { color: Colors.light.accent }]}>Photo submitted!</Text>
                 <Text style={styles.acceptedSub}>
-                  The LoKater has sent their photo. Check your completed requests to view it.
+                  Your photo is ready — scroll down to view it. Payment is being processed.
                 </Text>
               </View>
             </View>

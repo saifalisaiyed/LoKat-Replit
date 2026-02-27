@@ -133,6 +133,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/auth/forgot-password", async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ message: "Email is required" });
+
+      const user = await storage.getUserByEmail(email.trim().toLowerCase());
+      if (!user) {
+        return res.json({ ok: true });
+      }
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiry = new Date(Date.now() + 15 * 60 * 1000);
+      await storage.setResetToken(user.id, otp, expiry);
+
+      try {
+        const { client, fromEmail } = await getUncachableResendClient();
+        await client.emails.send({
+          from: fromEmail,
+          to: email.trim(),
+          subject: "Your LoKat password reset code",
+          html: `
+            <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;background:#0A0F1C;color:#fff;border-radius:12px">
+              <h2 style="color:#7C3AED;margin-top:0">Reset your password</h2>
+              <p style="color:#aaa">Use this code to reset your LoKat password. It expires in 15 minutes.</p>
+              <div style="background:#1A1B2E;border:1px solid #7C3AED;border-radius:8px;padding:24px;text-align:center;letter-spacing:12px;font-size:32px;font-weight:bold;color:#7C3AED;margin:24px 0">${otp}</div>
+              <p style="color:#666;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
+            </div>`,
+        });
+      } catch (emailErr) {
+        console.error("Resend error:", emailErr);
+      }
+
+      return res.json({ ok: true });
+    } catch (e) {
+      return res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.post("/api/auth/reset-password", async (req: Request, res: Response) => {
+    try {
+      const { email, otp, newPassword } = req.body;
+      if (!email || !otp || !newPassword) {
+        return res.status(400).json({ message: "Email, code, and new password are required" });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+
+      const user = await storage.getUserByEmail(email.trim().toLowerCase());
+      if (!user || !user.resetToken || !user.resetTokenExpiry) {
+        return res.status(400).json({ message: "Invalid or expired code" });
+      }
+      if (user.resetToken !== otp.trim()) {
+        return res.status(400).json({ message: "Invalid code" });
+      }
+      if (new Date() > new Date(user.resetTokenExpiry)) {
+        return res.status(400).json({ message: "Code has expired. Please request a new one." });
+      }
+
+      const crypto = await import("crypto");
+      const hashed = crypto.createHash("sha256").update(newPassword.trim()).digest("hex");
+      await storage.resetUserPassword(user.id, hashed);
+
+      return res.json({ ok: true });
+    } catch (e) {
+      return res.status(500).json({ message: "Server error" });
+    }
+  });
+
   app.get("/api/auth/me", async (req: Request, res: Response) => {
     if (!req.session.userId) {
       return res.status(401).json({ message: "Not authenticated" });

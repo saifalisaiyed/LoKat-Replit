@@ -28,6 +28,8 @@ export const users = pgTable("users", {
   hasPaymentMethod: boolean("has_payment_method").notNull().default(false),
   payoutInfo: text("payout_info"),
   expoPushToken: text("expo_push_token"),
+  resetToken: text("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

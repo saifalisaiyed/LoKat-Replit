@@ -65,6 +65,8 @@ export interface IStorage {
   getAdminStats(): Promise<{ totalUsers: number; totalRequests: number; openRequests: number; acceptedRequests: number; completedRequests: number; totalEarnings: number }>;
   updateUserPushToken(userId: string, token: string): Promise<void>;
   getAllUserIdsExcept(excludeUserId: string): Promise<string[]>;
+  setResetToken(userId: string, token: string, expiry: Date): Promise<void>;
+  resetUserPassword(userId: string, hashedPassword: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -304,6 +306,14 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserPushToken(userId: string, token: string): Promise<void> {
     await db.update(users).set({ expoPushToken: token }).where(eq(users.id, userId));
+  }
+
+  async setResetToken(userId: string, token: string, expiry: Date): Promise<void> {
+    await db.update(users).set({ resetToken: token, resetTokenExpiry: expiry }).where(eq(users.id, userId));
+  }
+
+  async resetUserPassword(userId: string, hashedPassword: string): Promise<void> {
+    await db.update(users).set({ password: hashedPassword, resetToken: null, resetTokenExpiry: null }).where(eq(users.id, userId));
   }
 
   async getAllUserIdsExcept(excludeUserId: string): Promise<string[]> {
