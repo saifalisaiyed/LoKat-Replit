@@ -250,11 +250,12 @@ export default function RootLayout() {
     }, 50);
   }, []);
 
-  // Show custom splash immediately (before fonts load) — text appears after
-  // 400–700ms delay, giving fonts plenty of time to load in the background.
-  // This prevents a double-splash where the native OS splash and our custom
-  // splash both appear sequentially.
   if (showSplash) {
+    if (!fontsLoaded) {
+      // Fonts still loading — show the same dark background as the splash so
+      // there is no visible gap or flash after the native splash hides.
+      return <View style={{ flex: 1, backgroundColor: "#1A1B2E" }} />;
+    }
     return (
       <ErrorBoundary>
         <BrandedSplash onFinish={handleSplashFinish} />
