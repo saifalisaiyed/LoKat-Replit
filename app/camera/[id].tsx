@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -15,14 +15,64 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withRepeat,
+  withSequence,
+  Easing,
+} from "react-native-reanimated";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { uploadFileToStorage } from "@/client/utils/objectStorageExpo";
 import { getApiUrl } from "@/lib/query-client";
 
+function toRad(deg: number) {
+  return (deg * Math.PI) / 180;
+}
+
+function calcBearing(
+  fromLat: number,
+  fromLng: number,
+  toLat: number,
+  toLng: number
+): number {
+  const dLon = toRad(toLng - fromLng);
+  const y = Math.sin(dLon) * Math.cos(toRad(toLat));
+  const x =
+    Math.cos(toRad(fromLat)) * Math.sin(toRad(toLat)) -
+    Math.sin(toRad(fromLat)) * Math.cos(toRad(toLat)) * Math.cos(dLon);
+  return (Math.atan2(y, x) * (180 / Math.PI) + 360) % 360;
+}
+
+function calcDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+function formatDist(m: number): string {
+  if (m < 1000) return `${m}m`;
+  return `${(m / 1000).toFixed(1)}km`;
+}
+
 export default function CameraScreen() {
   const insets = useSafeAreaInsets();
-  const { id, userLat, userLng } = useLocalSearchParams<{ id: string; userLat?: string; userLng?: string }>();
+  const { id, userLat, userLng } = useLocalSearchParams<{
+    id: string;
+    userLat?: string;
+    userLng?: string;
+  }>();
   const { requests, submitPhoto, uploadAndSubmitPhoto } = useApp();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>("back");
@@ -31,12 +81,113 @@ export default function CameraScreen() {
   const [isUploading, setIsUploading] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
-  // GPS captured at moment of photo — most accurate for verification
-  const capturedLocationRef = useRef<{ latitude: number; longitude: number } | null>(
-    userLat && userLng ? { latitude: parseFloat(userLat), longitude: parseFloat(userLng) } : null
+
+  // GPS captured at shutter press for server-side verification
+  const capturedLocationRef = useRef<{
+    latitude: number;
+    longitude: number;
+  } | null>(
+    userLat && userLng
+      ? { latitude: parseFloat(userLat), longitude: parseFloat(userLng) }
+      : null
   );
 
+  // AR-lite state
+  const [deviceHeading, setDeviceHeading] = useState(0);
+  const [liveLocation, setLiveLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(
+    userLat && userLng
+      ? { latitude: parseFloat(userLat), longitude: parseFloat(userLng) }
+      : null
+  );
+  const magnetometerRef = useRef<any>(null);
+  const locationWatchRef = useRef<any>(null);
+
   const request = requests.find((r) => r.id === id);
+
+  // AR sensors — native only
+  useEffect(() => {
+    if (Platform.OS === "web" || !request) return;
+
+    // Magnetometer → compass heading
+    try {
+      const { Magnetometer } = require("expo-sensors");
+      Magnetometer.setUpdateInterval(80);
+      magnetometerRef.current = Magnetometer.addListener((data: any) => {
+        // Portrait-mode heading: atan2(y, x), 0=East → normalize to compass
+        const angle = Math.atan2(data.y, data.x) * (180 / Math.PI);
+        setDeviceHeading((angle + 360) % 360);
+      });
+    } catch (_) {}
+
+    // Live location → distance badge
+    (async () => {
+      try {
+        const Location = require("expo-location");
+        locationWatchRef.current = await Location.watchPositionAsync(
+          { accuracy: Location.Accuracy.Balanced, distanceInterval: 3 },
+          (loc: any) => {
+            setLiveLocation({
+              latitude: loc.coords.latitude,
+              longitude: loc.coords.longitude,
+            });
+          }
+        );
+      } catch (_) {}
+    })();
+
+    return () => {
+      magnetometerRef.current?.remove();
+      locationWatchRef.current?.remove();
+    };
+  }, [request?.id]);
+
+  // Derived AR values
+  const arBearing = useMemo(() => {
+    if (!liveLocation || !request) return null;
+    return calcBearing(
+      liveLocation.latitude,
+      liveLocation.longitude,
+      request.latitude,
+      request.longitude
+    );
+  }, [liveLocation?.latitude, liveLocation?.longitude, request?.latitude, request?.longitude]);
+
+  const arDistance = useMemo(() => {
+    if (!liveLocation || !request) return null;
+    return calcDistance(
+      liveLocation.latitude,
+      liveLocation.longitude,
+      request.latitude,
+      request.longitude
+    );
+  }, [liveLocation?.latitude, liveLocation?.longitude, request?.latitude, request?.longitude]);
+
+  // Arrow rotation: how far to rotate the up-arrow so it points toward target
+  const arrowRotation =
+    arBearing !== null ? (arBearing - deviceHeading + 360) % 360 : 0;
+
+  // Pulse animation for compass ring when very close
+  const pulseScale = useSharedValue(1);
+  useEffect(() => {
+    if (arDistance !== null && arDistance < 20) {
+      pulseScale.value = withRepeat(
+        withSequence(
+          withTiming(1.15, { duration: 600, easing: Easing.out(Easing.ease) }),
+          withTiming(1, { duration: 600, easing: Easing.in(Easing.ease) })
+        ),
+        -1
+      );
+    } else {
+      pulseScale.value = withTiming(1, { duration: 300 });
+    }
+  }, [arDistance !== null && arDistance < 20]);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
 
   if (!permission) {
     return (
@@ -85,18 +236,17 @@ export default function CameraScreen() {
     setIsCapturing(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     try {
-      // Snapshot GPS at the exact moment of capture for server-side verification
       if (Platform.OS !== "web") {
         try {
           const Location = require("expo-location");
-          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+          const loc = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.High,
+          });
           capturedLocationRef.current = {
             latitude: loc.coords.latitude,
             longitude: loc.coords.longitude,
           };
-        } catch (_) {
-          // keep the userLat/userLng fallback from navigation
-        }
+        } catch (_) {}
       } else if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -130,7 +280,6 @@ export default function CameraScreen() {
     if (!capturedUri || !id || isUploading) return;
     setIsUploading(true);
     try {
-      // Step 1: Upload photo and set status to "submitted"
       if (Platform.OS !== "web") {
         const file = new File(capturedUri);
         const uploadURL = await uploadFileToStorage(file);
@@ -139,19 +288,21 @@ export default function CameraScreen() {
         await submitPhoto(id, capturedUri);
       }
 
-      // Step 2: Complete submission and process payment via Stripe
       const baseUrl = getApiUrl();
       const capturedLocation = capturedLocationRef.current;
-      const paymentRes = await fetch(`${baseUrl}api/payments/complete-submission`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          requestId: id,
-          latitude: capturedLocation?.latitude,
-          longitude: capturedLocation?.longitude,
-        }),
-      });
+      const paymentRes = await fetch(
+        `${baseUrl}api/payments/complete-submission`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            requestId: id,
+            latitude: capturedLocation?.latitude,
+            longitude: capturedLocation?.longitude,
+          }),
+        }
+      );
 
       if (!paymentRes.ok) {
         const errorData = await paymentRes.json().catch(() => ({}));
@@ -163,7 +314,10 @@ export default function CameraScreen() {
             [{ text: "OK" }]
           );
         } else {
-          Alert.alert("Submission Failed", errorData.message || "Could not complete submission.");
+          Alert.alert(
+            "Submission Failed",
+            errorData.message || "Could not complete submission."
+          );
         }
         return;
       }
@@ -207,7 +361,12 @@ export default function CameraScreen() {
           style={StyleSheet.absoluteFill}
           contentFit="cover"
         />
-        <View style={[styles.previewOverlay, { paddingTop: insets.top + 16 + webInsetTop }]}>
+        <View
+          style={[
+            styles.previewOverlay,
+            { paddingTop: insets.top + 16 + webInsetTop },
+          ]}
+        >
           <View style={styles.previewHeader}>
             {request && (
               <View style={styles.requestHint}>
@@ -221,12 +380,18 @@ export default function CameraScreen() {
         <View
           style={[
             styles.previewActions,
-            { paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 16 },
+            {
+              paddingBottom:
+                Platform.OS === "web" ? 34 : insets.bottom + 16,
+            },
           ]}
         >
           <View style={styles.previewActionRow}>
             <Pressable
-              style={({ pressed }) => [styles.retakeBtn, pressed && { opacity: 0.7 }]}
+              style={({ pressed }) => [
+                styles.retakeBtn,
+                pressed && { opacity: 0.7 },
+              ]}
               onPress={handleRetake}
             >
               <Ionicons name="refresh" size={20} color="#fff" />
@@ -259,14 +424,27 @@ export default function CameraScreen() {
     );
   }
 
+  const showAR = Platform.OS !== "web" && !!request && arBearing !== null;
+
   return (
     <View style={styles.container}>
-      <CameraView
-        ref={cameraRef}
-        style={StyleSheet.absoluteFill}
-        facing={facing}
-      />
-      <View style={[styles.cameraOverlay, { paddingTop: insets.top + 8 + webInsetTop }]}>
+      <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing={facing} />
+
+      {/* Rule-of-thirds grid */}
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <View style={[styles.gridLine, styles.gridLineV, { left: "33.3%" }]} />
+        <View style={[styles.gridLine, styles.gridLineV, { left: "66.7%" }]} />
+        <View style={[styles.gridLine, styles.gridLineH, { top: "33.3%" }]} />
+        <View style={[styles.gridLine, styles.gridLineH, { top: "66.7%" }]} />
+      </View>
+
+      {/* Top bar */}
+      <View
+        style={[
+          styles.cameraOverlay,
+          { paddingTop: insets.top + 8 + webInsetTop },
+        ]}
+      >
         <View style={styles.cameraTopBar}>
           <Pressable onPress={() => router.back()} hitSlop={12}>
             <Ionicons name="close" size={30} color="#fff" />
@@ -284,33 +462,99 @@ export default function CameraScreen() {
         </View>
       </View>
 
+      {/* AR compass widget — top right below top bar */}
+      {showAR && (
+        <View
+          style={[
+            styles.arCompass,
+            { top: insets.top + 72 + webInsetTop },
+          ]}
+          pointerEvents="none"
+        >
+          <Animated.View style={[styles.arCompassRing, pulseStyle]}>
+            <View
+              style={{
+                transform: [{ rotate: `${arrowRotation}deg` }],
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons name="arrow-up" size={22} color={Colors.light.tint} />
+            </View>
+          </Animated.View>
+          <Text style={styles.arDistText}>
+            {arDistance !== null ? formatDist(arDistance) : "--"}
+          </Text>
+          <Text style={styles.arLabel}>TO PIN</Text>
+        </View>
+      )}
+
+      {/* Angle guide (center) */}
       {request && (
-        <View style={styles.guideOverlay}>
+        <View style={styles.guideOverlay} pointerEvents="none">
           {request.angle === "looking-up" && (
             <View style={styles.guideArrow}>
-              <Ionicons name="arrow-up" size={40} color="rgba(255,255,255,0.4)" />
+              <Ionicons
+                name="arrow-up"
+                size={40}
+                color="rgba(255,255,255,0.35)"
+              />
               <Text style={styles.guideText}>Point camera upward</Text>
             </View>
           )}
           {request.angle === "looking-down" && (
             <View style={styles.guideArrow}>
-              <Ionicons name="arrow-down" size={40} color="rgba(255,255,255,0.4)" />
+              <Ionicons
+                name="arrow-down"
+                size={40}
+                color="rgba(255,255,255,0.35)"
+              />
               <Text style={styles.guideText}>Point camera downward</Text>
             </View>
           )}
           {request.angle === "eye-level" && (
             <View style={styles.guideArrow}>
-              <Ionicons name="remove" size={40} color="rgba(255,255,255,0.4)" />
+              <Ionicons
+                name="remove"
+                size={40}
+                color="rgba(255,255,255,0.35)"
+              />
               <Text style={styles.guideText}>Keep camera at eye level</Text>
             </View>
           )}
         </View>
       )}
 
+      {/* Notes card — above bottom bar */}
+      {request?.notes ? (
+        <View
+          style={[
+            styles.notesCard,
+            {
+              bottom:
+                (Platform.OS === "web" ? 34 : insets.bottom) + 20 + 96,
+            },
+          ]}
+          pointerEvents="none"
+        >
+          <Ionicons
+            name="document-text-outline"
+            size={13}
+            color="rgba(255,255,255,0.75)"
+          />
+          <Text style={styles.notesText} numberOfLines={2}>
+            {request.notes}
+          </Text>
+        </View>
+      ) : null}
+
+      {/* Bottom capture bar */}
       <View
         style={[
           styles.cameraBottomBar,
-          { paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 20 },
+          {
+            paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 20,
+          },
         ]}
       >
         <View style={styles.captureRow}>
@@ -375,6 +619,22 @@ const styles = StyleSheet.create({
     color: Colors.light.tint,
     fontFamily: "Archivo_500Medium",
   },
+  // Grid
+  gridLine: {
+    position: "absolute",
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  gridLineV: {
+    width: 1,
+    top: 0,
+    bottom: 0,
+  },
+  gridLineH: {
+    height: 1,
+    left: 0,
+    right: 0,
+  },
+  // Top bar overlay
   cameraOverlay: {
     position: "absolute",
     top: 0,
@@ -402,6 +662,37 @@ const styles = StyleSheet.create({
     textTransform: "capitalize" as const,
     fontFamily: "Archivo_500Medium",
   },
+  // AR compass
+  arCompass: {
+    position: "absolute",
+    right: 16,
+    alignItems: "center",
+    zIndex: 20,
+  },
+  arCompassRing: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    borderWidth: 1.5,
+    borderColor: Colors.light.tint,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  arDistText: {
+    color: "#fff",
+    fontSize: 12,
+    fontFamily: "Archivo_600SemiBold",
+    marginTop: 5,
+  },
+  arLabel: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 9,
+    fontFamily: "Archivo_500Medium",
+    letterSpacing: 0.8,
+    marginTop: 1,
+  },
+  // Angle guide
   guideOverlay: {
     position: "absolute",
     top: 0,
@@ -416,10 +707,33 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   guideText: {
-    color: "rgba(255,255,255,0.5)",
+    color: "rgba(255,255,255,0.45)",
     fontSize: 14,
     fontFamily: "Archivo_400Regular",
   },
+  // Notes card
+  notesCard: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  notesText: {
+    flex: 1,
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 13,
+    fontFamily: "Archivo_400Regular",
+    lineHeight: 18,
+  },
+  // Bottom bar
   cameraBottomBar: {
     position: "absolute",
     bottom: 0,
@@ -447,6 +761,7 @@ const styles = StyleSheet.create({
     borderRadius: 31,
     backgroundColor: "#fff",
   },
+  // Preview
   previewOverlay: {
     position: "absolute",
     top: 0,
@@ -458,21 +773,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     paddingHorizontal: 16,
-  },
-  previewBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  previewBtnText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600" as const,
-    fontFamily: "Archivo_500Medium",
   },
   previewActions: {
     position: "absolute",
