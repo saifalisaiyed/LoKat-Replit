@@ -141,7 +141,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRequests(): Promise<PhotoRequest[]> {
-    return db.select().from(photoRequests).orderBy(desc(photoRequests.createdAt));
+    return db
+      .select()
+      .from(photoRequests)
+      .where(eq(photoRequests.status, "open"))
+      .orderBy(desc(photoRequests.createdAt));
   }
 
   async getRequestById(id: string): Promise<PhotoRequest | undefined> {
