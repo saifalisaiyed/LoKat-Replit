@@ -14,7 +14,7 @@ export type Category =
   | "events";
 
 export const CATEGORIES: { key: Category; label: string; icon: string }[] = [
-  { key: "landmarks", label: "Landmarks", icon: "trophy-outline" },
+  { key: "landmarks", label: "Landmarks", icon: "flag-outline" },
   { key: "nature", label: "Nature", icon: "leaf-outline" },
   { key: "markets", label: "Markets", icon: "storefront-outline" },
   { key: "beaches", label: "Beaches & Water", icon: "umbrella-outline" },
