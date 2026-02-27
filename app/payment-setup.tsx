@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  Modal,
   Platform,
 } from "react-native";
+import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
@@ -19,38 +20,26 @@ export default function PaymentSetupScreen() {
   const insets = useSafeAreaInsets();
   const { refreshProfile } = useApp();
   const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<"idle" | "checking" | "done" | "error">("idle");
+  const [showWebView, setShowWebView] = useState(false);
+  const [webViewUrl, setWebViewUrl] = useState("");
+  const [webViewLoading, setWebViewLoading] = useState(true);
+  const [status, setStatus] = useState<"idle" | "done" | "error">("idle");
 
-  const handleSetupCard = async () => {
+  const handleAddCard = async () => {
     setIsLoading(true);
     setStatus("idle");
     try {
       const baseUrl = getApiUrl();
-      const res = await fetch(`${baseUrl}api/payments/setup-session`, {
+      const res = await fetch(`${baseUrl}api/payments/create-setup-intent`, {
         method: "POST",
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Failed to create setup session");
-      const { url } = await res.json();
+      if (!res.ok) throw new Error("Failed to create setup intent");
+      const { clientSecret, publishableKey } = await res.json();
 
-      await WebBrowser.openBrowserAsync(url, {
-        presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
-        toolbarColor: "#1A1B2E",
-      });
-
-      setStatus("checking");
-      const statusRes = await fetch(`${baseUrl}api/payments/payment-status`, {
-        credentials: "include",
-      });
-      const statusData = await statusRes.json();
-
-      if (statusData.hasPaymentMethod) {
-        await refreshProfile();
-        setStatus("done");
-        setTimeout(() => router.back(), 1200);
-      } else {
-        setStatus("error");
-      }
+      const url = `${baseUrl}card-setup?pk=${encodeURIComponent(publishableKey)}&secret=${encodeURIComponent(clientSecret)}`;
+      setWebViewUrl(url);
+      setShowWebView(true);
     } catch (e) {
       setStatus("error");
     } finally {
@@ -58,11 +47,26 @@ export default function PaymentSetupScreen() {
     }
   };
 
+  const handleWebViewMessage = async (event: { nativeEvent: { data: string } }) => {
+    try {
+      const msg = JSON.parse(event.nativeEvent.data);
+      if (msg.type === "success") {
+        setShowWebView(false);
+        setStatus("done");
+        await refreshProfile();
+        setTimeout(() => router.back(), 1000);
+      }
+    } catch {}
+  };
+
   const webTop = Platform.OS === "web" ? 67 : 0;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + webTop }]}>
-      <Pressable style={[styles.backBtn, { top: insets.top + webTop + 12 }]} onPress={() => router.back()}>
+      <Pressable
+        style={[styles.backBtn, { top: insets.top + webTop + 12 }]}
+        onPress={() => router.back()}
+      >
         <Ionicons name="chevron-back" size={24} color="#fff" />
       </Pressable>
 
@@ -100,36 +104,63 @@ export default function PaymentSetupScreen() {
         {status === "error" && (
           <View style={styles.errorBanner}>
             <Ionicons name="alert-circle-outline" size={20} color="#f87171" />
-            <Text style={styles.errorText}>No card saved. Please try again.</Text>
+            <Text style={styles.errorText}>Something went wrong. Please try again.</Text>
           </View>
         )}
 
-        {status === "checking" ? (
-          <View style={styles.checkingRow}>
-            <ActivityIndicator color={Colors.light.tint} />
-            <Text style={styles.checkingText}>Verifying your card…</Text>
-          </View>
-        ) : (
-          <Pressable
-            style={[styles.btn, isLoading && styles.btnDisabled]}
-            onPress={handleSetupCard}
-            disabled={isLoading || status === "done"}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <>
-                <Ionicons name="lock-closed-outline" size={18} color="#fff" />
-                <Text style={styles.btnText}>Continue to Stripe</Text>
-              </>
-            )}
-          </Pressable>
-        )}
+        <Pressable
+          style={[styles.btn, (isLoading || status === "done") && styles.btnDisabled]}
+          onPress={handleAddCard}
+          disabled={isLoading || status === "done"}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Ionicons name="card-outline" size={18} color="#fff" />
+              <Text style={styles.btnText}>Add card</Text>
+            </>
+          )}
+        </Pressable>
 
         <Pressable style={styles.skipBtn} onPress={() => router.back()}>
           <Text style={styles.skipText}>Not now</Text>
         </Pressable>
       </View>
+
+      <Modal
+        visible={showWebView}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowWebView(false)}
+      >
+        <View style={styles.webViewContainer}>
+          <View style={[styles.webViewHeader, { paddingTop: insets.top + 12 }]}>
+            <Text style={styles.webViewTitle}>Add Card</Text>
+            <Pressable onPress={() => setShowWebView(false)} style={styles.webViewClose}>
+              <Ionicons name="close" size={22} color="#fff" />
+            </Pressable>
+          </View>
+
+          {webViewLoading && (
+            <View style={styles.webViewSpinner}>
+              <ActivityIndicator color={Colors.light.tint} size="large" />
+            </View>
+          )}
+
+          <WebView
+            source={{ uri: webViewUrl }}
+            style={styles.webView}
+            onMessage={handleWebViewMessage}
+            onLoadStart={() => setWebViewLoading(true)}
+            onLoadEnd={() => setWebViewLoading(false)}
+            javaScriptEnabled
+            domStorageEnabled
+            originWhitelist={["*"]}
+            mixedContentMode="always"
+          />
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -244,21 +275,47 @@ const styles = StyleSheet.create({
     color: "#f87171",
     fontSize: 14,
   },
-  checkingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  checkingText: {
-    color: "#A1A1AA",
-    fontSize: 14,
-  },
   skipBtn: {
     padding: 12,
   },
   skipText: {
     color: "#71717A",
     fontSize: 15,
+  },
+  webViewContainer: {
+    flex: 1,
+    backgroundColor: "#1A1B2E",
+  },
+  webViewHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.08)",
+  },
+  webViewTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#fff",
+    fontFamily: "Archivo_700Bold",
+  },
+  webViewClose: {
+    position: "absolute",
+    right: 16,
+    padding: 4,
+  },
+  webViewSpinner: {
+    position: "absolute",
+    top: "50%",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 10,
+  },
+  webView: {
+    flex: 1,
+    backgroundColor: "#1A1B2E",
   },
 });

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Add Card</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: #1A1B2E;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      padding: 32px 24px;
+    }
+    .icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(124,58,237,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .icon svg { width: 36px; height: 36px; color: #7C3AED; }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    p.sub {
+      font-size: 14px;
+      color: #A1A1AA;
+      text-align: center;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+    .card-wrapper {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(124,58,237,0.35);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    #card-element { width: 100%; }
+    #card-errors {
+      color: #f87171;
+      font-size: 13px;
+      margin-top: 10px;
+      min-height: 18px;
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      background: #7C3AED;
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    }
+    button:disabled { opacity: 0.55; cursor: default; }
+    .lock { font-size: 16px; }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .spinner.active { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .success-box {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+    }
+    .success-box.show { display: flex; }
+    .checkmark { font-size: 56px; }
+    .success-title { font-size: 20px; font-weight: 700; color: #22c55e; }
+    .powered {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #52525b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="form-view">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+      </div>
+      <h1>Add payment method</h1>
+      <p class="sub">Your card is only charged when a LoKater delivers your photo.</p>
+
+      <div class="card-wrapper">
+        <div id="card-element"></div>
+        <div id="card-errors"></div>
+      </div>
+
+      <button id="submit-btn" type="button">
+        <span class="lock">🔒</span>
+        <span id="btn-label">Save card securely</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+
+      <p class="powered">Secured by Stripe</p>
+    </div>
+
+    <div class="success-box" id="success-view">
+      <div class="checkmark">✅</div>
+      <div class="success-title">Card saved!</div>
+      <p class="sub">You're all set. Heading back…</p>
+    </div>
+  </div>
+
+  <script>
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name) || '';
+    }
+
+    const publishableKey = getParam('pk');
+    const clientSecret   = getParam('secret');
+
+    if (!publishableKey || !clientSecret) {
+      document.getElementById('card-errors').textContent = 'Missing payment configuration.';
+    } else {
+      const stripe = Stripe(publishableKey);
+      const elements = stripe.elements();
+
+      const card = elements.create('card', {
+        style: {
+          base: {
+            color: '#ffffff',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            fontSize: '16px',
+            fontSmoothing: 'antialiased',
+            '::placeholder': { color: '#71717a' },
+            iconColor: '#7C3AED',
+          },
+          invalid: { color: '#f87171', iconColor: '#f87171' },
+        },
+      });
+      card.mount('#card-element');
+
+      card.on('change', (event) => {
+        document.getElementById('card-errors').textContent = event.error ? event.error.message : '';
+      });
+
+      const btn = document.getElementById('submit-btn');
+      const spinner = document.getElementById('spinner');
+      const btnLabel = document.getElementById('btn-label');
+
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        spinner.classList.add('active');
+        btnLabel.style.display = 'none';
+        document.getElementById('card-errors').textContent = '';
+
+        try {
+          const result = await stripe.confirmCardSetup(clientSecret, {
+            payment_method: { card },
+          });
+
+          if (result.error) {
+            document.getElementById('card-errors').textContent = result.error.message;
+            btn.disabled = false;
+            spinner.classList.remove('active');
+            btnLabel.style.display = '';
+          } else {
+            document.getElementById('form-view').style.display = 'none';
+            document.getElementById('success-view').classList.add('show');
+
+            if (window.ReactNativeWebView) {
+              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'success' }));
+            } else {
+              setTimeout(() => { window.location.href = '/payment-success'; }, 1000);
+            }
+          }
+        } catch (err) {
+          document.getElementById('card-errors').textContent = 'An unexpected error occurred.';
+          btn.disabled = false;
+          spinner.classList.remove('active');
+          btnLabel.style.display = '';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

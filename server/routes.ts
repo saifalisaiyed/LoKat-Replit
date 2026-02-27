@@ -1,11 +1,13 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "node:http";
+import * as fs from "fs";
+import * as path from "path";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import { storage, verifyPassword, hashPassword } from "./storage";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { getUncachableStripeClient } from "./stripeClient";
+import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { getUncachableResendClient } from "./resend";
 
 declare module "express-session" {
@@ -804,6 +806,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json({ publishableKey: key });
     } catch (e) {
       return res.status(500).json({ message: "Could not get Stripe key" });
+    }
+  });
+
+  // Create a SetupIntent so the frontend can collect card details natively
+  app.post("/api/payments/create-setup-intent", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const stripe = await getUncachableStripeClient();
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email || `${user.username}@lokat.app`,
+          metadata: { userId: user.id, platform: "lokat" },
+        });
+        customerId = customer.id;
+        await storage.updateUserStripeCustomerId(user.id, customerId);
+      }
+
+      const setupIntent = await stripe.setupIntents.create({
+        customer: customerId,
+        payment_method_types: ["card"],
+        usage: "off_session",
+        metadata: { userId: user.id, platform: "lokat" },
+      });
+
+      const publishableKey = await getStripePublishableKey();
+
+      return res.json({
+        clientSecret: setupIntent.client_secret,
+        publishableKey,
+      });
+    } catch (e: any) {
+      console.error("Create setup intent error:", e.message);
+      return res.status(500).json({ message: "Failed to create setup intent" });
+    }
+  });
+
+  // Serve the in-app card setup HTML page (used by WebView)
+  app.get("/card-setup", (_req: Request, res: Response) => {
+    try {
+      const templatePath = path.resolve(process.cwd(), "server", "templates", "card-setup.html");
+      const html = fs.readFileSync(templatePath, "utf-8");
+      res.setHeader("Content-Type", "text/html");
+      return res.send(html);
+    } catch (e) {
+      return res.status(500).send("Card setup page not found");
     }
   });
 
