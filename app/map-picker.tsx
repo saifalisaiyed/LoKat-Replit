@@ -13,47 +13,33 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { getApiUrl } from "@/lib/query-client";
 import { setPickedLocation } from "@/lib/mapPickerStore";
-import Colors from "@/constants/colors";
+
+const PURPLE = "#7C3AED";
 
 function Crosshair() {
+  const SIZE = 64;
+  const GAP = 10;
+  const THICKNESS = 2.5;
+  const DOT = 8;
+
   return (
-    <View style={ch.root} pointerEvents="none">
-      <View style={ch.lineH} />
-      <View style={ch.lineV} />
-      <View style={ch.circle} />
+    <View style={{ width: SIZE, height: SIZE, alignItems: "center", justifyContent: "center" }}>
+      {/* Shadow lines for visibility on light maps */}
+      <View style={{ position: "absolute", width: SIZE, height: THICKNESS + 2, backgroundColor: "rgba(0,0,0,0.25)" }} />
+      <View style={{ position: "absolute", width: THICKNESS + 2, height: SIZE, backgroundColor: "rgba(0,0,0,0.25)" }} />
+      {/* Gap cutout — left */}
+      <View style={{ position: "absolute", left: 0, width: SIZE / 2 - GAP, height: THICKNESS, backgroundColor: PURPLE }} />
+      {/* Gap cutout — right */}
+      <View style={{ position: "absolute", right: 0, width: SIZE / 2 - GAP, height: THICKNESS, backgroundColor: PURPLE }} />
+      {/* Gap cutout — top */}
+      <View style={{ position: "absolute", top: 0, width: THICKNESS, height: SIZE / 2 - GAP, backgroundColor: PURPLE }} />
+      {/* Gap cutout — bottom */}
+      <View style={{ position: "absolute", bottom: 0, width: THICKNESS, height: SIZE / 2 - GAP, backgroundColor: PURPLE }} />
+      {/* Center dot */}
+      <View style={{ width: DOT, height: DOT, borderRadius: DOT / 2, backgroundColor: PURPLE, borderWidth: 2, borderColor: "#fff" }} />
     </View>
   );
 }
-
-const CROSSHAIR_SIZE = 56;
-const ch = StyleSheet.create({
-  root: {
-    width: CROSSHAIR_SIZE,
-    height: CROSSHAIR_SIZE,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  lineH: {
-    position: "absolute",
-    width: CROSSHAIR_SIZE,
-    height: 1.5,
-    backgroundColor: Colors.light.primary,
-  },
-  lineV: {
-    position: "absolute",
-    width: 1.5,
-    height: CROSSHAIR_SIZE,
-    backgroundColor: Colors.light.primary,
-  },
-  circle: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.light.primary,
-    borderWidth: 2,
-    borderColor: "#fff",
-  },
-});
 
 let NativeMapView: any = null;
 if (Platform.OS !== "web") {
@@ -70,10 +56,7 @@ export default function MapPickerScreen() {
   const initialLat = parseFloat(paramLat || "40.7580");
   const initialLng = parseFloat(paramLng || "-73.9855");
 
-  const [centerCoord, setCenterCoord] = useState({
-    lat: initialLat,
-    lng: initialLng,
-  });
+  const [centerCoord, setCenterCoord] = useState({ lat: initialLat, lng: initialLng });
   const [confirming, setConfirming] = useState(false);
   const iframeRef = useRef<any>(null);
 
@@ -81,8 +64,7 @@ export default function MapPickerScreen() {
     if (Platform.OS !== "web") return;
     const handler = (event: MessageEvent) => {
       try {
-        const data =
-          typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
         if (data.type === "centerChange") {
           setCenterCoord({ lat: data.lat, lng: data.lng });
         }
@@ -150,6 +132,36 @@ export default function MapPickerScreen() {
 </body>
 </html>`;
 
+  const buttons = (
+    <View style={[styles.buttonRow, { bottom: insets.bottom + 24 }]}>
+      <Pressable style={styles.cancelPill} onPress={() => router.back()}>
+        <Ionicons name="close" size={18} color="#fff" />
+        <Text style={styles.cancelPillText}>Cancel</Text>
+      </Pressable>
+      <Pressable
+        style={[styles.confirmPill, confirming && { opacity: 0.7 }]}
+        onPress={handleConfirm}
+        disabled={confirming}
+      >
+        {confirming ? (
+          <ActivityIndicator color="#fff" size="small" />
+        ) : (
+          <>
+            <Ionicons name="checkmark" size={18} color="#fff" />
+            <Text style={styles.confirmPillText}>Set Location</Text>
+          </>
+        )}
+      </Pressable>
+    </View>
+  );
+
+  const overlay = (
+    <View style={[StyleSheet.absoluteFill, styles.overlay]} pointerEvents="none">
+      <Crosshair />
+      <Text style={styles.hintText}>Move map to select spot</Text>
+    </View>
+  );
+
   if (Platform.OS === "web") {
     return (
       <View style={styles.container}>
@@ -159,32 +171,8 @@ export default function MapPickerScreen() {
           style={{ width: "100%", height: "100%", border: "none" } as any}
           title="Pick location"
         />
-        <View style={[StyleSheet.absoluteFill, styles.overlay]} pointerEvents="none">
-          <Crosshair />
-          <Text style={styles.hintText}>Move map to select spot</Text>
-        </View>
-        <Pressable
-          style={[styles.cancelBtn, { top: insets.top + 12 }]}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="chevron-back" size={22} color="#fff" />
-        </Pressable>
-        <View
-          style={[styles.bottomBar, { paddingBottom: insets.bottom + 20 }]}
-          pointerEvents="box-none"
-        >
-          <Pressable
-            style={[styles.confirmBtn, confirming && styles.confirmBtnDisabled]}
-            onPress={handleConfirm}
-            disabled={confirming}
-          >
-            {confirming ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.confirmText}>Confirm Location</Text>
-            )}
-          </Pressable>
-        </View>
+        {overlay}
+        {buttons}
       </View>
     );
   }
@@ -207,32 +195,8 @@ export default function MapPickerScreen() {
           setCenterCoord({ lat: region.latitude, lng: region.longitude });
         }}
       />
-
-      <View style={[StyleSheet.absoluteFill, styles.overlay]} pointerEvents="none">
-        <Crosshair />
-        <Text style={styles.hintText}>Move map to select spot</Text>
-      </View>
-
-      <Pressable
-        style={[styles.cancelBtn, { top: insets.top + 12 }]}
-        onPress={() => router.back()}
-      >
-        <Ionicons name="chevron-back" size={22} color="#fff" />
-      </Pressable>
-
-      <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 20 }]}>
-        <Pressable
-          style={[styles.confirmBtn, confirming && styles.confirmBtnDisabled]}
-          onPress={handleConfirm}
-          disabled={confirming}
-        >
-          {confirming ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.confirmText}>Confirm Location</Text>
-          )}
-        </Pressable>
-      </View>
+      {overlay}
+      {buttons}
     </View>
   );
 }
@@ -248,57 +212,52 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   hintText: {
-    marginTop: 12,
-    fontSize: 13,
+    marginTop: 14,
+    fontSize: 12,
     color: "#fff",
     fontFamily: "Archivo_500Medium",
-    backgroundColor: "rgba(0,0,0,0.50)",
+    backgroundColor: "rgba(0,0,0,0.55)",
     paddingHorizontal: 14,
     paddingVertical: 5,
     borderRadius: 20,
     overflow: "hidden",
   },
-  cancelBtn: {
+  buttonRow: {
     position: "absolute",
-    left: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0,0,0,0.55)",
-    alignItems: "center",
-    justifyContent: "center",
+    left: 20,
+    right: 20,
+    flexDirection: "row",
+    gap: 12,
     zIndex: 20,
   },
-  bottomBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    zIndex: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  confirmBtn: {
-    backgroundColor: Colors.light.primary,
-    borderRadius: 14,
-    height: 52,
+  cancelPill: {
+    flex: 1,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 6,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(0,0,0,0.60)",
   },
-  confirmBtnDisabled: {
-    opacity: 0.6,
-  },
-  confirmText: {
+  cancelPillText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 15,
+    fontFamily: "Archivo_500Medium",
+  },
+  confirmPill: {
+    flex: 2,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: PURPLE,
+  },
+  confirmPillText: {
+    color: "#fff",
+    fontSize: 15,
     fontFamily: "Archivo_600SemiBold",
   },
 });

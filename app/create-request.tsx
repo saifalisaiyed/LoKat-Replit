@@ -117,6 +117,7 @@ export default function CreateRequestScreen() {
   const [geocoding, setGeocoding] = useState(needsGeocode);
   const [currentLat, setCurrentLat] = useState(parseFloat(lat || "40.7580"));
   const [currentLng, setCurrentLng] = useState(parseFloat(lng || "-73.9855"));
+  const [isCustomPinned, setIsCustomPinned] = useState(false);
 
   useEffect(() => {
     if (!needsGeocode) return;
@@ -145,6 +146,7 @@ export default function CreateRequestScreen() {
         setCurrentLng(picked.lng);
         setResolvedName(picked.name);
         setResolvedAddress(picked.address);
+        setIsCustomPinned(true);
       }
     }, [])
   );
@@ -256,7 +258,7 @@ export default function CreateRequestScreen() {
           <View style={styles.locationDot} />
           <View style={styles.locationInfo}>
             {geocoding ? (
-              <ActivityIndicator size="small" color={Colors.light.primary} />
+              <ActivityIndicator size="small" color={Colors.light.tint} />
             ) : (
               <>
                 <Text style={styles.locationName}>{locationName}</Text>
@@ -266,28 +268,49 @@ export default function CreateRequestScreen() {
           </View>
         </View>
 
-        <Pressable
-          style={({ pressed }) => [styles.pinpointCard, pressed && { opacity: 0.75 }]}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push({
-              pathname: "/map-picker",
-              params: {
-                lat: currentLat.toString(),
-                lng: currentLng.toString(),
-              },
-            });
-          }}
-        >
-          <View style={styles.pinpointIconWrap}>
-            <Ionicons name="map-outline" size={18} color={Colors.light.primary} />
+        {isCustomPinned ? (
+          <View style={styles.pinnedRow}>
+            <View style={styles.pinnedIconWrap}>
+              <Ionicons name="location" size={16} color="#fff" />
+            </View>
+            <View style={styles.pinnedBody}>
+              <Text style={styles.pinnedLabel}>Exact spot pinned</Text>
+              <Text style={styles.pinnedSub}>{resolvedName}</Text>
+            </View>
+            <Pressable
+              style={styles.pinnedChangeBtn}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push({
+                  pathname: "/map-picker",
+                  params: { lat: currentLat.toString(), lng: currentLng.toString() },
+                });
+              }}
+            >
+              <Text style={styles.pinnedChangeBtnText}>Change</Text>
+            </Pressable>
           </View>
-          <View style={styles.pinpointCardBody}>
-            <Text style={styles.pinpointCardTitle}>Select exact spot on map</Text>
-            <Text style={styles.pinpointCardSub}>Optional — refine the pin location</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={16} color={Colors.light.textSecondary} />
-        </Pressable>
+        ) : (
+          <Pressable
+            style={({ pressed }) => [styles.pinpointCard, pressed && { opacity: 0.75 }]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push({
+                pathname: "/map-picker",
+                params: { lat: currentLat.toString(), lng: currentLng.toString() },
+              });
+            }}
+          >
+            <View style={styles.pinpointIconWrap}>
+              <Ionicons name="map-outline" size={18} color={Colors.light.tint} />
+            </View>
+            <View style={styles.pinpointCardBody}>
+              <Text style={styles.pinpointCardTitle}>Select exact spot on map</Text>
+              <Text style={styles.pinpointCardSub}>Optional — refine the pin location</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={Colors.light.textSecondary} />
+          </Pressable>
+        )}
 
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Orientation</Text>
@@ -641,6 +664,50 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
+  pinnedRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#EDFBF0",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#BBF7D0",
+  },
+  pinnedIconWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#16A34A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pinnedBody: {
+    flex: 1,
+    gap: 1,
+  },
+  pinnedLabel: {
+    fontSize: 13,
+    color: "#15803D",
+    fontFamily: "Archivo_600SemiBold",
+  },
+  pinnedSub: {
+    fontSize: 12,
+    color: "#4B5563",
+    fontFamily: "Archivo_400Regular",
+  },
+  pinnedChangeBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    backgroundColor: "#D1FAE5",
+  },
+  pinnedChangeBtnText: {
+    fontSize: 12,
+    color: "#15803D",
+    fontFamily: "Archivo_600SemiBold",
+  },
   pinpointCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -666,7 +733,7 @@ const styles = StyleSheet.create({
   },
   pinpointCardTitle: {
     fontSize: 14,
-    color: Colors.light.primary,
+    color: Colors.light.tint,
     fontFamily: "Archivo_600SemiBold",
   },
   pinpointCardSub: {
