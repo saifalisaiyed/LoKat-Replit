@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
@@ -149,7 +149,20 @@ export default function LoKaterModeScreen() {
   const watchRef = useRef<any>(null);
   const lastFetchOriginRef = useRef<{ latitude: number; longitude: number } | null>(null);
 
-  const request = requests.find((r) => r.id === id);
+  const [freshRequest, setFreshRequest] = useState<any | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!id) return;
+      const url = new URL(`/api/requests/${id}`, getApiUrl());
+      fetch(url.toString(), { credentials: "include" })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setFreshRequest(data); })
+        .catch(() => {});
+    }, [id])
+  );
+
+  const request = freshRequest || requests.find((r) => r.id === id);
 
   useEffect(() => {
     startTracking();

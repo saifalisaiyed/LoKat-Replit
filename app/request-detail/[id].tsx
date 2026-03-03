@@ -156,7 +156,6 @@ export default function RequestDetailScreen() {
       const result = await res.json();
       setIsAccepting(false);
       if (res.ok) {
-        refreshRequests();
         router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
       } else {
         Alert.alert("Could not accept", result.message || "Failed to accept request");
