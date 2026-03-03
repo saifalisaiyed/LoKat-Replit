@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -13,11 +13,12 @@ import {
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
+import { consumePickedLocation } from "@/lib/mapPickerStore";
 import Colors from "@/constants/colors";
 import { type Orientation, type Angle, type Timing, type Category } from "@/lib/types";
 
@@ -114,6 +115,8 @@ export default function CreateRequestScreen() {
   const [resolvedName, setResolvedName] = useState(paramName && paramName !== "Custom Location" ? paramName : "Selected Location");
   const [resolvedAddress, setResolvedAddress] = useState(paramAddr && paramAddr !== "New York, NY" ? paramAddr : "");
   const [geocoding, setGeocoding] = useState(needsGeocode);
+  const [currentLat, setCurrentLat] = useState(parseFloat(lat || "40.7580"));
+  const [currentLng, setCurrentLng] = useState(parseFloat(lng || "-73.9855"));
 
   useEffect(() => {
     if (!needsGeocode) return;
@@ -133,6 +136,18 @@ export default function CreateRequestScreen() {
       .catch(() => {})
       .finally(() => setGeocoding(false));
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const picked = consumePickedLocation();
+      if (picked) {
+        setCurrentLat(picked.lat);
+        setCurrentLng(picked.lng);
+        setResolvedName(picked.name);
+        setResolvedAddress(picked.address);
+      }
+    }, [])
+  );
 
   const locationName = resolvedName;
   const address = resolvedAddress;
@@ -162,8 +177,8 @@ export default function CreateRequestScreen() {
     setIsSubmitting(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     await createRequest({
-      latitude: parseFloat(lat || "40.7580"),
-      longitude: parseFloat(lng || "-73.9855"),
+      latitude: currentLat,
+      longitude: currentLng,
       locationName,
       address,
       category,
@@ -249,7 +264,22 @@ export default function CreateRequestScreen() {
               </>
             )}
           </View>
-          <Ionicons name="chevron-forward" size={16} color={Colors.light.textSecondary} />
+          <Pressable
+            style={styles.mapPickerBtn}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push({
+                pathname: "/map-picker",
+                params: {
+                  lat: currentLat.toString(),
+                  lng: currentLng.toString(),
+                },
+              });
+            }}
+            hitSlop={8}
+          >
+            <Ionicons name="map-outline" size={20} color={Colors.light.primary} />
+          </Pressable>
         </View>
 
         <View style={styles.section}>
@@ -603,6 +633,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
+  },
+  mapPickerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F0EAFF",
+    alignItems: "center",
+    justifyContent: "center",
   },
   section: {
     gap: 10,

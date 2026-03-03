@@ -140,6 +140,10 @@ function RootLayoutNav() {
       <Stack.Screen name="feedback" options={{ headerShown: false }} />
       <Stack.Screen name="privacy-policy" options={{ headerShown: false }} />
       <Stack.Screen name="terms" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="map-picker"
+        options={{ headerShown: false, presentation: "fullScreenModal" }}
+      />
     </Stack>
   );
 }
