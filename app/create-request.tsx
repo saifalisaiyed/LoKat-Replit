@@ -264,23 +264,25 @@ export default function CreateRequestScreen() {
               </>
             )}
           </View>
-          <Pressable
-            style={styles.mapPickerBtn}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push({
-                pathname: "/map-picker",
-                params: {
-                  lat: currentLat.toString(),
-                  lng: currentLng.toString(),
-                },
-              });
-            }}
-            hitSlop={8}
-          >
-            <Ionicons name="map-outline" size={20} color={Colors.light.primary} />
-          </Pressable>
         </View>
+
+        <Pressable
+          style={styles.pinpointRow}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push({
+              pathname: "/map-picker",
+              params: {
+                lat: currentLat.toString(),
+                lng: currentLng.toString(),
+              },
+            });
+          }}
+        >
+          <Ionicons name="map-outline" size={15} color={Colors.light.primary} />
+          <Text style={styles.pinpointText}>Pinpoint exact spot on map</Text>
+          <Text style={styles.pinpointOptional}>Optional</Text>
+        </Pressable>
 
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Orientation</Text>
@@ -634,13 +636,28 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
-  mapPickerBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F0EAFF",
+  pinpointRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  pinpointText: {
+    fontSize: 13,
+    color: Colors.light.primary,
+    fontFamily: "Archivo_500Medium",
+    flex: 1,
+  },
+  pinpointOptional: {
+    fontSize: 11,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+    backgroundColor: "#F0F0F0",
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 10,
+    overflow: "hidden",
   },
   section: {
     gap: 10,

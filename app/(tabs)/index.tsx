@@ -342,53 +342,60 @@ export default function HomeScreen() {
     });
   }, []);
 
+  const myCoordsRef = useRef(myCoords);
+  useEffect(() => { myCoordsRef.current = myCoords; }, [myCoords]);
+
+  const animateMapToCoords = useCallback((latitude: number, longitude: number) => {
+    if (!mapRef.current) return;
+    if (mapRef.current.animateCamera) {
+      mapRef.current.animateCamera(
+        { center: { latitude, longitude }, zoom: 15, altitude: 1000, pitch: 0, heading: 0 },
+        { duration: 600 }
+      );
+    } else if (mapRef.current.animateToRegion) {
+      mapRef.current.animateToRegion(
+        { latitude, longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 },
+        500
+      );
+    } else if (mapRef.current.centerToLocation) {
+      mapRef.current.centerToLocation(latitude, longitude);
+    }
+  }, []);
+
   const handleCenterLocation = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
       if (Platform.OS === "web") {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              if (mapRef.current && mapRef.current.centerToLocation) {
-                mapRef.current.centerToLocation(pos.coords.latitude, pos.coords.longitude);
-              }
-            },
+            (pos) => animateMapToCoords(pos.coords.latitude, pos.coords.longitude),
             () => {},
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: false, timeout: 3000 }
           );
         }
       } else {
+        if (myCoordsRef.current) {
+          animateMapToCoords(myCoordsRef.current.latitude, myCoordsRef.current.longitude);
+          return;
+        }
         const Location = require("expo-location");
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === "granted") {
-          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-          if (mapRef.current) {
-            if (mapRef.current.animateCamera) {
-              mapRef.current.animateCamera({
-                center: {
-                  latitude: loc.coords.latitude,
-                  longitude: loc.coords.longitude,
-                },
-                zoom: 15,
-                altitude: 1000,
-                pitch: 0,
-                heading: 0,
-              }, { duration: 600 });
-            } else if (mapRef.current.animateToRegion) {
-              mapRef.current.animateToRegion({
-                latitude: loc.coords.latitude,
-                longitude: loc.coords.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }, 500);
-            }
+          const last = await Location.getLastKnownPositionAsync();
+          if (last) {
+            animateMapToCoords(last.coords.latitude, last.coords.longitude);
+            setMyCoords({ latitude: last.coords.latitude, longitude: last.coords.longitude });
+            return;
           }
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Lowest });
+          animateMapToCoords(loc.coords.latitude, loc.coords.longitude);
+          setMyCoords({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
         }
       }
     } catch (e) {
       console.log("Location center error:", e);
     }
-  }, []);
+  }, [animateMapToCoords]);
 
   const [remoteResults, setRemoteResults] = useState<typeof POPULAR_LOCATIONS>([]);
   const [isSearching, setIsSearching] = useState(false);
