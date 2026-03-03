@@ -20,21 +20,32 @@ import type { ChatMessage } from "@/lib/types";
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { user, getMessages, sendMessage, requests } = useApp();
+  const { user, getMessages, sendMessage } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [requestName, setRequestName] = useState("Chat");
+  const [otherName, setOtherName] = useState("User");
   const flatListRef = useRef<FlatList>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const request = requests.find((r) => r.id === id);
-  const otherName = request
-    ? user?.id === request.creatorId
-      ? "LoKater"
-      : "Seeker"
-    : "User";
+  useEffect(() => {
+    if (!id) return;
+    const { getApiUrl } = require("@/lib/query-client");
+    const url = new URL(`/api/requests/${id}`, getApiUrl());
+    fetch(url.toString(), { credentials: "include" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) {
+          setRequestName(data.locationName || "Chat");
+          const isCreator = user?.id === data.creatorId;
+          setOtherName(isCreator ? "LoKater" : "Seeker");
+        }
+      })
+      .catch(() => {});
+  }, [id, user?.id]);
 
   const loadMessages = useCallback(async () => {
     if (!id) return;
@@ -87,7 +98,7 @@ export default function ChatScreen() {
           <Ionicons name="arrow-back" size={22} color={Colors.light.text} />
         </Pressable>
         <View style={styles.headerInfo}>
-          <Text style={styles.headerTitle}>{request?.locationName || "Chat"}</Text>
+          <Text style={styles.headerTitle}>{requestName}</Text>
           <Text style={styles.headerSub}>{otherName}</Text>
         </View>
       </View>

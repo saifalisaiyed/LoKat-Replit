@@ -486,7 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/messages/:requestId", requireAuth, async (req: Request, res: Response) => {
+  app.get("/api/messages/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const request = await storage.getRequestById(paramId(req));
       if (!request) return res.status(404).json({ message: "Request not found" });
@@ -503,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/messages/:requestId", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/messages/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const { text } = req.body;
       if (!text || !text.trim()) {

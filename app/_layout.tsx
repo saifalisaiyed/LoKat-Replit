@@ -144,6 +144,7 @@ function RootLayoutNav() {
         name="map-picker"
         options={{ headerShown: false, presentation: "fullScreenModal" }}
       />
+      <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }
