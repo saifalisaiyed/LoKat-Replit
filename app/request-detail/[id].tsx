@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import {
 import { Image } from "expo-image";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
@@ -71,7 +71,7 @@ function DetailRow({ icon, label, value }: { icon: string; label: string; value:
 export default function RequestDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, acceptRequest, abandonRequest, deleteRequest, updateRequestNote, activeRequestId, user, isAuthenticated } = useApp();
+  const { requests, abandonRequest, deleteRequest, updateRequestNote, refreshRequests, user, isAuthenticated } = useApp();
   const mapRef = useRef<any>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
@@ -79,8 +79,23 @@ export default function RequestDetailScreen() {
   const [editingNote, setEditingNote] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [isSavingNote, setIsSavingNote] = useState(false);
+  const [freshRequest, setFreshRequest] = useState<any | null>(null);
+  const [loadingFresh, setLoadingFresh] = useState(true);
 
-  const request = requests.find((r) => r.id === id);
+  useFocusEffect(
+    useCallback(() => {
+      if (!id) return;
+      setLoadingFresh(true);
+      const url = new URL(`/api/requests/${id}`, getApiUrl());
+      fetch(url.toString(), { credentials: "include" })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setFreshRequest(data); })
+        .catch(() => {})
+        .finally(() => setLoadingFresh(false));
+    }, [id])
+  );
+
+  const request = freshRequest || requests.find((r) => r.id === id);
   const userId = user?.id;
   const isMyRequest = request?.creatorId === userId;
   const isActiveLoKater = request?.status === "accepted" && request?.acceptedBy === userId;
@@ -90,10 +105,16 @@ export default function RequestDetailScreen() {
   if (!request) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <Text style={styles.notFoundText}>Request not found</Text>
-        <Pressable onPress={() => router.back()}>
-          <Text style={styles.backLink}>Go back</Text>
-        </Pressable>
+        {loadingFresh ? (
+          <ActivityIndicator size="large" color={Colors.light.tint} />
+        ) : (
+          <>
+            <Text style={styles.notFoundText}>Request not found</Text>
+            <Pressable onPress={() => router.back()}>
+              <Text style={styles.backLink}>Go back</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     );
   }
@@ -126,6 +147,7 @@ export default function RequestDetailScreen() {
       const result = await res.json();
       setIsAccepting(false);
       if (res.ok) {
+        refreshRequests();
         router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
       } else {
         Alert.alert("Could not accept", result.message || "Failed to accept request");
@@ -188,19 +210,15 @@ export default function RequestDetailScreen() {
           mapRef={mapRef}
           onMapPress={() => {}}
         />
-        <Pressable
-          style={[styles.backBtn, { top: insets.top + 12 + webInsetTop }]}
-          onPress={() => {
-            if (isActiveLoKater) {
-              router.replace({ pathname: "/lokater-mode/[id]", params: { id: request.id } });
-            } else {
-              router.back();
-            }
-          }}
-          hitSlop={12}
-        >
-          <Ionicons name="arrow-back" size={22} color={Colors.light.text} />
-        </Pressable>
+        {!isActiveLoKater && (
+          <Pressable
+            style={[styles.backBtn, { top: insets.top + 12 + webInsetTop }]}
+            onPress={() => router.back()}
+            hitSlop={12}
+          >
+            <Ionicons name="arrow-back" size={22} color={Colors.light.text} />
+          </Pressable>
+        )}
         {isMyRequest && request.status === "open" && (
           <Pressable
             style={[styles.deleteBtn, { top: insets.top + 12 + webInsetTop }]}
