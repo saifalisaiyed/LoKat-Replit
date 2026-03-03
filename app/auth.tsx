@@ -99,6 +99,8 @@ export default function AuthScreen() {
   const [fpLoading, setFpLoading] = useState(false);
   const [fpError, setFpError] = useState("");
   const [fpSuccess, setFpSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showFpPassword, setShowFpPassword] = useState(false);
 
   const openForgot = () => {
     setFpStep("email");
@@ -312,15 +314,28 @@ export default function AuthScreen() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder={mode === "register" ? "Min 6 characters" : "Enter your password"}
-              placeholderTextColor="#B0B0B0"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoComplete={mode === "register" ? "new-password" : "current-password"}
-            />
+            <View style={styles.passwordRow}>
+              <TextInput
+                style={[styles.input, styles.passwordInput]}
+                placeholder={mode === "register" ? "Min 6 characters" : "Enter your password"}
+                placeholderTextColor="#B0B0B0"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoComplete={mode === "register" ? "new-password" : "current-password"}
+              />
+              <Pressable
+                onPress={() => setShowPassword((v) => !v)}
+                style={styles.eyeBtn}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#999"
+                />
+              </Pressable>
+            </View>
           </View>
 
           {mode === "login" && (
@@ -538,14 +553,27 @@ export default function AuthScreen() {
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>New password</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Min 6 characters"
-                    placeholderTextColor="#B0B0B0"
-                    value={fpNewPassword}
-                    onChangeText={setFpNewPassword}
-                    secureTextEntry
-                  />
+                  <View style={styles.passwordRow}>
+                    <TextInput
+                      style={[styles.input, styles.passwordInput]}
+                      placeholder="Min 6 characters"
+                      placeholderTextColor="#B0B0B0"
+                      value={fpNewPassword}
+                      onChangeText={setFpNewPassword}
+                      secureTextEntry={!showFpPassword}
+                    />
+                    <Pressable
+                      onPress={() => setShowFpPassword((v) => !v)}
+                      style={styles.eyeBtn}
+                      hitSlop={8}
+                    >
+                      <Ionicons
+                        name={showFpPassword ? "eye-off-outline" : "eye-outline"}
+                        size={20}
+                        color="#999"
+                      />
+                    </Pressable>
+                  </View>
                 </View>
                 {fpError ? (
                   <View style={[styles.errorRow, { marginBottom: 8 }]}>
@@ -634,6 +662,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#EBEBEB",
     fontFamily: "Archivo_400Regular",
+  },
+  passwordRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8F8FA",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#EBEBEB",
+  },
+  passwordInput: {
+    flex: 1,
+    borderWidth: 0,
+    backgroundColor: "transparent",
+  },
+  eyeBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 14,
   },
   phoneRow: {
     flexDirection: "row",

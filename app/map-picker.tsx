@@ -15,69 +15,22 @@ import { getApiUrl } from "@/lib/query-client";
 import { setPickedLocation } from "@/lib/mapPickerStore";
 
 const PURPLE = "#7C3AED";
-const ARM = 22;
-const THICKNESS = 3;
-const FRAME = 88;
-const SHADOW_COLOR = "rgba(0,0,0,0.35)";
+const PIN_SIZE = 48;
 
-function Corner({ top, left, right, bottom }: { top?: boolean; left?: boolean; right?: boolean; bottom?: boolean }) {
-  const h: any = {
-    position: "absolute",
-    width: ARM,
-    height: THICKNESS,
-    backgroundColor: PURPLE,
-    ...(top !== undefined ? { top: 0 } : { bottom: 0 }),
-    ...(left !== undefined ? { left: 0 } : { right: 0 }),
-    shadowColor: "#000",
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 3,
-  };
-  const v: any = {
-    position: "absolute",
-    width: THICKNESS,
-    height: ARM,
-    backgroundColor: PURPLE,
-    ...(top !== undefined ? { top: 0 } : { bottom: 0 }),
-    ...(left !== undefined ? { left: 0 } : { right: 0 }),
-    shadowColor: "#000",
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 3,
-  };
+function CenterPin() {
   return (
-    <>
-      <View style={h} />
-      <View style={v} />
-    </>
-  );
-}
-
-function ViewfinderFrame() {
-  return (
-    <View style={{ width: FRAME, height: FRAME }}>
-      <Corner top left />
-      <Corner top right />
-      <Corner bottom left />
-      <Corner bottom right />
-      {/* Center dot */}
-      <View style={{
-        position: "absolute",
-        top: FRAME / 2 - 4,
-        left: FRAME / 2 - 4,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: PURPLE,
-        borderWidth: 2,
-        borderColor: "#fff",
-        shadowColor: "#000",
-        shadowOpacity: 0.5,
-        shadowRadius: 2,
-        elevation: 4,
-      }} />
+    <View style={{ alignItems: "center", transform: [{ translateY: -PIN_SIZE / 2 }] }}>
+      <Ionicons
+        name="location-sharp"
+        size={PIN_SIZE}
+        color={PURPLE}
+        style={{
+          shadowColor: "#000",
+          shadowOpacity: 0.35,
+          shadowRadius: 6,
+          shadowOffset: { width: 0, height: 3 },
+        }}
+      />
     </View>
   );
 }
@@ -198,7 +151,7 @@ export default function MapPickerScreen() {
 
   const overlay = (
     <View style={[StyleSheet.absoluteFill, styles.overlay]} pointerEvents="none">
-      <ViewfinderFrame />
+      <CenterPin />
       <Text style={styles.hintText}>Move map to select spot</Text>
     </View>
   );
