@@ -15,6 +15,46 @@ import { getApiUrl } from "@/lib/query-client";
 import { setPickedLocation } from "@/lib/mapPickerStore";
 import Colors from "@/constants/colors";
 
+function Crosshair() {
+  return (
+    <View style={ch.root} pointerEvents="none">
+      <View style={ch.lineH} />
+      <View style={ch.lineV} />
+      <View style={ch.circle} />
+    </View>
+  );
+}
+
+const CROSSHAIR_SIZE = 56;
+const ch = StyleSheet.create({
+  root: {
+    width: CROSSHAIR_SIZE,
+    height: CROSSHAIR_SIZE,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lineH: {
+    position: "absolute",
+    width: CROSSHAIR_SIZE,
+    height: 1.5,
+    backgroundColor: Colors.light.primary,
+  },
+  lineV: {
+    position: "absolute",
+    width: 1.5,
+    height: CROSSHAIR_SIZE,
+    backgroundColor: Colors.light.primary,
+  },
+  circle: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.light.primary,
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+});
+
 let NativeMapView: any = null;
 if (Platform.OS !== "web") {
   NativeMapView = require("react-native-maps").default;
@@ -120,9 +160,7 @@ export default function MapPickerScreen() {
           title="Pick location"
         />
         <View style={[StyleSheet.absoluteFill, styles.overlay]} pointerEvents="none">
-          <View style={styles.crosshairWrap}>
-            <Ionicons name="add-circle" size={44} color={Colors.light.primary} />
-          </View>
+          <Crosshair />
           <Text style={styles.hintText}>Move map to select spot</Text>
         </View>
         <Pressable
@@ -132,7 +170,7 @@ export default function MapPickerScreen() {
           <Ionicons name="chevron-back" size={22} color="#fff" />
         </Pressable>
         <View
-          style={[styles.bottomBar, { paddingBottom: insets.bottom + 16 }]}
+          style={[styles.bottomBar, { paddingBottom: insets.bottom + 20 }]}
           pointerEvents="box-none"
         >
           <Pressable
@@ -171,9 +209,7 @@ export default function MapPickerScreen() {
       />
 
       <View style={[StyleSheet.absoluteFill, styles.overlay]} pointerEvents="none">
-        <View style={styles.crosshairWrap}>
-          <Ionicons name="add-circle" size={44} color={Colors.light.primary} />
-        </View>
+        <Crosshair />
         <Text style={styles.hintText}>Move map to select spot</Text>
       </View>
 
@@ -184,7 +220,7 @@ export default function MapPickerScreen() {
         <Ionicons name="chevron-back" size={22} color="#fff" />
       </Pressable>
 
-      <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 16 }]}>
+      <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 20 }]}>
         <Pressable
           style={[styles.confirmBtn, confirming && styles.confirmBtnDisabled]}
           onPress={handleConfirm}
@@ -211,21 +247,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 10,
   },
-  crosshairWrap: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 6,
-  },
   hintText: {
-    marginTop: 8,
+    marginTop: 12,
     fontSize: 13,
     color: "#fff",
     fontFamily: "Archivo_500Medium",
-    backgroundColor: "rgba(0,0,0,0.45)",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    backgroundColor: "rgba(0,0,0,0.50)",
+    paddingHorizontal: 14,
+    paddingVertical: 5,
     borderRadius: 20,
     overflow: "hidden",
   },
@@ -246,8 +275,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 20,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     zIndex: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 10,
   },
   confirmBtn: {
     backgroundColor: Colors.light.primary,
@@ -255,11 +292,6 @@ const styles = StyleSheet.create({
     height: 52,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 5,
   },
   confirmBtnDisabled: {
     opacity: 0.6,

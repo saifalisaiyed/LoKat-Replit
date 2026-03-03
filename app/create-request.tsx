@@ -267,7 +267,7 @@ export default function CreateRequestScreen() {
         </View>
 
         <Pressable
-          style={styles.pinpointRow}
+          style={({ pressed }) => [styles.pinpointCard, pressed && { opacity: 0.75 }]}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             router.push({
@@ -279,9 +279,14 @@ export default function CreateRequestScreen() {
             });
           }}
         >
-          <Ionicons name="map-outline" size={15} color={Colors.light.primary} />
-          <Text style={styles.pinpointText}>Pinpoint exact spot on map</Text>
-          <Text style={styles.pinpointOptional}>Optional</Text>
+          <View style={styles.pinpointIconWrap}>
+            <Ionicons name="map-outline" size={18} color={Colors.light.primary} />
+          </View>
+          <View style={styles.pinpointCardBody}>
+            <Text style={styles.pinpointCardTitle}>Select exact spot on map</Text>
+            <Text style={styles.pinpointCardSub}>Optional — refine the pin location</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={Colors.light.textSecondary} />
         </Pressable>
 
         <View style={styles.section}>
@@ -636,28 +641,38 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
-  pinpointRow: {
+  pinpointCard: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
+    gap: 12,
+    backgroundColor: "#F5F0FF",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E4D9FF",
   },
-  pinpointText: {
-    fontSize: 13,
-    color: Colors.light.primary,
-    fontFamily: "Archivo_500Medium",
+  pinpointIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#EDE5FF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pinpointCardBody: {
     flex: 1,
+    gap: 2,
   },
-  pinpointOptional: {
-    fontSize: 11,
+  pinpointCardTitle: {
+    fontSize: 14,
+    color: Colors.light.primary,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  pinpointCardSub: {
+    fontSize: 12,
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
-    backgroundColor: "#F0F0F0",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 10,
-    overflow: "hidden",
   },
   section: {
     gap: 10,
