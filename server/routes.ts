@@ -669,6 +669,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/reverse-geocode", async (req: Request, res: Response) => {
+    const { lat, lng } = req.query as { lat: string; lng: string };
+    if (!lat || !lng) return res.status(400).json({ error: "lat and lng required" });
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
+      const response = await fetch(url, { headers: { "User-Agent": "LoKatApp/1.0" } });
+      const data = await response.json();
+      const parts = (data.display_name || "").split(", ");
+      const name = data.address?.road || data.address?.neighbourhood || data.address?.suburb || parts[0] || "Selected Location";
+      const city = data.address?.city || data.address?.town || data.address?.village || data.address?.county || "";
+      const state = data.address?.state || "";
+      const country = data.address?.country_code?.toUpperCase() || "";
+      const address = [city, state, country].filter(Boolean).join(", ") || parts.slice(1, 4).join(", ") || data.display_name || "";
+      return res.json({ name, address });
+    } catch (e) {
+      console.error("Reverse geocode error:", e);
+      return res.json({ name: "Selected Location", address: "" });
+    }
+  });
+
   app.post("/api/objects/upload", requireAuth, async (req: Request, res: Response) => {
     try {
       const objectStorageService = new ObjectStorageService();

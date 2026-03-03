@@ -9,6 +9,7 @@ import {
   Platform,
   Animated,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,6 +17,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useApp } from "@/lib/store";
+import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import { type Orientation, type Angle, type Timing, type Category } from "@/lib/types";
 
@@ -108,8 +110,32 @@ export default function CreateRequestScreen() {
 
   const restrictionReason = getRestrictionReason(parsedTypes);
 
-  const locationName = paramName || "Unknown Location";
-  const address = paramAddr || "New York, NY";
+  const needsGeocode = !paramAddr || paramAddr === "New York, NY" || !paramName || paramName === "Custom Location";
+  const [resolvedName, setResolvedName] = useState(paramName && paramName !== "Custom Location" ? paramName : "Selected Location");
+  const [resolvedAddress, setResolvedAddress] = useState(paramAddr && paramAddr !== "New York, NY" ? paramAddr : "");
+  const [geocoding, setGeocoding] = useState(needsGeocode);
+
+  useEffect(() => {
+    if (!needsGeocode) return;
+    const latitude = lat || "0";
+    const longitude = lng || "0";
+    const url = new URL("/api/reverse-geocode", getApiUrl());
+    url.searchParams.set("lat", latitude);
+    url.searchParams.set("lng", longitude);
+    fetch(url.toString())
+      .then((r) => r.json())
+      .then((data) => {
+        if (!paramName || paramName === "Custom Location") {
+          if (data.name) setResolvedName(data.name);
+        }
+        if (data.address) setResolvedAddress(data.address);
+      })
+      .catch(() => {})
+      .finally(() => setGeocoding(false));
+  }, []);
+
+  const locationName = resolvedName;
+  const address = resolvedAddress;
   const category = (paramCat as Category) || "landmarks";
 
   const [orientation, setOrientation] = useState<Orientation>("portrait");
@@ -214,8 +240,14 @@ export default function CreateRequestScreen() {
         <View style={styles.locationCard}>
           <View style={styles.locationDot} />
           <View style={styles.locationInfo}>
-            <Text style={styles.locationName}>{locationName}</Text>
-            <Text style={styles.locationAddr}>{address}</Text>
+            {geocoding ? (
+              <ActivityIndicator size="small" color={Colors.light.primary} />
+            ) : (
+              <>
+                <Text style={styles.locationName}>{locationName}</Text>
+                <Text style={styles.locationAddr}>{address}</Text>
+              </>
+            )}
           </View>
           <Ionicons name="chevron-forward" size={16} color={Colors.light.textSecondary} />
         </View>

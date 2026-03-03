@@ -312,8 +312,6 @@ export default function HomeScreen() {
         params: {
           lat: latitude.toFixed(6),
           lng: longitude.toFixed(6),
-          name: "Custom Location",
-          addr: "New York, NY",
           cat: "landmarks",
         },
       });
@@ -338,7 +336,7 @@ export default function HomeScreen() {
         lat: latitude.toFixed(6),
         lng: longitude.toFixed(6),
         name,
-        addr: closest.dist < 0.005 ? closest.loc.address : "New York, NY",
+        addr: closest.dist < 0.005 ? closest.loc.address : "",
         cat,
       },
     });
