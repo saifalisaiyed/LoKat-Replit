@@ -44,6 +44,7 @@ export interface PhotoRequest {
   photoUri?: string;
   submittedAt?: string;
   note?: string;
+  specificSpotName?: string | null;
 }
 
 export interface Notification {

@@ -233,6 +233,12 @@ export default function RequestDetailScreen() {
             <View style={styles.titleInfo}>
               <Text style={styles.locationName}>{request.locationName}</Text>
               <Text style={styles.address}>{request.address}</Text>
+              {request.specificSpotName ? (
+                <View style={styles.specificSpotRow}>
+                  <Ionicons name="navigate-circle-outline" size={13} color={Colors.light.tint} />
+                  <Text style={styles.specificSpotText}>Exact spot: {request.specificSpotName}</Text>
+                </View>
+              ) : null}
             </View>
             <View style={styles.rewardBadge}>
               <Text style={styles.rewardText}>${request.reward}</Text>
@@ -519,6 +525,8 @@ const styles = StyleSheet.create({
   titleInfo: { flex: 1, marginRight: 12 },
   locationName: { fontSize: 20, color: Colors.light.text, fontFamily: "Archivo_600SemiBold" },
   address: { fontSize: 14, color: Colors.light.textSecondary, marginTop: 4, fontFamily: "Archivo_400Regular" },
+  specificSpotRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
+  specificSpotText: { fontSize: 12, color: Colors.light.tint, fontFamily: "Archivo_500Medium", flex: 1 },
   rewardBadge: { backgroundColor: Colors.light.accent, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
   rewardText: { fontSize: 18, color: "#fff", fontFamily: "Archivo_600SemiBold" },
   chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },

@@ -56,6 +56,7 @@ export const photoRequests = pgTable("photo_requests", {
   photoUri: text("photo_uri"),
   submittedAt: text("submitted_at"),
   note: text("note"),
+  specificSpotName: text("specific_spot_name"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

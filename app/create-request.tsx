@@ -186,11 +186,20 @@ export default function CreateRequestScreen() {
     if (isSubmitting) return;
     setIsSubmitting(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    const submitLocationName = isCustomPinned && beforePickRef.current
+      ? beforePickRef.current.name
+      : locationName;
+    const submitAddress = isCustomPinned && beforePickRef.current
+      ? beforePickRef.current.address
+      : address;
+    const submitSpecificSpotName = isCustomPinned ? resolvedName : undefined;
+
     await createRequest({
       latitude: currentLat,
       longitude: currentLng,
-      locationName,
-      address,
+      locationName: submitLocationName,
+      address: submitAddress,
+      ...(submitSpecificSpotName ? { specificSpotName: submitSpecificSpotName } : {}),
       category,
       orientation,
       angle,

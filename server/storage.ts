@@ -179,6 +179,7 @@ export class DatabaseStorage implements IStorage {
         scheduledTime: data.scheduledTime,
         reward: data.reward || 5,
         note: data.note,
+        specificSpotName: (data as any).specificSpotName || null,
         status: "open",
       })
       .returning();
