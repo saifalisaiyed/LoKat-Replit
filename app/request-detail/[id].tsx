@@ -12,11 +12,12 @@ import {
   ActivityIndicator,
   TextInput,
   KeyboardAvoidingView,
+  BackHandler,
 } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect, useNavigation } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
@@ -101,6 +102,14 @@ export default function RequestDetailScreen() {
   const isActiveLoKater = request?.status === "accepted" && request?.acceptedBy === userId;
   const safeCategory = request?.category || "landmarks";
   const categoryData = CATEGORIES.find((c) => c.key === safeCategory) || CATEGORIES[0];
+
+  const navigation = useNavigation();
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !isActiveLoKater });
+    if (!isActiveLoKater) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () => sub.remove();
+  }, [isActiveLoKater, navigation]);
 
   if (!request) {
     return (

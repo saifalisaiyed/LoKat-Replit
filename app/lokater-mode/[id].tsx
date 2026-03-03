@@ -9,10 +9,11 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
+  BackHandler,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
@@ -122,9 +123,16 @@ export default function LoKaterModeScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { requests, abandonRequest, activeRequestId } = useApp();
+  const navigation = useNavigation();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
   const [instructionsVisible, setInstructionsVisible] = useState(false);
+
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: false });
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () => sub.remove();
+  }, [navigation]);
   const lokaterIframeRef = useRef<HTMLIFrameElement>(null);
   const navMapRef = useRef<any>(null);
 
