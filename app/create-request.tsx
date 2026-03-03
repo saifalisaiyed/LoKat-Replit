@@ -19,6 +19,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import { consumePickedLocation } from "@/lib/mapPickerStore";
+import MiniMap from "@/components/MiniMap";
 import Colors from "@/constants/colors";
 import { type Orientation, type Angle, type Timing, type Category } from "@/lib/types";
 
@@ -118,6 +119,7 @@ export default function CreateRequestScreen() {
   const [currentLat, setCurrentLat] = useState(parseFloat(lat || "40.7580"));
   const [currentLng, setCurrentLng] = useState(parseFloat(lng || "-73.9855"));
   const [isCustomPinned, setIsCustomPinned] = useState(false);
+  const beforePickRef = useRef<{ name: string; address: string; lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     if (!needsGeocode) return;
@@ -142,13 +144,19 @@ export default function CreateRequestScreen() {
     useCallback(() => {
       const picked = consumePickedLocation();
       if (picked) {
+        beforePickRef.current = {
+          name: resolvedName,
+          address: resolvedAddress,
+          lat: currentLat,
+          lng: currentLng,
+        };
         setCurrentLat(picked.lat);
         setCurrentLng(picked.lng);
         setResolvedName(picked.name);
         setResolvedAddress(picked.address);
         setIsCustomPinned(true);
       }
-    }, [])
+    }, [resolvedName, resolvedAddress, currentLat, currentLng])
   );
 
   const locationName = resolvedName;
@@ -269,26 +277,51 @@ export default function CreateRequestScreen() {
         </View>
 
         {isCustomPinned ? (
-          <View style={styles.pinnedRow}>
-            <View style={styles.pinnedIconWrap}>
-              <Ionicons name="location" size={16} color="#fff" />
+          <View style={styles.pinnedContainer}>
+            <MiniMap
+              latitude={currentLat}
+              longitude={currentLng}
+              style={styles.miniMap}
+            />
+            <View style={styles.pinnedRow}>
+              <View style={styles.pinnedIconWrap}>
+                <Ionicons name="location" size={16} color="#fff" />
+              </View>
+              <View style={styles.pinnedBody}>
+                <Text style={styles.pinnedLabel}>Exact spot pinned</Text>
+                <Text style={styles.pinnedSub}>{resolvedName}</Text>
+              </View>
+              <View style={styles.pinnedActions}>
+                <Pressable
+                  style={styles.pinnedChangeBtn}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push({
+                      pathname: "/map-picker",
+                      params: { lat: currentLat.toString(), lng: currentLng.toString() },
+                    });
+                  }}
+                >
+                  <Text style={styles.pinnedChangeBtnText}>Change</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.pinnedClearBtn}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    const prev = beforePickRef.current;
+                    if (prev) {
+                      setResolvedName(prev.name);
+                      setResolvedAddress(prev.address);
+                      setCurrentLat(prev.lat);
+                      setCurrentLng(prev.lng);
+                    }
+                    setIsCustomPinned(false);
+                  }}
+                >
+                  <Ionicons name="close" size={13} color="#6B7280" />
+                </Pressable>
+              </View>
             </View>
-            <View style={styles.pinnedBody}>
-              <Text style={styles.pinnedLabel}>Exact spot pinned</Text>
-              <Text style={styles.pinnedSub}>{resolvedName}</Text>
-            </View>
-            <Pressable
-              style={styles.pinnedChangeBtn}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push({
-                  pathname: "/map-picker",
-                  params: { lat: currentLat.toString(), lng: currentLng.toString() },
-                });
-              }}
-            >
-              <Text style={styles.pinnedChangeBtnText}>Change</Text>
-            </Pressable>
           </View>
         ) : (
           <Pressable
@@ -664,6 +697,17 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
   },
+  pinnedContainer: {
+    borderRadius: 10,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#BBF7D0",
+  },
+  miniMap: {
+    borderRadius: 0,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
   pinnedRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -671,9 +715,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#EDFBF0",
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#BBF7D0",
+  },
+  pinnedActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   pinnedIconWrap: {
     width: 30,
@@ -707,6 +753,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#15803D",
     fontFamily: "Archivo_600SemiBold",
+  },
+  pinnedClearBtn: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "#E5E7EB",
+    alignItems: "center",
+    justifyContent: "center",
   },
   pinpointCard: {
     flexDirection: "row",
