@@ -130,9 +130,12 @@ export default function LoKaterModeScreen() {
 
   useEffect(() => {
     navigation.setOptions({ gestureEnabled: false });
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      router.replace({ pathname: "/request-detail/[id]", params: { id } });
+      return true;
+    });
     return () => sub.remove();
-  }, [navigation]);
+  }, [navigation, id]);
   const lokaterIframeRef = useRef<HTMLIFrameElement>(null);
   const navMapRef = useRef<any>(null);
 
