@@ -538,25 +538,6 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
         </View>
       </View>
 
-      {Platform.OS !== "web" && (
-        <Animated.View
-          style={[styles.turnHUD, { top: insets.top + 118 + webInsetTop }, turnHudStyle]}
-          pointerEvents="none"
-        >
-          <View style={styles.turnCard}>
-            <Animated.View style={arrowAnimStyle}>
-              <Ionicons name="arrow-up" size={52} color={turnInfo?.color ?? Colors.light.tint} />
-            </Animated.View>
-            <Text style={[styles.turnLabel, { color: turnInfo?.color ?? Colors.light.tint }]}>
-              {turnInfo?.label ?? ""}
-            </Text>
-            {distance !== null && !isVeryClose && (
-              <Text style={styles.turnDist}>{formatDistance(distance)}</Text>
-            )}
-          </View>
-        </Animated.View>
-      )}
-
       <Pressable
         style={[styles.lokaterLocBtn, { bottom: Platform.OS === "web" ? 34 + 16 + 160 : insets.bottom + 16 + 160 }]}
         onPress={() => {
@@ -591,6 +572,22 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
           { paddingBottom: Platform.OS === "web" ? 34 + 16 : insets.bottom + 16 },
         ]}
       >
+        {Platform.OS !== "web" && turnInfo && !isVeryClose && (
+          <Animated.View style={[styles.navRow, turnHudStyle]}>
+            <View style={[styles.navArrowBubble, { backgroundColor: turnInfo.color + "1A" }]}>
+              <Animated.View style={arrowAnimStyle}>
+                <Ionicons name="arrow-up" size={26} color={turnInfo.color} />
+              </Animated.View>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.navRowLabel, { color: turnInfo.color }]}>{turnInfo.label}</Text>
+              {distance !== null && (
+                <Text style={styles.navRowDist}>{formatDistance(distance)} to destination</Text>
+              )}
+            </View>
+          </Animated.View>
+        )}
+
         {isCloseEnough && (
           <View style={styles.arrivedBanner}>
             <Ionicons
@@ -1045,37 +1042,29 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_400Regular",
     flex: 1,
   },
-  turnHUD: {
-    position: "absolute",
-    left: 0,
-    right: 0,
+  navRow: {
+    flexDirection: "row",
     alignItems: "center",
-    zIndex: 20,
+    gap: 14,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
   },
-  turnCard: {
-    backgroundColor: "rgba(12,12,22,0.80)",
-    borderRadius: 20,
-    paddingHorizontal: 28,
-    paddingVertical: 14,
+  navArrowBubble: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     alignItems: "center",
-    gap: 2,
-    minWidth: 160,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.28,
-    shadowRadius: 14,
-    elevation: 10,
+    justifyContent: "center",
   },
-  turnLabel: {
-    fontSize: 15,
+  navRowLabel: {
+    fontSize: 16,
     fontFamily: "Archivo_700Bold",
-    marginTop: 6,
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
-  turnDist: {
+  navRowDist: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.55)",
-    fontFamily: "Archivo_500Medium",
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
     marginTop: 2,
   },
   angleBanner: {
