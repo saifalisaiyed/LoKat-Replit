@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 
 const SEGMENT_COUNT = 16;
-const SEG_DEG = 360 / SEGMENT_COUNT;
+const SEG_DEG = 360 / SEGMENT_COUNT; // 22.5°
 
 const MAIN_LABELS: Record<number, string> = {
   0: "N", 1: "NNE", 2: "NE", 3: "ENE",
@@ -17,22 +17,13 @@ const FULL_NAMES: Record<string, string> = {
   W: "West", WNW: "West-Northwest", NW: "Northwest", NNW: "North-Northwest",
 };
 
-// Which segment indices show their label prominently
 const PRIMARY = new Set([0, 2, 4, 6, 8, 10, 12, 14]);
 
-function polarToXY(angleDeg: number, r: number, cx: number, cy: number) {
-  const rad = ((angleDeg - 90) * Math.PI) / 180;
+// Compass bearing → SVG coordinate
+// North (0°) = up, East (90°) = right
+function polarToXY(bearingDeg: number, r: number, cx: number, cy: number) {
+  const rad = ((bearingDeg - 90) * Math.PI) / 180;
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-function describeArc(
-  cx: number, cy: number, r: number,
-  startDeg: number, endDeg: number
-): string {
-  const gap = 1.5;
-  const s = polarToXY(startDeg + gap, r, cx, cy);
-  const e = polarToXY(endDeg - gap, r, cx, cy);
-  return `M ${s.x} ${s.y} A ${r} ${r} 0 0 1 ${e.x} ${e.y}`;
 }
 
 export function HybridRing() {
@@ -46,6 +37,7 @@ export function HybridRing() {
   const R_INNER = 76;
   const R_LABEL = 98;
   const R_NEEDLE = 64;
+  const GAP = 1.8; // degrees of gap between segments
 
   const handleRingClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     if (!ringRef.current) return;
@@ -53,26 +45,26 @@ export function HybridRing() {
     const dx = e.clientX - (rect.left + rect.width / 2);
     const dy = e.clientY - (rect.top + rect.height / 2);
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < R_INNER - 4 || dist > R_OUTER + 8) return;
-    const angleDeg = ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360;
-    const seg = Math.round(angleDeg / SEG_DEG) % SEGMENT_COUNT;
-    setSelected(seg);
+    if (dist < R_INNER - 8 || dist > R_OUTER + 10) return;
+    // atan2 gives math angle; convert to compass bearing
+    const bearing = ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360;
+    setSelected(Math.round(bearing / SEG_DEG) % SEGMENT_COUNT);
   }, []);
 
   const handleRingTouch = useCallback((e: React.TouchEvent<SVGSVGElement>) => {
+    e.preventDefault();
     if (!ringRef.current) return;
     const touch = e.touches[0];
     const rect = ringRef.current.getBoundingClientRect();
     const dx = touch.clientX - (rect.left + rect.width / 2);
     const dy = touch.clientY - (rect.top + rect.height / 2);
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < R_INNER - 4 || dist > R_OUTER + 8) return;
-    const angleDeg = ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360;
-    const seg = Math.round(angleDeg / SEG_DEG) % SEGMENT_COUNT;
-    setSelected(seg);
+    if (dist < R_INNER - 8 || dist > R_OUTER + 10) return;
+    const bearing = ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360;
+    setSelected(Math.round(bearing / SEG_DEG) % SEGMENT_COUNT);
   }, []);
 
-  const selectedAngle = selected * SEG_DEG;
+  const selectedBearing = selected * SEG_DEG;
   const selectedLabel = MAIN_LABELS[selected];
 
   return (
@@ -92,31 +84,28 @@ export function HybridRing() {
           background: "#1A1B2E",
           borderRadius: "16px 16px 0 0",
           padding: "14px 16px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
+          display: "flex", alignItems: "center", gap: 10,
         }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#7C3AED" }} />
           <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Select exact spot</span>
         </div>
 
-        {/* Mock map area — shows direction cone on map */}
+        {/* Mock map area */}
         <div style={{
           height: 130,
           background: "linear-gradient(135deg, #2a2d4a 0%, #1e2035 100%)",
-          position: "relative",
-          overflow: "hidden",
+          position: "relative", overflow: "hidden",
         }}>
           <div style={{
             position: "absolute", inset: 0, opacity: 0.15,
-            backgroundImage: "repeating-linear-gradient(0deg, #7C3AED 0, #7C3AED 1px, transparent 0, transparent 50%), repeating-linear-gradient(90deg, #7C3AED 0, #7C3AED 1px, transparent 0, transparent 50%)",
+            backgroundImage: "repeating-linear-gradient(0deg,#7C3AED 0,#7C3AED 1px,transparent 0,transparent 50%),repeating-linear-gradient(90deg,#7C3AED 0,#7C3AED 1px,transparent 0,transparent 50%)",
             backgroundSize: "40px 40px",
           }} />
-          <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}>
-            {/* Direction cone */}
+          <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)" }}>
+            {/* Direction cone follows selected bearing */}
             <div style={{
               position: "absolute", left: "50%", top: "50%",
-              transform: `translate(-50%, -50%) rotate(${selectedAngle}deg)`,
+              transform: `translate(-50%,-50%) rotate(${selectedBearing}deg)`,
               transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
             }}>
               <div style={{
@@ -124,12 +113,10 @@ export function HybridRing() {
                 borderLeft: "16px solid transparent",
                 borderRight: "16px solid transparent",
                 borderBottom: "58px solid rgba(124,58,237,0.4)",
-                marginLeft: -16,
-                marginTop: -58,
+                marginLeft: -16, marginTop: -58,
                 filter: "blur(1px)",
               }} />
             </div>
-            {/* Pin */}
             <div style={{
               width: 26, height: 26,
               borderRadius: "50% 50% 50% 0",
@@ -164,30 +151,38 @@ export function HybridRing() {
               onTouchStart={handleRingTouch}
               style={{ cursor: "pointer", overflow: "visible" }}
             >
-              {/* Segments */}
               {Array.from({ length: SEGMENT_COUNT }, (_, i) => {
-                const startDeg = i * SEG_DEG;
-                const endDeg = startDeg + SEG_DEG;
+                // Each segment is CENTERED on its compass bearing (i * SEG_DEG)
+                // so N (0°) is exactly at the top, E (90°) exactly right, etc.
+                const centerBearing = i * SEG_DEG;
+                const startBearing = centerBearing - SEG_DEG / 2 + GAP;
+                const endBearing   = centerBearing + SEG_DEG / 2 - GAP;
+
                 const isSelected = i === selected;
-                const isAdjacent = Math.min(Math.abs(i - selected), SEGMENT_COUNT - Math.abs(i - selected)) === 1;
+                const isAdjacent = Math.min(
+                  Math.abs(i - selected),
+                  SEGMENT_COUNT - Math.abs(i - selected)
+                ) === 1;
 
-                const R_MID = (R_OUTER + R_INNER) / 2;
-
-                // Arc fill (wide band)
-                const sOuter = polarToXY(startDeg + 1.2, R_OUTER, CX, CY);
-                const eOuter = polarToXY(endDeg - 1.2, R_OUTER, CX, CY);
-                const sInner = polarToXY(endDeg - 1.2, R_INNER, CX, CY);
-                const eInner = polarToXY(startDeg + 1.2, R_INNER, CX, CY);
-                const pathD = `M ${sOuter.x} ${sOuter.y} A ${R_OUTER} ${R_OUTER} 0 0 1 ${eOuter.x} ${eOuter.y} L ${sInner.x} ${sInner.y} A ${R_INNER} ${R_INNER} 0 0 0 ${eInner.x} ${eInner.y} Z`;
+                // Build donut-slice path
+                const so = polarToXY(startBearing, R_OUTER, CX, CY);
+                const eo = polarToXY(endBearing,   R_OUTER, CX, CY);
+                const ei = polarToXY(endBearing,   R_INNER, CX, CY);
+                const si = polarToXY(startBearing, R_INNER, CX, CY);
+                const pathD = [
+                  `M ${so.x} ${so.y}`,
+                  `A ${R_OUTER} ${R_OUTER} 0 0 1 ${eo.x} ${eo.y}`,
+                  `L ${ei.x} ${ei.y}`,
+                  `A ${R_INNER} ${R_INNER} 0 0 0 ${si.x} ${si.y}`,
+                  "Z",
+                ].join(" ");
 
                 const segColor = isSelected
                   ? "#7C3AED"
-                  : isAdjacent
-                  ? "#DDD6FE"
-                  : "#F3F4F6";
+                  : isAdjacent ? "#DDD6FE" : "#F3F4F6";
 
-                const midAngle = startDeg + SEG_DEG / 2;
-                const lp = polarToXY(midAngle, R_LABEL, CX, CY);
+                // Label sits at the CENTER of the segment
+                const lp = polarToXY(centerBearing, R_LABEL, CX, CY);
                 const isPrimary = PRIMARY.has(i);
 
                 return (
@@ -197,7 +192,6 @@ export function HybridRing() {
                       fill={segColor}
                       style={{ transition: "fill 0.15s ease" }}
                     />
-                    {/* Label */}
                     {isPrimary && (
                       <text
                         x={lp.x}
@@ -217,33 +211,23 @@ export function HybridRing() {
                 );
               })}
 
-              {/* Inner circle background */}
+              {/* Inner circle */}
               <circle cx={CX} cy={CY} r={R_INNER - 2} fill="#fff" />
-
-              {/* Subtle inner ring */}
               <circle cx={CX} cy={CY} r={R_INNER - 2} fill="none" stroke="#E5E7EB" strokeWidth={1} />
 
-              {/* Needle pointing to selected direction */}
-              <g
-                style={{
-                  transform: `rotate(${selectedAngle}deg)`,
-                  transformOrigin: `${CX}px ${CY}px`,
-                  transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-                }}
-              >
-                {/* Needle shaft */}
+              {/* Needle — rotates to selectedBearing; 0° = straight up = North */}
+              <g style={{
+                transform: `rotate(${selectedBearing}deg)`,
+                transformOrigin: `${CX}px ${CY}px`,
+                transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+              }}>
                 <line
-                  x1={CX}
-                  y1={CY}
-                  x2={CX}
-                  y2={CY - R_NEEDLE}
-                  stroke="#7C3AED"
-                  strokeWidth={2.5}
-                  strokeLinecap="round"
+                  x1={CX} y1={CY}
+                  x2={CX} y2={CY - R_NEEDLE}
+                  stroke="#7C3AED" strokeWidth={2.5} strokeLinecap="round"
                 />
-                {/* Arrowhead */}
                 <polygon
-                  points={`${CX},${CY - R_NEEDLE - 7} ${CX - 5},${CY - R_NEEDLE + 2} ${CX + 5},${CY - R_NEEDLE + 2}`}
+                  points={`${CX},${CY - R_NEEDLE - 7} ${CX - 5},${CY - R_NEEDLE + 3} ${CX + 5},${CY - R_NEEDLE + 3}`}
                   fill="#7C3AED"
                 />
               </g>
@@ -254,15 +238,12 @@ export function HybridRing() {
             </svg>
           </div>
 
-          {/* Result pill */}
+          {/* Result */}
           <div style={{
             background: "rgba(124,58,237,0.08)",
             border: "1px solid rgba(124,58,237,0.25)",
-            borderRadius: 10,
-            padding: "10px 14px",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
+            borderRadius: 10, padding: "10px 14px",
+            display: "flex", alignItems: "center", gap: 8,
             marginBottom: 14,
           }}>
             <span style={{ fontSize: 16 }}>🧭</span>
