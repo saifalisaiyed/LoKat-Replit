@@ -9,6 +9,7 @@ import {
   Animated,
   Modal,
   ActivityIndicator,
+  Keyboard,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -173,6 +174,7 @@ export default function CreateRequestScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [note, setNote] = useState("");
+  const [notesFocused, setNotesFocused] = useState(false);
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
@@ -535,9 +537,20 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Notes (Optional)</Text>
+          <View style={styles.notesLabelRow}>
+            <Text style={styles.sectionLabel}>Notes (Optional)</Text>
+            {notesFocused && (
+              <Pressable
+                style={styles.notesDoneBtn}
+                onPress={() => { Keyboard.dismiss(); setNotesFocused(false); }}
+                hitSlop={8}
+              >
+                <Text style={styles.notesDoneBtnText}>Done</Text>
+              </Pressable>
+            )}
+          </View>
           <TextInput
-            style={styles.noteInput}
+            style={[styles.noteInput, notesFocused && styles.noteInputFocused]}
             placeholder="Any specific instructions for the LoKater..."
             placeholderTextColor="#B0B0B0"
             value={note}
@@ -545,6 +558,8 @@ export default function CreateRequestScreen() {
             multiline
             numberOfLines={3}
             textAlignVertical="top"
+            onFocus={() => setNotesFocused(true)}
+            onBlur={() => setNotesFocused(false)}
           />
         </View>
       </KeyboardAwareScrollView>
@@ -920,6 +935,23 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Archivo_600SemiBold",
   },
+  notesLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  notesDoneBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    backgroundColor: Colors.light.tint,
+  },
+  notesDoneBtnText: {
+    fontSize: 13,
+    color: "#fff",
+    fontFamily: "Archivo_600SemiBold",
+  },
   noteInput: {
     backgroundColor: "#FAFAFA",
     borderRadius: 8,
@@ -932,6 +964,10 @@ const styles = StyleSheet.create({
     borderColor: "#EBEBEB",
     fontFamily: "Archivo_400Regular",
     minHeight: 90,
+  },
+  noteInputFocused: {
+    borderColor: Colors.light.tint,
+    backgroundColor: "#fff",
   },
   bottomBar: {
     paddingHorizontal: 20,
