@@ -291,24 +291,24 @@ const styles = StyleSheet.create({
   },
   sheetHandle: {
     width: 36, height: 4, borderRadius: 2,
-    backgroundColor: "#E5E7EB", alignSelf: "center", marginBottom: 18,
+    backgroundColor: "#E5E7EB", alignSelf: "center", marginBottom: 12,
   },
   sheetHeader: {
-    flexDirection: "row", alignItems: "center", marginBottom: 20,
+    flexDirection: "row", alignItems: "center", marginBottom: 12,
   },
   sheetTitleWrap: { flex: 1, alignItems: "center" },
   sheetTitle: { fontSize: 16, fontFamily: "Archivo_600SemiBold", color: "#111827" },
   sheetSub: { fontSize: 12, color: "#9CA3AF", fontFamily: "Archivo_400Regular", marginTop: 2 },
   skipText: { fontSize: 14, color: "#9CA3AF", fontFamily: "Archivo_500Medium" },
 
-  grid: { gap: 8, marginBottom: 16 },
-  gridRow: { flexDirection: "row", gap: 8 },
+  grid: { gap: 6, marginBottom: 10 },
+  gridRow: { flexDirection: "row", gap: 6 },
   dirCell: {
-    flex: 1, aspectRatio: 1, borderRadius: 14,
+    flex: 1, height: 52, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
     backgroundColor: "#F9FAFB",
     borderWidth: 1.5, borderColor: "#E5E7EB",
-    gap: 3,
+    gap: 2,
   },
   dirCellActive: {
     backgroundColor: PURPLE, borderColor: PURPLE,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   centerCell: {
-    flex: 1, aspectRatio: 1, borderRadius: 14,
+    flex: 1, height: 52, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
     backgroundColor: "#F3F4F6", borderWidth: 1.5, borderColor: "#E5E7EB",
   },
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
 
   resultRow: {
     flexDirection: "row", alignItems: "center",
-    justifyContent: "center", gap: 6, marginBottom: 14,
+    justifyContent: "center", gap: 6, marginBottom: 10,
   },
   resultText: { fontSize: 13, color: "#6B7280", fontFamily: "Archivo_400Regular" },
   resultDir: { fontFamily: "Archivo_600SemiBold", color: "#111827" },

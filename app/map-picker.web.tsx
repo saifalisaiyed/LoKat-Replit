@@ -244,12 +244,8 @@ export default function MapPickerScreen() {
         if (data.type === 'lockLocation') {
           pinnedLat = data.lat;
           pinnedLng = data.lng;
-          map.setView([data.lat, data.lng], 18, { animate: true, duration: 0.5 });
-          map.dragging.disable();
-          map.scrollWheelZoom.disable();
-          map.touchZoom.disable();
-          map.doubleClickZoom.disable();
-          map.boxZoom.disable();
+          // Shift center ~0.001° south so the pin appears above the sheet, not behind it
+          map.setView([data.lat - 0.001, data.lng], 18, { animate: true, duration: 0.5 });
           if (pinMarker) { map.removeLayer(pinMarker); }
           var icon = L.divIcon({
             html: '<div style="width:14px;height:14px;background:#7C3AED;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(124,58,237,0.6);"></div>',
@@ -267,11 +263,6 @@ export default function MapPickerScreen() {
           if (coneLayer) { map.removeLayer(coneLayer); coneLayer = null; }
           if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
           pinnedLat = null; pinnedLng = null;
-          map.dragging.enable();
-          map.scrollWheelZoom.enable();
-          map.touchZoom.enable();
-          map.doubleClickZoom.enable();
-          map.boxZoom.enable();
         }
       } catch(err) {}
     });
@@ -440,24 +431,24 @@ const styles = StyleSheet.create({
   },
   sheetHandle: {
     width: 36, height: 4, borderRadius: 2,
-    backgroundColor: "#E5E7EB", alignSelf: "center", marginBottom: 18,
+    backgroundColor: "#E5E7EB", alignSelf: "center", marginBottom: 12,
   },
   sheetHeader: {
-    flexDirection: "row", alignItems: "center", marginBottom: 20,
+    flexDirection: "row", alignItems: "center", marginBottom: 12,
   },
   sheetTitleWrap: { flex: 1, alignItems: "center" },
   sheetTitle: { fontSize: 16, fontFamily: "Archivo_600SemiBold", color: "#111827" },
   sheetSub: { fontSize: 12, color: "#9CA3AF", fontFamily: "Archivo_400Regular", marginTop: 2 },
   skipText: { fontSize: 14, color: "#9CA3AF", fontFamily: "Archivo_500Medium" },
 
-  grid: { gap: 8, marginBottom: 16 },
-  gridRow: { flexDirection: "row", gap: 8 },
+  grid: { gap: 6, marginBottom: 10 },
+  gridRow: { flexDirection: "row", gap: 6 },
   dirCell: {
-    flex: 1, aspectRatio: 1, borderRadius: 14,
+    flex: 1, height: 52, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
     backgroundColor: "#F9FAFB",
     borderWidth: 1.5, borderColor: "#E5E7EB",
-    gap: 3,
+    gap: 2,
   },
   dirCellActive: {
     backgroundColor: PURPLE, borderColor: PURPLE,
@@ -466,7 +457,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   centerCell: {
-    flex: 1, aspectRatio: 1, borderRadius: 14,
+    flex: 1, height: 52, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
     backgroundColor: "#F3F4F6", borderWidth: 1.5, borderColor: "#E5E7EB",
   },
@@ -478,7 +469,7 @@ const styles = StyleSheet.create({
 
   resultRow: {
     flexDirection: "row", alignItems: "center",
-    justifyContent: "center", gap: 6, marginBottom: 14,
+    justifyContent: "center", gap: 6, marginBottom: 10,
   },
   resultText: { fontSize: 13, color: "#6B7280", fontFamily: "Archivo_400Regular" },
   resultDir: { fontFamily: "Archivo_600SemiBold", color: "#111827" },

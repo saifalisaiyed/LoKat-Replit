@@ -69,24 +69,25 @@ export default function NativeMapPickerView({
   }, [locked, lockedLat, lockedLng, bearing, facingDirection]);
 
   if (locked && lockedLat != null && lockedLng != null) {
+    // Shift center southward so the pin appears above the direction sheet,
+    // not hidden behind it. 0.0008° ≈ bottom-quarter offset for a 0.003° delta.
     return (
       <MapView
         style={StyleSheet.absoluteFill}
-        region={{
-          latitude: lockedLat,
+        initialRegion={{
+          latitude: lockedLat - 0.0008,
           longitude: lockedLng,
-          latitudeDelta: 0.0014,
-          longitudeDelta: 0.0014,
+          latitudeDelta: 0.003,
+          longitudeDelta: 0.003,
         }}
-        scrollEnabled={false}
-        zoomEnabled={false}
+        scrollEnabled={true}
+        zoomEnabled={true}
         rotateEnabled={false}
         pitchEnabled={false}
         showsUserLocation={false}
         showsMyLocationButton={false}
         showsCompass={false}
         showsPointsOfInterest={true}
-        pointerEvents="none"
       >
         {facingDirection && coneCoords.length > 0 && (
           <Polygon
