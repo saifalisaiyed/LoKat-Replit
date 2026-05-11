@@ -34,6 +34,10 @@ const DIR_FULL: Record<string, string> = {
   S: "South", SW: "Southwest", W: "West", NW: "Northwest",
 };
 
+const DIR_BEARING: Record<string, number> = {
+  N: 0, NE: 45, E: 90, SE: 135, S: 180, SW: 225, W: 270, NW: 315,
+};
+
 function CenterPin() {
   return (
     <View style={{ alignItems: "center", transform: [{ translateY: -PIN_SIZE / 2 }] }}>
@@ -50,6 +54,12 @@ function CenterPin() {
       />
     </View>
   );
+}
+
+function sendToIframe(iframeRef: React.MutableRefObject<any>, msg: object) {
+  try {
+    iframeRef.current?.contentWindow?.postMessage(JSON.stringify(msg), "*");
+  } catch {}
 }
 
 export default function MapPickerScreen() {
@@ -83,6 +93,7 @@ export default function MapPickerScreen() {
     return () => window.removeEventListener("message", handler);
   }, [step]);
 
+  // When direction step activates, zoom the map to the pin and draw cone
   useEffect(() => {
     if (step === "direction") {
       Animated.spring(slideAnim, {
@@ -91,10 +102,30 @@ export default function MapPickerScreen() {
         tension: 60,
         friction: 9,
       }).start();
+      // Small delay to ensure iframe is ready for postMessage
+      setTimeout(() => {
+        sendToIframe(iframeRef, {
+          type: "lockLocation",
+          lat: centerCoord.lat,
+          lng: centerCoord.lng,
+          bearing: DIR_BEARING[selectedDir] ?? 0,
+        });
+      }, 80);
     } else {
       slideAnim.setValue(500);
+      sendToIframe(iframeRef, { type: "unlock" });
     }
   }, [step]);
+
+  // Live-update cone as user taps direction cells
+  useEffect(() => {
+    if (step === "direction") {
+      sendToIframe(iframeRef, {
+        type: "setDirection",
+        bearing: DIR_BEARING[selectedDir] ?? 0,
+      });
+    }
+  }, [selectedDir, step]);
 
   const handleSetLocation = async () => {
     setConfirming(true);
@@ -162,15 +193,91 @@ export default function MapPickerScreen() {
       attributionControl: false,
     });
     L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20 }).addTo(map);
+
     map.on('moveend', function() {
       var c = map.getCenter();
       window.parent.postMessage(JSON.stringify({ type: 'centerChange', lat: c.lat, lng: c.lng }), '*');
     });
+
+    // Cone / direction indicator
+    var coneLayer = null;
+    var pinMarker = null;
+    var pinnedLat = null, pinnedLng = null;
+
+    function destPoint(lat, lng, bearingDeg, radiusM) {
+      var R = 6371000;
+      var d = radiusM / R;
+      var b = bearingDeg * Math.PI / 180;
+      var lat1 = lat * Math.PI / 180;
+      var lng1 = lng * Math.PI / 180;
+      var lat2 = Math.asin(Math.sin(lat1)*Math.cos(d) + Math.cos(lat1)*Math.sin(d)*Math.cos(b));
+      var lng2 = lng1 + Math.atan2(Math.sin(b)*Math.sin(d)*Math.cos(lat1), Math.cos(d)-Math.sin(lat1)*Math.sin(lat2));
+      return [lat2*180/Math.PI, lng2*180/Math.PI];
+    }
+
+    function coneSector(lat, lng, bearing, radiusM, halfAngle, steps) {
+      var pts = [[lat, lng]];
+      for (var i = 0; i <= steps; i++) {
+        var angle = bearing - halfAngle + (i * 2 * halfAngle / steps);
+        pts.push(destPoint(lat, lng, angle, radiusM));
+      }
+      return pts;
+    }
+
+    function drawCone(bearing) {
+      if (!pinnedLat) return;
+      if (coneLayer) { map.removeLayer(coneLayer); coneLayer = null; }
+      var pts = coneSector(pinnedLat, pinnedLng, bearing, 100, 38, 24);
+      coneLayer = L.polygon(pts, {
+        color: 'rgba(124,58,237,0.85)',
+        fillColor: 'rgba(124,58,237,0.28)',
+        fillOpacity: 1,
+        weight: 2,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(map);
+    }
+
+    window.addEventListener('message', function(e) {
+      try {
+        var data = JSON.parse(e.data);
+        if (data.type === 'lockLocation') {
+          pinnedLat = data.lat;
+          pinnedLng = data.lng;
+          map.setView([data.lat, data.lng], 18, { animate: true, duration: 0.5 });
+          map.dragging.disable();
+          map.scrollWheelZoom.disable();
+          map.touchZoom.disable();
+          map.doubleClickZoom.disable();
+          map.boxZoom.disable();
+          if (pinMarker) { map.removeLayer(pinMarker); }
+          var icon = L.divIcon({
+            html: '<div style="width:14px;height:14px;background:#7C3AED;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(124,58,237,0.6);"></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7],
+            className: '',
+          });
+          pinMarker = L.marker([data.lat, data.lng], { icon: icon }).addTo(map);
+          if (data.bearing !== undefined) drawCone(data.bearing);
+        }
+        if (data.type === 'setDirection') {
+          drawCone(data.bearing);
+        }
+        if (data.type === 'unlock') {
+          if (coneLayer) { map.removeLayer(coneLayer); coneLayer = null; }
+          if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
+          pinnedLat = null; pinnedLng = null;
+          map.dragging.enable();
+          map.scrollWheelZoom.enable();
+          map.touchZoom.enable();
+          map.doubleClickZoom.enable();
+          map.boxZoom.enable();
+        }
+      } catch(err) {}
+    });
   </script>
 </body>
 </html>`;
-
-  const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   return (
     <View style={styles.container}>

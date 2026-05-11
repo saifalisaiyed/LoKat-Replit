@@ -133,6 +133,10 @@ export default function MapPickerScreen() {
         onRegionChangeComplete={(lat, lng) => {
           if (step === "pick") setCenterCoord({ lat, lng });
         }}
+        locked={step === "direction"}
+        lockedLat={centerCoord.lat}
+        lockedLng={centerCoord.lng}
+        facingDirection={step === "direction" ? selectedDir : null}
       />
 
       {step === "pick" && (

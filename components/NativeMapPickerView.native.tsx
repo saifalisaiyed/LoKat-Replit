@@ -1,14 +1,109 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Marker, Polygon } from "react-native-maps";
 
 interface Props {
   initialLat: number;
   initialLng: number;
   onRegionChangeComplete: (lat: number, lng: number) => void;
+  locked?: boolean;
+  lockedLat?: number;
+  lockedLng?: number;
+  facingDirection?: string | null;
 }
 
-export default function NativeMapPickerView({ initialLat, initialLng, onRegionChangeComplete }: Props) {
+const DIR_BEARING: Record<string, number> = {
+  N: 0, NE: 45, E: 90, SE: 135, S: 180, SW: 225, W: 270, NW: 315,
+};
+
+function destPoint(lat: number, lng: number, bearingDeg: number, radiusM: number) {
+  const R = 6371000;
+  const d = radiusM / R;
+  const b = (bearingDeg * Math.PI) / 180;
+  const lat1 = (lat * Math.PI) / 180;
+  const lng1 = (lng * Math.PI) / 180;
+  const lat2 = Math.asin(
+    Math.sin(lat1) * Math.cos(d) + Math.cos(lat1) * Math.sin(d) * Math.cos(b)
+  );
+  const lng2 =
+    lng1 +
+    Math.atan2(
+      Math.sin(b) * Math.sin(d) * Math.cos(lat1),
+      Math.cos(d) - Math.sin(lat1) * Math.sin(lat2)
+    );
+  return { latitude: (lat2 * 180) / Math.PI, longitude: (lng2 * 180) / Math.PI };
+}
+
+function coneSector(
+  lat: number,
+  lng: number,
+  bearing: number,
+  radiusM: number,
+  halfAngle: number,
+  steps: number
+) {
+  const pts: { latitude: number; longitude: number }[] = [{ latitude: lat, longitude: lng }];
+  for (let i = 0; i <= steps; i++) {
+    const angle = bearing - halfAngle + (i * 2 * halfAngle) / steps;
+    pts.push(destPoint(lat, lng, angle, radiusM));
+  }
+  return pts;
+}
+
+export default function NativeMapPickerView({
+  initialLat,
+  initialLng,
+  onRegionChangeComplete,
+  locked,
+  lockedLat,
+  lockedLng,
+  facingDirection,
+}: Props) {
+  const bearing = facingDirection != null ? (DIR_BEARING[facingDirection] ?? 0) : 0;
+
+  const coneCoords = useMemo(() => {
+    if (locked && lockedLat != null && lockedLng != null && facingDirection) {
+      return coneSector(lockedLat, lockedLng, bearing, 110, 38, 24);
+    }
+    return [];
+  }, [locked, lockedLat, lockedLng, bearing, facingDirection]);
+
+  if (locked && lockedLat != null && lockedLng != null) {
+    return (
+      <MapView
+        style={StyleSheet.absoluteFill}
+        region={{
+          latitude: lockedLat,
+          longitude: lockedLng,
+          latitudeDelta: 0.0014,
+          longitudeDelta: 0.0014,
+        }}
+        scrollEnabled={false}
+        zoomEnabled={false}
+        rotateEnabled={false}
+        pitchEnabled={false}
+        showsUserLocation={false}
+        showsMyLocationButton={false}
+        showsCompass={false}
+        showsPointsOfInterest={true}
+        pointerEvents="none"
+      >
+        {facingDirection && coneCoords.length > 0 && (
+          <Polygon
+            coordinates={coneCoords}
+            fillColor="rgba(124,58,237,0.25)"
+            strokeColor="rgba(124,58,237,0.75)"
+            strokeWidth={2}
+          />
+        )}
+        <Marker
+          coordinate={{ latitude: lockedLat, longitude: lockedLng }}
+          pinColor="#7C3AED"
+        />
+      </MapView>
+    );
+  }
+
   return (
     <MapView
       style={StyleSheet.absoluteFill}
