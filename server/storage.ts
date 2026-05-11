@@ -180,6 +180,7 @@ export class DatabaseStorage implements IStorage {
         reward: data.reward || 5,
         note: data.note,
         specificSpotName: (data as any).specificSpotName || null,
+        facingDirection: (data as any).facingDirection || null,
         status: "open",
       })
       .returning();

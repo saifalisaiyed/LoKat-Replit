@@ -57,6 +57,7 @@ export const photoRequests = pgTable("photo_requests", {
   submittedAt: text("submitted_at"),
   note: text("note"),
   specificSpotName: text("specific_spot_name"),
+  facingDirection: text("facing_direction"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

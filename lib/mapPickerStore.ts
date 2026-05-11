@@ -3,6 +3,7 @@ type PickedLocation = {
   lng: number;
   name: string;
   address: string;
+  facingDirection?: string;
 };
 
 let _pending: PickedLocation | null = null;

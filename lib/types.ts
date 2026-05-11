@@ -45,6 +45,7 @@ export interface PhotoRequest {
   submittedAt?: string;
   note?: string;
   specificSpotName?: string | null;
+  facingDirection?: string | null;
 }
 
 export interface Notification {

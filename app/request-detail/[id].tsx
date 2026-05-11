@@ -55,6 +55,11 @@ function getCategoryLabel(key: Category): string {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key;
 }
 
+const FACING_FULL: Record<string, string> = {
+  N: "North", NE: "Northeast", E: "East", SE: "Southeast",
+  S: "South", SW: "Southwest", W: "West", NW: "Northwest",
+};
+
 function DetailRow({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <View style={styles.detailRow}>
@@ -263,6 +268,14 @@ export default function RequestDetailScreen() {
                 <View style={styles.specificSpotRow}>
                   <Ionicons name="navigate-circle-outline" size={13} color={Colors.light.tint} />
                   <Text style={styles.specificSpotText}>Exact spot: {request.specificSpotName}</Text>
+                </View>
+              ) : null}
+              {request.facingDirection ? (
+                <View style={styles.specificSpotRow}>
+                  <Ionicons name="compass-outline" size={13} color="#F97316" />
+                  <Text style={[styles.specificSpotText, { color: "#F97316" }]}>
+                    Facing {FACING_FULL[request.facingDirection] ?? request.facingDirection}
+                  </Text>
                 </View>
               ) : null}
             </View>

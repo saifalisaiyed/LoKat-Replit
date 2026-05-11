@@ -119,6 +119,7 @@ export default function CreateRequestScreen() {
   const [currentLat, setCurrentLat] = useState(parseFloat(lat || "40.7580"));
   const [currentLng, setCurrentLng] = useState(parseFloat(lng || "-73.9855"));
   const [isCustomPinned, setIsCustomPinned] = useState(false);
+  const [facingDirection, setFacingDirection] = useState<string | null>(null);
   const beforePickRef = useRef<{ name: string; address: string; lat: number; lng: number } | null>(null);
 
   useEffect(() => {
@@ -155,6 +156,7 @@ export default function CreateRequestScreen() {
         setResolvedName(picked.name);
         setResolvedAddress(picked.address);
         setIsCustomPinned(true);
+        setFacingDirection(picked.facingDirection || null);
       }
     }, [resolvedName, resolvedAddress, currentLat, currentLng])
   );
@@ -200,6 +202,7 @@ export default function CreateRequestScreen() {
       locationName: submitLocationName,
       address: submitAddress,
       ...(submitSpecificSpotName ? { specificSpotName: submitSpecificSpotName } : {}),
+      ...(isCustomPinned && facingDirection ? { facingDirection } : {}),
       category,
       orientation,
       angle,
@@ -301,6 +304,12 @@ export default function CreateRequestScreen() {
               <View style={styles.pinnedBody}>
                 <Text style={styles.pinnedLabel}>Exact spot pinned</Text>
                 <Text style={styles.pinnedSub}>{resolvedName}</Text>
+                {facingDirection ? (
+                  <View style={styles.dirBadge}>
+                    <Ionicons name="compass-outline" size={11} color="#7C3AED" />
+                    <Text style={styles.dirBadgeText}>Facing {facingDirection}</Text>
+                  </View>
+                ) : null}
               </View>
               <View style={styles.pinnedActions}>
                 <Pressable
@@ -327,6 +336,7 @@ export default function CreateRequestScreen() {
                       setCurrentLng(prev.lng);
                     }
                     setIsCustomPinned(false);
+                    setFacingDirection(null);
                   }}
                 >
                   <Ionicons name="close" size={13} color="#6B7280" />
@@ -753,6 +763,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#4B5563",
     fontFamily: "Archivo_400Regular",
+  },
+  dirBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    marginTop: 4,
+  },
+  dirBadgeText: {
+    fontSize: 11,
+    color: "#7C3AED",
+    fontFamily: "Archivo_500Medium",
   },
   pinnedChangeBtn: {
     paddingHorizontal: 10,
