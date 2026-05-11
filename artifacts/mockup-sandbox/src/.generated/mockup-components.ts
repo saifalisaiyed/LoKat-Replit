@@ -2,5 +2,6 @@
 type ModuleMap = Record<string, () => Promise<Record<string, unknown>>>;
 export const modules: ModuleMap = {
   "./components/mockups/direction-picker/CompassGrid.tsx": () => import("../components/mockups/direction-picker/CompassGrid.tsx"),
+  "./components/mockups/direction-picker/HybridRing.tsx": () => import("../components/mockups/direction-picker/HybridRing.tsx"),
   "./components/mockups/direction-picker/RotationDial.tsx": () => import("../components/mockups/direction-picker/RotationDial.tsx")
 };

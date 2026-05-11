@@ -1,0 +1,288 @@
+import { useState, useRef, useCallback } from "react";
+
+const SEGMENT_COUNT = 16;
+const SEG_DEG = 360 / SEGMENT_COUNT;
+
+const MAIN_LABELS: Record<number, string> = {
+  0: "N", 1: "NNE", 2: "NE", 3: "ENE",
+  4: "E", 5: "ESE", 6: "SE", 7: "SSE",
+  8: "S", 9: "SSW", 10: "SW", 11: "WSW",
+  12: "W", 13: "WNW", 14: "NW", 15: "NNW",
+};
+
+const FULL_NAMES: Record<string, string> = {
+  N: "North", NNE: "North-Northeast", NE: "Northeast", ENE: "East-Northeast",
+  E: "East", ESE: "East-Southeast", SE: "Southeast", SSE: "South-Southeast",
+  S: "South", SSW: "South-Southwest", SW: "Southwest", WSW: "West-Southwest",
+  W: "West", WNW: "West-Northwest", NW: "Northwest", NNW: "North-Northwest",
+};
+
+// Which segment indices show their label prominently
+const PRIMARY = new Set([0, 2, 4, 6, 8, 10, 12, 14]);
+
+function polarToXY(angleDeg: number, r: number, cx: number, cy: number) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function describeArc(
+  cx: number, cy: number, r: number,
+  startDeg: number, endDeg: number
+): string {
+  const gap = 1.5;
+  const s = polarToXY(startDeg + gap, r, cx, cy);
+  const e = polarToXY(endDeg - gap, r, cx, cy);
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 0 1 ${e.x} ${e.y}`;
+}
+
+export function HybridRing() {
+  const [selected, setSelected] = useState<number>(0);
+  const ringRef = useRef<SVGSVGElement>(null);
+
+  const SIZE = 260;
+  const CX = SIZE / 2;
+  const CY = SIZE / 2;
+  const R_OUTER = 118;
+  const R_INNER = 76;
+  const R_LABEL = 98;
+  const R_NEEDLE = 64;
+
+  const handleRingClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (!ringRef.current) return;
+    const rect = ringRef.current.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + rect.width / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < R_INNER - 4 || dist > R_OUTER + 8) return;
+    const angleDeg = ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360;
+    const seg = Math.round(angleDeg / SEG_DEG) % SEGMENT_COUNT;
+    setSelected(seg);
+  }, []);
+
+  const handleRingTouch = useCallback((e: React.TouchEvent<SVGSVGElement>) => {
+    if (!ringRef.current) return;
+    const touch = e.touches[0];
+    const rect = ringRef.current.getBoundingClientRect();
+    const dx = touch.clientX - (rect.left + rect.width / 2);
+    const dy = touch.clientY - (rect.top + rect.height / 2);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < R_INNER - 4 || dist > R_OUTER + 8) return;
+    const angleDeg = ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360;
+    const seg = Math.round(angleDeg / SEG_DEG) % SEGMENT_COUNT;
+    setSelected(seg);
+  }, []);
+
+  const selectedAngle = selected * SEG_DEG;
+  const selectedLabel = MAIN_LABELS[selected];
+
+  return (
+    <div style={{
+      fontFamily: "'Inter', sans-serif",
+      background: "#F5F5F7",
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "16px",
+    }}>
+      <div style={{ width: "100%", maxWidth: 360 }}>
+
+        {/* Mock map-picker header */}
+        <div style={{
+          background: "#1A1B2E",
+          borderRadius: "16px 16px 0 0",
+          padding: "14px 16px 12px",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+        }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#7C3AED" }} />
+          <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Select exact spot</span>
+        </div>
+
+        {/* Mock map area — shows direction cone on map */}
+        <div style={{
+          height: 130,
+          background: "linear-gradient(135deg, #2a2d4a 0%, #1e2035 100%)",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            position: "absolute", inset: 0, opacity: 0.15,
+            backgroundImage: "repeating-linear-gradient(0deg, #7C3AED 0, #7C3AED 1px, transparent 0, transparent 50%), repeating-linear-gradient(90deg, #7C3AED 0, #7C3AED 1px, transparent 0, transparent 50%)",
+            backgroundSize: "40px 40px",
+          }} />
+          <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}>
+            {/* Direction cone */}
+            <div style={{
+              position: "absolute", left: "50%", top: "50%",
+              transform: `translate(-50%, -50%) rotate(${selectedAngle}deg)`,
+              transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+            }}>
+              <div style={{
+                width: 0, height: 0,
+                borderLeft: "16px solid transparent",
+                borderRight: "16px solid transparent",
+                borderBottom: "58px solid rgba(124,58,237,0.4)",
+                marginLeft: -16,
+                marginTop: -58,
+                filter: "blur(1px)",
+              }} />
+            </div>
+            {/* Pin */}
+            <div style={{
+              width: 26, height: 26,
+              borderRadius: "50% 50% 50% 0",
+              background: "#7C3AED",
+              transform: "rotate(-45deg)",
+              border: "3px solid #fff",
+              boxShadow: "0 4px 12px rgba(124,58,237,0.5)",
+              position: "relative", zIndex: 2,
+            }} />
+          </div>
+        </div>
+
+        {/* Bottom sheet */}
+        <div style={{
+          background: "#fff",
+          borderRadius: "0 0 16px 16px",
+          padding: "18px 16px 16px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+        }}>
+          <p style={{ margin: "0 0 16px", fontSize: 13, fontWeight: 600, color: "#111827" }}>
+            Photo facing direction — <span style={{ color: "#9CA3AF", fontWeight: 400 }}>tap the ring</span>
+          </p>
+
+          {/* Ring picker */}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+            <svg
+              ref={ringRef}
+              width={SIZE}
+              height={SIZE}
+              viewBox={`0 0 ${SIZE} ${SIZE}`}
+              onClick={handleRingClick}
+              onTouchStart={handleRingTouch}
+              style={{ cursor: "pointer", overflow: "visible" }}
+            >
+              {/* Segments */}
+              {Array.from({ length: SEGMENT_COUNT }, (_, i) => {
+                const startDeg = i * SEG_DEG;
+                const endDeg = startDeg + SEG_DEG;
+                const isSelected = i === selected;
+                const isAdjacent = Math.min(Math.abs(i - selected), SEGMENT_COUNT - Math.abs(i - selected)) === 1;
+
+                const R_MID = (R_OUTER + R_INNER) / 2;
+
+                // Arc fill (wide band)
+                const sOuter = polarToXY(startDeg + 1.2, R_OUTER, CX, CY);
+                const eOuter = polarToXY(endDeg - 1.2, R_OUTER, CX, CY);
+                const sInner = polarToXY(endDeg - 1.2, R_INNER, CX, CY);
+                const eInner = polarToXY(startDeg + 1.2, R_INNER, CX, CY);
+                const pathD = `M ${sOuter.x} ${sOuter.y} A ${R_OUTER} ${R_OUTER} 0 0 1 ${eOuter.x} ${eOuter.y} L ${sInner.x} ${sInner.y} A ${R_INNER} ${R_INNER} 0 0 0 ${eInner.x} ${eInner.y} Z`;
+
+                const segColor = isSelected
+                  ? "#7C3AED"
+                  : isAdjacent
+                  ? "#DDD6FE"
+                  : "#F3F4F6";
+
+                const midAngle = startDeg + SEG_DEG / 2;
+                const lp = polarToXY(midAngle, R_LABEL, CX, CY);
+                const isPrimary = PRIMARY.has(i);
+
+                return (
+                  <g key={i}>
+                    <path
+                      d={pathD}
+                      fill={segColor}
+                      style={{ transition: "fill 0.15s ease" }}
+                    />
+                    {/* Label */}
+                    {isPrimary && (
+                      <text
+                        x={lp.x}
+                        y={lp.y}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={isSelected ? 10 : 8.5}
+                        fontWeight={isSelected ? 800 : 600}
+                        fill={isSelected ? "#fff" : "#9CA3AF"}
+                        fontFamily="Inter, sans-serif"
+                        style={{ transition: "all 0.15s", pointerEvents: "none", userSelect: "none" }}
+                      >
+                        {MAIN_LABELS[i]}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+
+              {/* Inner circle background */}
+              <circle cx={CX} cy={CY} r={R_INNER - 2} fill="#fff" />
+
+              {/* Subtle inner ring */}
+              <circle cx={CX} cy={CY} r={R_INNER - 2} fill="none" stroke="#E5E7EB" strokeWidth={1} />
+
+              {/* Needle pointing to selected direction */}
+              <g
+                style={{
+                  transform: `rotate(${selectedAngle}deg)`,
+                  transformOrigin: `${CX}px ${CY}px`,
+                  transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+                }}
+              >
+                {/* Needle shaft */}
+                <line
+                  x1={CX}
+                  y1={CY}
+                  x2={CX}
+                  y2={CY - R_NEEDLE}
+                  stroke="#7C3AED"
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                />
+                {/* Arrowhead */}
+                <polygon
+                  points={`${CX},${CY - R_NEEDLE - 7} ${CX - 5},${CY - R_NEEDLE + 2} ${CX + 5},${CY - R_NEEDLE + 2}`}
+                  fill="#7C3AED"
+                />
+              </g>
+
+              {/* Center hub */}
+              <circle cx={CX} cy={CY} r={14} fill="#7C3AED" />
+              <text x={CX} y={CY} textAnchor="middle" dominantBaseline="central" fontSize={14}>📷</text>
+            </svg>
+          </div>
+
+          {/* Result pill */}
+          <div style={{
+            background: "rgba(124,58,237,0.08)",
+            border: "1px solid rgba(124,58,237,0.25)",
+            borderRadius: 10,
+            padding: "10px 14px",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 14,
+          }}>
+            <span style={{ fontSize: 16 }}>🧭</span>
+            <div>
+              <p style={{ margin: 0, fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>Camera will face</p>
+              <p style={{ margin: 0, fontSize: 14, color: "#111827", fontWeight: 700 }}>
+                {FULL_NAMES[selectedLabel]}
+              </p>
+            </div>
+          </div>
+
+          <button style={{
+            width: "100%", padding: "14px", borderRadius: 12,
+            background: "#7C3AED", border: "none", cursor: "pointer",
+            color: "#fff", fontSize: 15, fontWeight: 700,
+          }}>
+            Confirm Direction
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
