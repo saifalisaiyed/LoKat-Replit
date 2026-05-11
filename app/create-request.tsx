@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  ScrollView,
   TextInput,
   Platform,
   Animated,
   Modal,
   ActivityIndicator,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
@@ -263,13 +263,15 @@ export default function CreateRequestScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: insets.bottom + 100 },
         ]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        bottomOffset={24}
       >
         <View style={styles.locationCard}>
           <View style={styles.locationDot} />
@@ -535,7 +537,7 @@ export default function CreateRequestScreen() {
             textAlignVertical="top"
           />
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       <View
         style={[
