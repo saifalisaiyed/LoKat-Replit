@@ -85,6 +85,54 @@ function getDirectionLabel(bearing: number): string {
   return dirs[idx];
 }
 
+function getNextRouteWaypoint(
+  userLat: number,
+  userLng: number,
+  route: { latitude: number; longitude: number }[]
+): { latitude: number; longitude: number } | null {
+  if (route.length < 2) return null;
+  let closestIdx = 0;
+  let closestDist = Infinity;
+  for (let i = 0; i < route.length; i++) {
+    const d = haversineDistance(userLat, userLng, route[i].latitude, route[i].longitude);
+    if (d < closestDist) { closestDist = d; closestIdx = i; }
+  }
+  const lookAhead = Math.min(closestIdx + 5, route.length - 1);
+  return route[lookAhead];
+}
+
+function normalizeAngle(a: number): number {
+  while (a > 180) a -= 360;
+  while (a < -180) a += 360;
+  return a;
+}
+
+function getTurnInfo(relAngle: number): { rotation: number; label: string; color: string } {
+  if (relAngle < -45) return { rotation: -90, label: "Sharp Left", color: "#EF4444" };
+  if (relAngle < -20) return { rotation: -48, label: "Turn Left", color: "#F97316" };
+  if (relAngle <= 20)  return { rotation: 0,   label: "Head Straight", color: "#22C55E" };
+  if (relAngle <= 45)  return { rotation: 48,  label: "Turn Right", color: "#F97316" };
+  return { rotation: 90, label: "Sharp Right", color: "#EF4444" };
+}
+
+const ANGLE_CONFIG = {
+  "looking-up": {
+    icon: "arrow-up-circle-outline" as const,
+    text: "Aim upward",
+    hint: "Tilt the top of your phone away from you",
+  },
+  "eye-level": {
+    icon: "remove-circle-outline" as const,
+    text: "Hold at eye level",
+    hint: "Keep the phone pointing straight ahead",
+  },
+  "looking-down": {
+    icon: "arrow-down-circle-outline" as const,
+    text: "Aim downward",
+    hint: "Tilt the top of your phone toward you",
+  },
+};
+
 function PulsingDot() {
   const scale = useSharedValue(1);
   const opacity = useSharedValue(0.5);
@@ -145,7 +193,11 @@ export default function LoKaterModeScreen() {
   } | null>(null);
   const [locationError, setLocationError] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
+  const [deviceHeading, setDeviceHeading] = useState<number | null>(null);
   const [routePolyline, setRoutePolyline] = useState<{ latitude: number; longitude: number }[]>([]);
+
+  const arrowRotation = useSharedValue(0);
+  const arrowOpacity = useSharedValue(0);
   const watchRef = useRef<any>(null);
   const lastFetchOriginRef = useRef<{ latitude: number; longitude: number } | null>(null);
 
@@ -210,12 +262,15 @@ export default function LoKaterModeScreen() {
           return;
         }
         const sub = await Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.High, distanceInterval: 5 },
+          { accuracy: Location.Accuracy.High, distanceInterval: 3 },
           (loc: any) => {
             setUserLocation({
               latitude: loc.coords.latitude,
               longitude: loc.coords.longitude,
             });
+            if (typeof loc.coords.heading === "number" && loc.coords.heading >= 0) {
+              setDeviceHeading(loc.coords.heading);
+            }
             setIsTracking(true);
           }
         );
@@ -314,6 +369,38 @@ export default function LoKaterModeScreen() {
 
   const isCloseEnough = distance !== null && distance < 100;
   const isVeryClose = distance !== null && distance < 50;
+
+  const nextWaypoint =
+    userLocation && routePolyline.length > 1
+      ? getNextRouteWaypoint(userLocation.latitude, userLocation.longitude, routePolyline)
+      : null;
+
+  const turnInfo = (() => {
+    if (!userLocation || isVeryClose) return null;
+    const target = nextWaypoint ?? (request ? { latitude: request.latitude, longitude: request.longitude } : null);
+    if (!target) return null;
+    const bearingToTarget = getBearing(userLocation.latitude, userLocation.longitude, target.latitude, target.longitude);
+    if (deviceHeading === null) {
+      return { rotation: 0, label: getDirectionLabel(bearingToTarget) + " to destination", color: Colors.light.tint };
+    }
+    return getTurnInfo(normalizeAngle(bearingToTarget - deviceHeading));
+  })();
+
+  useEffect(() => {
+    if (turnInfo) {
+      arrowRotation.value = withTiming(turnInfo.rotation, { duration: 550, easing: Easing.out(Easing.ease) });
+      arrowOpacity.value = withTiming(1, { duration: 350 });
+    } else {
+      arrowOpacity.value = withTiming(0, { duration: 250 });
+    }
+  }, [turnInfo?.rotation, !!turnInfo]);
+
+  const arrowAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${arrowRotation.value}deg` }],
+  }));
+  const turnHudStyle = useAnimatedStyle(() => ({
+    opacity: arrowOpacity.value,
+  }));
 
   const handleTakePhoto = useCallback(() => {
     if (!isCloseEnough) return;
@@ -451,6 +538,25 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
         </View>
       </View>
 
+      {Platform.OS !== "web" && (
+        <Animated.View
+          style={[styles.turnHUD, { top: insets.top + 118 + webInsetTop }, turnHudStyle]}
+          pointerEvents="none"
+        >
+          <View style={styles.turnCard}>
+            <Animated.View style={arrowAnimStyle}>
+              <Ionicons name="arrow-up" size={52} color={turnInfo?.color ?? Colors.light.tint} />
+            </Animated.View>
+            <Text style={[styles.turnLabel, { color: turnInfo?.color ?? Colors.light.tint }]}>
+              {turnInfo?.label ?? ""}
+            </Text>
+            {distance !== null && !isVeryClose && (
+              <Text style={styles.turnDist}>{formatDistance(distance)}</Text>
+            )}
+          </View>
+        </Animated.View>
+      )}
+
       <Pressable
         style={[styles.lokaterLocBtn, { bottom: Platform.OS === "web" ? 34 + 16 + 160 : insets.bottom + 16 + 160 }]}
         onPress={() => {
@@ -497,6 +603,21 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             </Text>
           </View>
         )}
+
+        {isCloseEnough && request.angle && (() => {
+          const cfg = ANGLE_CONFIG[request.angle as keyof typeof ANGLE_CONFIG] ?? ANGLE_CONFIG["eye-level"];
+          return (
+            <View style={styles.angleBanner}>
+              <View style={styles.angleBannerIcon}>
+                <Ionicons name={cfg.icon} size={20} color={Colors.light.tint} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.angleBannerTitle}>{cfg.text}</Text>
+                <Text style={styles.angleBannerHint}>{cfg.hint}</Text>
+              </View>
+            </View>
+          );
+        })()}
 
         <View style={styles.actionRow}>
           <Pressable
@@ -923,6 +1044,69 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontFamily: "Archivo_400Regular",
     flex: 1,
+  },
+  turnHUD: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 20,
+  },
+  turnCard: {
+    backgroundColor: "rgba(12,12,22,0.80)",
+    borderRadius: 20,
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    alignItems: "center",
+    gap: 2,
+    minWidth: 160,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+    elevation: 10,
+  },
+  turnLabel: {
+    fontSize: 15,
+    fontFamily: "Archivo_700Bold",
+    marginTop: 6,
+    letterSpacing: 0.2,
+  },
+  turnDist: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.55)",
+    fontFamily: "Archivo_500Medium",
+    marginTop: 2,
+  },
+  angleBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: "rgba(124,58,237,0.07)",
+    borderWidth: 1,
+    borderColor: "rgba(124,58,237,0.18)",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  angleBannerIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 9,
+    backgroundColor: "rgba(124,58,237,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  angleBannerTitle: {
+    fontSize: 14,
+    color: Colors.light.tint,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  angleBannerHint: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    fontFamily: "Archivo_400Regular",
+    marginTop: 1,
   },
   menuOverlay: {
     flex: 1,
