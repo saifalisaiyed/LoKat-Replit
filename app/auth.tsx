@@ -257,7 +257,7 @@ export default function AuthScreen() {
           <Text style={styles.headerSubtitle}>
             {mode === "register"
               ? "Sign up with your phone number to get started"
-              : "Log in to your account"}
+              : "Log in with your email or phone number"}
           </Text>
         </View>
 
@@ -297,17 +297,17 @@ export default function AuthScreen() {
             </View>
           ) : (
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Email</Text>
+              <Text style={styles.inputLabel}>Email or Phone Number</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your email"
+                placeholder="your@email.com or +1 234 567 8901"
                 placeholderTextColor="#B0B0B0"
                 value={email}
                 onChangeText={setEmail}
-                keyboardType="email-address"
+                keyboardType="default"
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoComplete="email"
+                autoComplete="username"
               />
             </View>
           )}

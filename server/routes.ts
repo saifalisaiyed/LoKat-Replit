@@ -99,9 +99,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
+        return res.status(400).json({ message: "Email or phone number and password are required" });
       }
-      const user = await storage.getUserByEmail(email.toLowerCase().trim());
+      const identifier = email.trim();
+      let user: any;
+      if (identifier.includes("@")) {
+        user = await storage.getUserByEmail(identifier.toLowerCase());
+      } else {
+        const normalized = identifier.replace(/[\s\-().]/g, "");
+        user = await storage.getUserByPhone(normalized);
+        if (!user && !normalized.startsWith("+")) {
+          user = await storage.getUserByPhone("+" + normalized);
+        }
+      }
       if (!user || !verifyPassword(password, user.password)) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
