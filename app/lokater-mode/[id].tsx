@@ -195,6 +195,7 @@ export default function LoKaterModeScreen() {
   const [isTracking, setIsTracking] = useState(false);
   const [deviceHeading, setDeviceHeading] = useState<number | null>(null);
   const [routePolyline, setRoutePolyline] = useState<{ latitude: number; longitude: number }[]>([]);
+  const magnetometerSubRef = useRef<any>(null);
 
   const arrowRotation = useSharedValue(0);
   const arrowOpacity = useSharedValue(0);
@@ -220,6 +221,23 @@ export default function LoKaterModeScreen() {
     startTracking();
     return () => {
       stopTracking();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    const { Magnetometer } = require("expo-sensors");
+    Magnetometer.setUpdateInterval(100);
+    const sub = Magnetometer.addListener((data: { x: number; y: number; z: number }) => {
+      const radian = Math.atan2(-data.x, data.y);
+      let heading = radian * (180 / Math.PI);
+      if (heading < 0) heading += 360;
+      setDeviceHeading(Math.round(heading));
+    });
+    magnetometerSubRef.current = sub;
+    return () => {
+      sub.remove();
+      magnetometerSubRef.current = null;
     };
   }, []);
 
@@ -262,15 +280,12 @@ export default function LoKaterModeScreen() {
           return;
         }
         const sub = await Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.High, distanceInterval: 3 },
+          { accuracy: Location.Accuracy.High, distanceInterval: 3, timeInterval: 1000 },
           (loc: any) => {
             setUserLocation({
               latitude: loc.coords.latitude,
               longitude: loc.coords.longitude,
             });
-            if (typeof loc.coords.heading === "number" && loc.coords.heading >= 0) {
-              setDeviceHeading(loc.coords.heading);
-            }
             setIsTracking(true);
           }
         );
@@ -388,10 +403,10 @@ export default function LoKaterModeScreen() {
 
   useEffect(() => {
     if (turnInfo) {
-      arrowRotation.value = withTiming(turnInfo.rotation, { duration: 550, easing: Easing.out(Easing.ease) });
-      arrowOpacity.value = withTiming(1, { duration: 350 });
+      arrowRotation.value = withTiming(turnInfo.rotation, { duration: 180, easing: Easing.out(Easing.quad) });
+      arrowOpacity.value = withTiming(1, { duration: 200 });
     } else {
-      arrowOpacity.value = withTiming(0, { duration: 250 });
+      arrowOpacity.value = withTiming(0, { duration: 200 });
     }
   }, [turnInfo?.rotation, !!turnInfo]);
 
