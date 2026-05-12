@@ -37,6 +37,7 @@ async function seed() {
       displayName: "NYC Explorer",
       requestsCreated: DEMO_REQUESTS.length,
       isAdmin: false,
+      hasPaymentMethod: true,
     })
     .onConflictDoNothing()
     .returning();

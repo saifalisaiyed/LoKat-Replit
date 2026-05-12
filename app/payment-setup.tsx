@@ -53,6 +53,12 @@ export default function PaymentSetupScreen() {
       if (msg.type === "success") {
         setShowWebView(false);
         setStatus("done");
+        try {
+          const baseUrl = getApiUrl();
+          await fetch(`${baseUrl}api/payments/payment-status`, {
+            credentials: "include",
+          });
+        } catch {}
         await refreshProfile();
         setTimeout(() => router.back(), 1000);
       }
