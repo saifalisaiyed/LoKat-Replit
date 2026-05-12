@@ -174,6 +174,7 @@ export default function CreateRequestScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [note, setNote] = useState("");
+  const [savedNote, setSavedNote] = useState("");
   const [notesFocused, setNotesFocused] = useState(false);
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
@@ -539,10 +540,10 @@ export default function CreateRequestScreen() {
         <View style={styles.section}>
           <View style={styles.notesLabelRow}>
             <Text style={styles.sectionLabel}>Notes (Optional)</Text>
-            {notesFocused && (
+            {notesFocused && note !== savedNote && (
               <Pressable
                 style={styles.notesDoneBtn}
-                onPress={() => { Keyboard.dismiss(); setNotesFocused(false); }}
+                onPress={() => { setSavedNote(note); Keyboard.dismiss(); setNotesFocused(false); }}
                 hitSlop={8}
               >
                 <Text style={styles.notesDoneBtnText}>Done</Text>
