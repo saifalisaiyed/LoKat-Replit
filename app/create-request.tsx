@@ -173,6 +173,7 @@ export default function CreateRequestScreen() {
   const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [reward, setReward] = useState(5);
   const [note, setNote] = useState("");
   const [savedNote, setSavedNote] = useState("");
   const [notesFocused, setNotesFocused] = useState(false);
@@ -210,7 +211,7 @@ export default function CreateRequestScreen() {
       orientation,
       angle,
       timing,
-      reward: 5,
+      reward,
       note: note || undefined,
       scheduledDate: timing === "scheduled" ? scheduledDate?.toISOString() : undefined,
       scheduledTime: timing === "scheduled" ? scheduledTime?.toISOString() : undefined,
@@ -538,6 +539,26 @@ export default function CreateRequestScreen() {
         </View>
 
         <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Reward</Text>
+          <View style={styles.rewardRow}>
+            {[3, 5, 10, 15, 20].map((amt) => (
+              <Pressable
+                key={amt}
+                style={[styles.rewardChip, reward === amt && styles.rewardChipActive]}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setReward(amt);
+                }}
+              >
+                <Text style={[styles.rewardChipText, reward === amt && styles.rewardChipTextActive]}>
+                  ${amt}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
           <View style={styles.notesLabelRow}>
             <Text style={styles.sectionLabel}>Notes (Optional)</Text>
             {notesFocused && note !== savedNote && (
@@ -581,7 +602,7 @@ export default function CreateRequestScreen() {
         >
           <Feather name="send" size={18} color="#fff" />
           <Text style={styles.submitBtnText}>
-            {isSubmitting ? "Submitting..." : "Launch Request"}
+            {isSubmitting ? "Submitting..." : `Launch Request · $${reward}`}
           </Text>
         </Pressable>
       </View>
@@ -872,6 +893,33 @@ const styles = StyleSheet.create({
   chipActive: {
     backgroundColor: Colors.light.tint,
     borderColor: Colors.light.tint,
+  },
+  rewardRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 10,
+  },
+  rewardChip: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: "#FAFAFA",
+    borderWidth: 1.5,
+    borderColor: "#EBEBEB",
+  },
+  rewardChipActive: {
+    backgroundColor: Colors.light.tint,
+    borderColor: Colors.light.tint,
+  },
+  rewardChipText: {
+    fontSize: 15,
+    fontFamily: "Archivo_600SemiBold",
+    color: Colors.light.textSecondary,
+  },
+  rewardChipTextActive: {
+    color: "#fff",
   },
   chipLabel: {
     fontSize: 13,

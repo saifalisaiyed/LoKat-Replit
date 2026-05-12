@@ -208,8 +208,6 @@ export default function RequestDetailScreen() {
     router.back();
   };
 
-  const distanceKm = (2 + Math.random() * 5).toFixed(1);
-
   return (
     <View style={styles.container}>
       <View style={[styles.mapSection, { height: MAP_HEIGHT }]}>
@@ -294,10 +292,6 @@ export default function RequestDetailScreen() {
               <Text style={[styles.categoryPillText, { color: getCatColor(safeCategory) }]}>
                 {categoryData.label}
               </Text>
-            </View>
-            <View style={styles.chip}>
-              <Ionicons name="navigate-outline" size={14} color={Colors.light.textSecondary} />
-              <Text style={styles.chipTextMuted}>{distanceKm} km away</Text>
             </View>
           </View>
 
