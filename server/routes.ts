@@ -412,6 +412,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/requests/:id/abandon", requireAuth, async (req: Request, res: Response) => {
     try {
+      const existing = await storage.getRequestById(paramId(req));
+      if (!existing) return res.status(404).json({ message: "Request not found" });
+      if (existing.acceptedBy !== req.session.userId) {
+        return res.status(403).json({ message: "You did not accept this request" });
+      }
       const request = await storage.abandonRequest(paramId(req));
       if (!request) return res.status(400).json({ message: "Cannot abandon this request" });
       return res.json(request);
@@ -424,6 +429,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { photoUri } = req.body;
       if (!photoUri) return res.status(400).json({ message: "photoUri required" });
+      const existing = await storage.getRequestById(paramId(req));
+      if (!existing) return res.status(404).json({ message: "Request not found" });
+      if (existing.acceptedBy !== req.session.userId) {
+        return res.status(403).json({ message: "You did not accept this request" });
+      }
       const request = await storage.submitPhoto(paramId(req), photoUri);
       if (!request) return res.status(400).json({ message: "Cannot submit photo" });
       return res.json(request);
@@ -434,6 +444,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/requests/:id/complete", requireAuth, async (req: Request, res: Response) => {
     try {
+      const existing = await storage.getRequestById(paramId(req));
+      if (!existing) return res.status(404).json({ message: "Request not found" });
+      if (existing.creatorId !== req.session.userId) {
+        return res.status(403).json({ message: "Only the request creator can mark it complete" });
+      }
       const request = await storage.completeRequest(paramId(req));
       if (!request) return res.status(400).json({ message: "Cannot complete request" });
       return res.json(request);
@@ -719,6 +734,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { requestId, uploadURL } = req.body;
       if (!requestId || !uploadURL) {
         return res.status(400).json({ error: "requestId and uploadURL are required" });
+      }
+      const existing = await storage.getRequestById(requestId);
+      if (!existing) return res.status(404).json({ message: "Request not found" });
+      if (existing.acceptedBy !== req.session.userId) {
+        return res.status(403).json({ message: "You did not accept this request" });
       }
       const objectStorageService = new ObjectStorageService();
       const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
