@@ -415,7 +415,17 @@ export default function RequestDetailScreen() {
             <View style={styles.photoSection}>
               <Text style={styles.instructionsTitle}>Submitted Photo</Text>
               <View style={styles.photoContainer}>
-                <Image source={{ uri: request.photoUri }} style={styles.photo} contentFit="cover" />
+                <Image
+                  source={{ uri: request.photoUri }}
+                  style={styles.photo}
+                  contentFit="cover"
+                  onLoad={() => {
+                    if (isMyRequest && request.status === "completed") {
+                      const url = new URL(`/api/requests/${request.id}/photo-viewed`, getApiUrl());
+                      fetch(url.toString(), { method: "POST", credentials: "include" }).catch(() => {});
+                    }
+                  }}
+                />
               </View>
             </View>
           )}

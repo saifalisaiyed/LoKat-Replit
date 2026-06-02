@@ -42,6 +42,7 @@ export interface IStorage {
   acceptRequest(id: string, userId: string): Promise<PhotoRequest | undefined>;
   abandonRequest(id: string): Promise<PhotoRequest | undefined>;
   submitPhoto(id: string, photoUri: string): Promise<PhotoRequest | undefined>;
+  clearPhotoUri(requestId: string): Promise<void>;
   completeRequest(id: string): Promise<PhotoRequest | undefined>;
   deleteRequest(id: string, userId: string): Promise<boolean>;
   updateRequestNote(id: string, userId: string, note: string): Promise<PhotoRequest | undefined>;
@@ -249,6 +250,13 @@ export class DatabaseStorage implements IStorage {
       );
     }
     return req;
+  }
+
+  async clearPhotoUri(requestId: string): Promise<void> {
+    await db
+      .update(photoRequests)
+      .set({ photoUri: null })
+      .where(eq(photoRequests.id, requestId));
   }
 
   async completeRequest(id: string): Promise<PhotoRequest | undefined> {

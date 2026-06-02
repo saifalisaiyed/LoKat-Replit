@@ -37,6 +37,17 @@ export class ObjectNotFoundError extends Error {
   }
 }
 
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/octet-stream",
+]);
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
 export class ObjectStorageService {
   constructor() {}
 
@@ -103,6 +114,46 @@ export class ObjectStorageService {
       if (!res.headersSent) {
         res.status(500).json({ error: "Error downloading file" });
       }
+    }
+  }
+
+  async validateUploadedImage(rawPath: string): Promise<{ valid: boolean; error?: string }> {
+    try {
+      const normalizedPath = rawPath.startsWith("https://")
+        ? this.normalizeObjectEntityPath(rawPath)
+        : rawPath;
+      const objectFile = await this.getObjectEntityFile(normalizedPath);
+      const [metadata] = await objectFile.getMetadata();
+      const contentType: string = ((metadata.contentType as string) || "").toLowerCase();
+      const size = parseInt(String(metadata.size ?? "0"), 10);
+      if (!ALLOWED_IMAGE_TYPES.has(contentType)) {
+        return {
+          valid: false,
+          error: `Invalid file type "${contentType}". Only JPEG, PNG, and WebP images are accepted.`,
+        };
+      }
+      if (size > MAX_IMAGE_BYTES) {
+        const mb = (size / 1024 / 1024).toFixed(1);
+        return { valid: false, error: `File is too large (${mb} MB). Maximum allowed size is 10 MB.` };
+      }
+      return { valid: true };
+    } catch (e) {
+      console.error("validateUploadedImage error:", e);
+      return { valid: false, error: "Could not verify the uploaded file." };
+    }
+  }
+
+  async deleteObjectFile(rawPath: string): Promise<void> {
+    try {
+      if (!rawPath) return;
+      const normalizedPath = rawPath.startsWith("https://")
+        ? this.normalizeObjectEntityPath(rawPath)
+        : rawPath;
+      if (!normalizedPath.startsWith("/objects/")) return;
+      const objectFile = await this.getObjectEntityFile(normalizedPath);
+      await objectFile.delete();
+    } catch (e) {
+      console.error("deleteObjectFile failed for path:", rawPath, e);
     }
   }
 

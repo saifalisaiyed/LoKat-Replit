@@ -865,12 +865,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!requestId || !uploadURL) {
         return res.status(400).json({ error: "requestId and uploadURL are required" });
       }
+      if (typeof uploadURL !== "string" || !uploadURL.startsWith("https://")) {
+        return res.status(400).json({ error: "Invalid upload URL" });
+      }
       const existing = await storage.getRequestById(requestId);
       if (!existing) return res.status(404).json({ message: "Request not found" });
       if (existing.acceptedBy !== req.session.userId) {
         return res.status(403).json({ message: "You did not accept this request" });
       }
       const objectStorageService = new ObjectStorageService();
+
+      const validation = await objectStorageService.validateUploadedImage(uploadURL);
+      if (!validation.valid) {
+        objectStorageService.deleteObjectFile(uploadURL).catch(() => {});
+        return res.status(400).json({ error: validation.error });
+      }
+
       const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
         uploadURL,
         {
@@ -884,6 +894,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (e) {
       console.error("Photo submit error:", e);
       return res.status(500).json({ error: "Failed to submit photo" });
+    }
+  });
+
+  app.post("/api/requests/:id/photo-viewed", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const id = requireValidId(req, res);
+      if (!id) return;
+      const existing = await storage.getRequestById(id);
+      if (!existing) return res.status(404).json({ message: "Request not found" });
+      if (existing.creatorId !== req.session.userId) {
+        return res.status(403).json({ message: "Only the seeker can confirm photo receipt" });
+      }
+      if (existing.status !== "completed" || !existing.photoUri) {
+        return res.json({ ok: true });
+      }
+      const objectStorageService = new ObjectStorageService();
+      await objectStorageService.deleteObjectFile(existing.photoUri);
+      await storage.clearPhotoUri(id);
+      return res.json({ ok: true });
+    } catch (e) {
+      console.error("Photo viewed cleanup error:", e);
+      return res.status(500).json({ message: "Server error" });
     }
   });
 

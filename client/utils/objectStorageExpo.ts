@@ -2,6 +2,20 @@ import { File } from 'expo-file-system';
 import { fetch } from 'expo/fetch';
 import { getApiUrl } from '@/lib/query-client';
 
+function inferContentType(file: File): string {
+  if (file.type && file.type !== 'application/octet-stream') return file.type;
+  const name: string = (file as any).name || (file as any).uri || '';
+  const ext = name.split('?')[0].split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'jpg': case 'jpeg': return 'image/jpeg';
+    case 'png': return 'image/png';
+    case 'webp': return 'image/webp';
+    case 'heic': return 'image/heic';
+    case 'heif': return 'image/heif';
+    default: return 'image/jpeg';
+  }
+}
+
 export async function uploadFileToStorage(
   file: File,
   getUploadUrlEndpoint: string = '/api/objects/upload',
@@ -27,7 +41,7 @@ export async function uploadFileToStorage(
     method: 'PUT',
     body: file,
     headers: {
-      'Content-Type': file.type || 'application/octet-stream',
+      'Content-Type': inferContentType(file),
     },
   });
 
