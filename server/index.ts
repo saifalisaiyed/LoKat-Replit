@@ -1,5 +1,6 @@
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
 import * as fs from "fs";
 import * as path from "path";
@@ -12,6 +13,30 @@ declare module "http" {
   interface IncomingMessage {
     rawBody: unknown;
   }
+}
+
+function setupRateLimiting(app: express.Application) {
+  const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many requests, please try again later." },
+    skip: (req) => !req.path.startsWith("/api"),
+  });
+
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many attempts, please try again in 15 minutes." },
+  });
+
+  app.use("/api/", generalLimiter);
+  app.use("/api/auth/login", authLimiter);
+  app.use("/api/auth/register", authLimiter);
+  app.use("/api/auth/forgot-password", authLimiter);
 }
 
 function setupCors(app: express.Application) {
@@ -245,6 +270,7 @@ async function initStripe() {
 }
 
 (async () => {
+  setupRateLimiting(app);
   setupCors(app);
   setupBodyParsing(app);
   setupRequestLogging(app);
