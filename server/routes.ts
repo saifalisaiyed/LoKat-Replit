@@ -912,22 +912,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       if (!req.file) return res.status(400).json({ message: "No image provided" });
 
-      let faces: Array<{ x: number; y: number; width: number; height: number }> = [];
-      try {
-        const parsed = JSON.parse(req.body.faces || "[]");
-        if (Array.isArray(parsed)) faces = parsed;
-      } catch { /* keep empty */ }
-
-      // No faces — return original unchanged
-      if (faces.length === 0) {
-        return res.json({ blurredImageBase64: req.file.buffer.toString("base64"), faceCount: 0 });
-      }
-
       let sharp: any;
       try {
         sharp = (await import("sharp")).default;
       } catch {
-        // sharp unavailable — return original so submission can still proceed
+        return res.json({ blurredImageBase64: req.file.buffer.toString("base64"), faceCount: 0 });
+      }
+
+      // Server-side face detection via Google Cloud Vision API (uses GOOGLE_MAPS_API_KEY).
+      // Fails silently — if Vision API isn't enabled on the key the original image is returned.
+      let faces: Array<{ x: number; y: number; width: number; height: number }> = [];
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (apiKey) {
+        try {
+          const base64Image = req.file.buffer.toString("base64");
+          const visionRes = await fetch(
+            `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                requests: [{
+                  image: { content: base64Image },
+                  features: [{ type: "FACE_DETECTION", maxResults: 20 }],
+                }],
+              }),
+            }
+          );
+          if (visionRes.ok) {
+            const visionData = await visionRes.json();
+            const annotations: any[] = visionData.responses?.[0]?.faceAnnotations ?? [];
+            for (const face of annotations) {
+              const vertices: any[] = face.boundingPoly?.vertices ?? [];
+              if (vertices.length < 4) continue;
+              const xs = vertices.map((v: any) => v.x ?? 0);
+              const ys = vertices.map((v: any) => v.y ?? 0);
+              faces.push({
+                x: Math.min(...xs),
+                y: Math.min(...ys),
+                width: Math.max(...xs) - Math.min(...xs),
+                height: Math.max(...ys) - Math.min(...ys),
+              });
+            }
+          }
+        } catch (e) {
+          console.log("[face-blur] Vision API unavailable (non-fatal):", (e as Error).message);
+        }
+      }
+
+      // No faces detected — return original unchanged
+      if (faces.length === 0) {
         return res.json({ blurredImageBase64: req.file.buffer.toString("base64"), faceCount: 0 });
       }
 

@@ -290,27 +290,10 @@ export default function CameraScreen() {
   const processFacesAsync = async (uri: string) => {
     setIsProcessingFaces(true);
     try {
-      const FaceDetector = await import("expo-face-detector");
-      const result = await FaceDetector.detectFacesAsync(uri, {
-        mode: FaceDetector.FaceDetectorMode.accurate,
-        detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
-        runClassifications: FaceDetector.FaceDetectorClassifications.none,
-        minDetectionInterval: 0,
-        tracking: false,
-      });
-
-      if (!result.faces || result.faces.length === 0) return;
-
-      const faces = result.faces.map((f: any) => ({
-        x: f.bounds.origin.x,
-        y: f.bounds.origin.y,
-        width: f.bounds.size.width,
-        height: f.bounds.size.height,
-      }));
-
+      // Send raw image to server — server handles face detection + blurring.
+      // No expo-face-detector import (not available in Expo Go SDK 50+).
       const formData = new FormData();
       formData.append("image", { uri, type: "image/jpeg", name: "photo.jpg" } as any);
-      formData.append("faces", JSON.stringify(faces));
 
       const baseUrl = getApiUrl();
       const res = await fetch(`${baseUrl}api/photos/blur-faces`, {
