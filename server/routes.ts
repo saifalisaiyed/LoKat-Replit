@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "node:http";
+import multer from "multer";
 import * as fs from "fs";
 import * as path from "path";
 import session from "express-session";
@@ -894,6 +895,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (e) {
       console.error("Photo submit error:", e);
       return res.status(500).json({ error: "Failed to submit photo" });
+    }
+  });
+
+  // POST /api/photos/blur-faces — server-side Gaussian blur on detected face regions
+  const faceBlurUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB cap
+    fileFilter: (_req: any, file: any, cb: any) => {
+      if (file.mimetype.startsWith("image/")) cb(null, true);
+      else cb(new Error("Only image files are accepted"));
+    },
+  });
+
+  app.post("/api/photos/blur-faces", requireAuth, faceBlurUpload.single("image"), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) return res.status(400).json({ message: "No image provided" });
+
+      let faces: Array<{ x: number; y: number; width: number; height: number }> = [];
+      try {
+        const parsed = JSON.parse(req.body.faces || "[]");
+        if (Array.isArray(parsed)) faces = parsed;
+      } catch { /* keep empty */ }
+
+      // No faces — return original unchanged
+      if (faces.length === 0) {
+        return res.json({ blurredImageBase64: req.file.buffer.toString("base64"), faceCount: 0 });
+      }
+
+      let sharp: any;
+      try {
+        sharp = (await import("sharp")).default;
+      } catch {
+        // sharp unavailable — return original so submission can still proceed
+        return res.json({ blurredImageBase64: req.file.buffer.toString("base64"), faceCount: 0 });
+      }
+
+      // Auto-rotate per EXIF so face bounds align with the visual orientation
+      const rotated = await sharp(req.file.buffer).rotate().toBuffer();
+      const meta = await sharp(rotated).metadata();
+      const imgW = meta.width ?? 1920;
+      const imgH = meta.height ?? 1080;
+
+      let imgBuffer = rotated;
+      let blurredCount = 0;
+
+      for (const face of faces) {
+        const left   = Math.max(0, Math.round(face.x));
+        const top    = Math.max(0, Math.round(face.y));
+        const width  = Math.min(Math.round(face.width),  imgW - left);
+        const height = Math.min(Math.round(face.height), imgH - top);
+        if (width <= 0 || height <= 0) continue;
+        try {
+          const blurredRegion = await sharp(imgBuffer)
+            .extract({ left, top, width, height })
+            .blur(28)
+            .toBuffer();
+          imgBuffer = await sharp(imgBuffer)
+            .composite([{ input: blurredRegion, left, top }])
+            .toBuffer();
+          blurredCount++;
+        } catch (_) { /* skip bad bounds */ }
+      }
+
+      const final = await sharp(imgBuffer).jpeg({ quality: 85 }).toBuffer();
+      return res.json({ blurredImageBase64: final.toString("base64"), faceCount: blurredCount });
+    } catch (e) {
+      console.error("Face blur error:", e);
+      return res.status(500).json({ message: "Face blur processing failed" });
     }
   });
 

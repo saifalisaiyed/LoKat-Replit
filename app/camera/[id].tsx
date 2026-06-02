@@ -77,8 +77,11 @@ export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const facing: CameraType = "back";
   const [capturedUri, setCapturedUri] = useState<string | null>(null);
+  const [processedUri, setProcessedUri] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessingFaces, setIsProcessingFaces] = useState(false);
+  const [faceCount, setFaceCount] = useState(0);
   const cameraRef = useRef<CameraView>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
@@ -284,6 +287,56 @@ export default function CameraScreen() {
     );
   }
 
+  const processFacesAsync = async (uri: string) => {
+    setIsProcessingFaces(true);
+    try {
+      const FaceDetector = await import("expo-face-detector");
+      const result = await FaceDetector.detectFacesAsync(uri, {
+        mode: FaceDetector.FaceDetectorMode.accurate,
+        detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
+        runClassifications: FaceDetector.FaceDetectorClassifications.none,
+        minDetectionInterval: 0,
+        tracking: false,
+      });
+
+      if (!result.faces || result.faces.length === 0) return;
+
+      const faces = result.faces.map((f: any) => ({
+        x: f.bounds.origin.x,
+        y: f.bounds.origin.y,
+        width: f.bounds.size.width,
+        height: f.bounds.size.height,
+      }));
+
+      const formData = new FormData();
+      formData.append("image", { uri, type: "image/jpeg", name: "photo.jpg" } as any);
+      formData.append("faces", JSON.stringify(faces));
+
+      const baseUrl = getApiUrl();
+      const res = await fetch(`${baseUrl}api/photos/blur-faces`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (!res.ok) return;
+
+      const data = await res.json();
+      if (data.faceCount > 0 && data.blurredImageBase64) {
+        const FileSystem = require("expo-file-system");
+        const tmpPath = `${FileSystem.cacheDirectory}blurred_${Date.now()}.jpg`;
+        await FileSystem.writeAsStringAsync(tmpPath, data.blurredImageBase64, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        setProcessedUri(tmpPath);
+        setFaceCount(data.faceCount);
+      }
+    } catch (_) {
+      // Fail silently — original image will be uploaded
+    } finally {
+      setIsProcessingFaces(false);
+    }
+  };
+
   const handleCapture = async () => {
     if (!cameraRef.current || isCapturing) return;
     setIsCapturing(true);
@@ -316,6 +369,11 @@ export default function CameraScreen() {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
       if (photo?.uri) {
         setCapturedUri(photo.uri);
+        setProcessedUri(null);
+        setFaceCount(0);
+        if (Platform.OS !== "web") {
+          processFacesAsync(photo.uri);
+        }
       }
     } catch (e) {
       console.log("Capture error:", e);
@@ -327,14 +385,18 @@ export default function CameraScreen() {
   const handleRetake = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setCapturedUri(null);
+    setProcessedUri(null);
+    setFaceCount(0);
+    setIsProcessingFaces(false);
   };
 
   const handleSubmit = async () => {
-    if (!capturedUri || !id || isUploading) return;
+    if (!capturedUri || !id || isUploading || isProcessingFaces) return;
     setIsUploading(true);
     try {
+      const uriToUpload = processedUri ?? capturedUri;
       if (Platform.OS !== "web") {
-        const file = new File(capturedUri);
+        const file = new File(uriToUpload);
         const uploadURL = await uploadFileToStorage(file);
         await uploadAndSubmitPhoto(id, uploadURL);
       } else {
@@ -405,10 +467,29 @@ export default function CameraScreen() {
     return (
       <View style={styles.container}>
         <Image
-          source={{ uri: capturedUri }}
+          source={{ uri: processedUri ?? capturedUri }}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
         />
+
+        {/* Face scan loading badge */}
+        {isProcessingFaces && (
+          <View style={styles.faceScanBadge}>
+            <ActivityIndicator size="small" color="#fff" />
+            <Text style={styles.faceScanText}>Scanning for faces…</Text>
+          </View>
+        )}
+
+        {/* Face blurred confirmation badge */}
+        {!isProcessingFaces && faceCount > 0 && (
+          <View style={styles.faceBlurBadge}>
+            <Ionicons name="eye-off-outline" size={14} color="#fff" />
+            <Text style={styles.faceBlurText}>
+              {faceCount === 1 ? "1 face auto-blurred" : `${faceCount} faces auto-blurred`}
+            </Text>
+          </View>
+        )}
+
         <View
           style={[
             styles.previewOverlay,
@@ -449,15 +530,20 @@ export default function CameraScreen() {
               style={({ pressed }) => [
                 styles.submitPhotoBtn,
                 pressed && { opacity: 0.85 },
-                isUploading && { opacity: 0.7 },
+                (isUploading || isProcessingFaces) && { opacity: 0.6 },
               ]}
               onPress={handleSubmit}
-              disabled={isUploading}
+              disabled={isUploading || isProcessingFaces}
             >
               {isUploading ? (
                 <>
                   <ActivityIndicator size="small" color="#fff" />
-                  <Text style={styles.submitPhotoBtnText}>Uploading...</Text>
+                  <Text style={styles.submitPhotoBtnText}>Uploading…</Text>
+                </>
+              ) : isProcessingFaces ? (
+                <>
+                  <ActivityIndicator size="small" color="#fff" />
+                  <Text style={styles.submitPhotoBtnText}>Processing…</Text>
                 </>
               ) : (
                 <>
@@ -1022,5 +1108,41 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
+  },
+  faceScanBadge: {
+    position: "absolute",
+    bottom: 110,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    zIndex: 20,
+  },
+  faceScanText: {
+    color: "#fff",
+    fontSize: 13,
+    fontFamily: "Archivo_500Medium",
+  },
+  faceBlurBadge: {
+    position: "absolute",
+    bottom: 110,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(22,163,74,0.88)",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    zIndex: 20,
+  },
+  faceBlurText: {
+    color: "#fff",
+    fontSize: 13,
+    fontFamily: "Archivo_500Medium",
   },
 });
