@@ -43,10 +43,40 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
   next();
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function paramId(req: Request): string {
   const id = req.params.id;
   return Array.isArray(id) ? id[0] : id;
 }
+
+function requireValidId(req: Request, res: Response): string | null {
+  const id = paramId(req);
+  if (!UUID_RE.test(id)) {
+    res.status(400).json({ message: "Invalid ID format" });
+    return null;
+  }
+  return id;
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
+function maxLen(val: unknown, limit: number): string | null {
+  if (typeof val !== "string") return null;
+  return val.length <= limit ? val : null;
+}
+
+const VALID_CATEGORIES = new Set(["landmarks","nature","markets","beaches","cityscapes","food","hidden-gems","events"]);
+const VALID_ORIENTATIONS = new Set(["portrait","landscape"]);
+const VALID_ANGLES = new Set(["eye-level","looking-up","aerial","low-angle"]);
+const VALID_TIMING = new Set(["now","scheduled"]);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(
@@ -77,6 +107,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!password || password.length < 6) {
         return res.status(400).json({ message: "Password must be at least 6 characters" });
       }
+      if (password.length > 128) {
+        return res.status(400).json({ message: "Password must be 128 characters or fewer" });
+      }
       const cleanPhone = phone.trim().replace(/[^0-9+\-() ]/g, "");
       const existingPhone = await storage.getUserByPhone(cleanPhone);
       if (existingPhone) {
@@ -104,6 +137,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email, password } = req.body;
       if (!email || !password) {
         return res.status(400).json({ message: "Email or phone number and password are required" });
+      }
+      if (typeof password !== "string" || password.length > 128) {
+        return res.status(400).json({ message: "Invalid password" });
       }
       const identifier = email.trim();
       let user: any;
@@ -237,7 +273,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { displayName, email, phone } = req.body;
       const updates: Record<string, string> = {};
-      if (displayName && displayName.trim()) updates.displayName = displayName.trim();
+      if (displayName !== undefined) {
+        if (typeof displayName !== "string" || displayName.trim().length === 0) {
+          return res.status(400).json({ message: "Display name cannot be empty" });
+        }
+        if (displayName.length > 50) {
+          return res.status(400).json({ message: "Display name must be 50 characters or fewer" });
+        }
+        updates.displayName = displayName.trim();
+      }
       if (email && email.trim()) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email.trim())) {
@@ -278,6 +322,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (newPassword.length < 6) {
         return res.status(400).json({ message: "New password must be at least 6 characters" });
       }
+      if (newPassword.length > 128) {
+        return res.status(400).json({ message: "Password must be 128 characters or fewer" });
+      }
       const user = await storage.getUser(req.session.userId!);
       if (!user) return res.status(404).json({ message: "User not found" });
       if (!verifyPassword(currentPassword, user.password)) {
@@ -295,20 +342,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/feedback", requireAuth, async (req: Request, res: Response) => {
     try {
       const { type, message, senderName } = req.body;
-      if (!message || !message.trim()) {
+      if (!message || typeof message !== "string" || !message.trim()) {
         return res.status(400).json({ message: "Message is required" });
       }
+      if (message.length > 2000) {
+        return res.status(400).json({ message: "Message must be 2000 characters or fewer" });
+      }
       const feedbackType = type === "bug" ? "Bug Report" : "Feedback";
-      const sender = senderName?.trim() || "Anonymous";
+      const rawSender = typeof senderName === "string" ? senderName.trim() : "";
+      const sender = escapeHtml(rawSender.slice(0, 100) || "Anonymous");
       const currentUser = await storage.getUser(req.session.userId!);
-      const userEmail = currentUser?.email || "Not provided";
+      const userEmail = escapeHtml(currentUser?.email || "Not provided");
+      const safeMessage = escapeHtml(message.trim()).replace(/\n/g, "<br/>");
 
       try {
         const { client: resend, fromEmail } = await getUncachableResendClient();
         await resend.emails.send({
           from: `LoKat App <${fromEmail}>`,
           to: ["lokat.official@gmail.com"],
-          subject: `[LoKat ${feedbackType}] from ${sender}`,
+          subject: `[LoKat ${feedbackType}] from ${rawSender.slice(0, 100) || "Anonymous"}`,
           html: `
             <h2>New ${feedbackType} from LoKat App</h2>
             <p><strong>From:</strong> ${sender}</p>
@@ -316,14 +368,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <p><strong>Type:</strong> ${feedbackType}</p>
             <hr/>
             <p><strong>Message:</strong></p>
-            <p>${message.trim().replace(/\n/g, "<br/>")}</p>
+            <p>${safeMessage}</p>
             <hr/>
             <p style="color:#888;font-size:12px;">Sent from LoKat mobile app</p>
           `,
         });
       } catch (emailErr) {
         console.error("Resend email error:", emailErr);
-        console.log(`[FEEDBACK] ${feedbackType} from ${sender} (${userEmail}): ${message.trim()}`);
+        console.log(`[FEEDBACK] ${feedbackType} from ${rawSender} (${currentUser?.email}): ${message.trim()}`);
       }
 
       return res.json({ message: "Feedback sent successfully" });
@@ -339,7 +391,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const lat = parseFloat(req.query.lat as string);
       const lng = parseFloat(req.query.lng as string);
       const radius = parseFloat(req.query.radius as string);
-      if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius) && radius > 0) {
+      const validCoords = !isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng)
+        && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+      if (validCoords && !isNaN(radius) && isFinite(radius) && radius > 0 && radius <= 500) {
         const filtered = requests.filter((r) => {
           const dLat = ((r.latitude - lat) * Math.PI) / 180;
           const dLng = ((r.longitude - lng) * Math.PI) / 180;
@@ -382,7 +436,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/requests", requireAuth, async (req: Request, res: Response) => {
     try {
-      const request = await storage.createRequest(req.session.userId!, req.body);
+      const { latitude, longitude, locationName, address, category, orientation, angle, timing, reward, note, specificSpotName, facingDirection, scheduledTime, scheduledDate } = req.body;
+
+      if (typeof latitude !== "number" || typeof longitude !== "number" || !isFinite(latitude) || !isFinite(longitude)) {
+        return res.status(400).json({ message: "Valid latitude and longitude are required" });
+      }
+      if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+        return res.status(400).json({ message: "Coordinates are out of valid range" });
+      }
+      if (!locationName || typeof locationName !== "string" || !locationName.trim()) {
+        return res.status(400).json({ message: "Location name is required" });
+      }
+      if (locationName.length > 200) {
+        return res.status(400).json({ message: "Location name is too long" });
+      }
+      if (!VALID_CATEGORIES.has(category)) {
+        return res.status(400).json({ message: "Invalid category" });
+      }
+      if (orientation && !VALID_ORIENTATIONS.has(orientation)) {
+        return res.status(400).json({ message: "Invalid orientation" });
+      }
+      if (angle && !VALID_ANGLES.has(angle)) {
+        return res.status(400).json({ message: "Invalid angle" });
+      }
+      if (timing && !VALID_TIMING.has(timing)) {
+        return res.status(400).json({ message: "Invalid timing" });
+      }
+      const rewardNum = Number(reward);
+      if (isNaN(rewardNum) || rewardNum < 1 || rewardNum > 500) {
+        return res.status(400).json({ message: "Reward must be between $1 and $500" });
+      }
+      if (note && (typeof note !== "string" || note.length > 500)) {
+        return res.status(400).json({ message: "Note must be 500 characters or fewer" });
+      }
+      if (specificSpotName && (typeof specificSpotName !== "string" || specificSpotName.length > 200)) {
+        return res.status(400).json({ message: "Specific spot name is too long" });
+      }
+
+      const payload = {
+        latitude,
+        longitude,
+        locationName: locationName.trim(),
+        address: typeof address === "string" ? address.trim().slice(0, 300) : "",
+        category,
+        orientation: VALID_ORIENTATIONS.has(orientation) ? orientation : "landscape",
+        angle: VALID_ANGLES.has(angle) ? angle : "eye-level",
+        timing: VALID_TIMING.has(timing) ? timing : "now",
+        reward: rewardNum,
+        ...(note ? { note: note.trim() } : {}),
+        ...(specificSpotName ? { specificSpotName: specificSpotName.trim() } : {}),
+        ...(facingDirection && typeof facingDirection === "string" ? { facingDirection: facingDirection.trim().slice(0, 100) } : {}),
+        ...(scheduledTime && typeof scheduledTime === "string" ? { scheduledTime: scheduledTime.trim().slice(0, 50) } : {}),
+        ...(scheduledDate && typeof scheduledDate === "string" ? { scheduledDate: scheduledDate.trim().slice(0, 50) } : {}),
+      };
+
+      const request = await storage.createRequest(req.session.userId!, payload as any);
       const { sendPushToUsers } = await import("./pushNotifications");
       const otherUserIds = await storage.getAllUserIdsExcept(req.session.userId!);
       if (otherUserIds.length > 0) {
@@ -402,7 +510,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/requests/:id/accept", requireAuth, async (req: Request, res: Response) => {
     try {
-      const request = await storage.acceptRequest(paramId(req), req.session.userId!);
+      const id = requireValidId(req, res);
+      if (!id) return;
+      const request = await storage.acceptRequest(id, req.session.userId!);
       if (!request) return res.status(400).json({ message: "Cannot accept this request" });
       return res.json(request);
     } catch (e) {
@@ -412,12 +522,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/requests/:id/abandon", requireAuth, async (req: Request, res: Response) => {
     try {
-      const existing = await storage.getRequestById(paramId(req));
+      const id = requireValidId(req, res);
+      if (!id) return;
+      const existing = await storage.getRequestById(id);
       if (!existing) return res.status(404).json({ message: "Request not found" });
       if (existing.acceptedBy !== req.session.userId) {
         return res.status(403).json({ message: "You did not accept this request" });
       }
-      const request = await storage.abandonRequest(paramId(req));
+      const request = await storage.abandonRequest(id);
       if (!request) return res.status(400).json({ message: "Cannot abandon this request" });
       return res.json(request);
     } catch (e) {
@@ -427,14 +539,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/requests/:id/submit", requireAuth, async (req: Request, res: Response) => {
     try {
+      const id = requireValidId(req, res);
+      if (!id) return;
       const { photoUri } = req.body;
-      if (!photoUri) return res.status(400).json({ message: "photoUri required" });
-      const existing = await storage.getRequestById(paramId(req));
+      if (!photoUri || typeof photoUri !== "string") return res.status(400).json({ message: "photoUri required" });
+      const existing = await storage.getRequestById(id);
       if (!existing) return res.status(404).json({ message: "Request not found" });
       if (existing.acceptedBy !== req.session.userId) {
         return res.status(403).json({ message: "You did not accept this request" });
       }
-      const request = await storage.submitPhoto(paramId(req), photoUri);
+      const request = await storage.submitPhoto(id, photoUri);
       if (!request) return res.status(400).json({ message: "Cannot submit photo" });
       return res.json(request);
     } catch (e) {
@@ -444,12 +558,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/requests/:id/complete", requireAuth, async (req: Request, res: Response) => {
     try {
-      const existing = await storage.getRequestById(paramId(req));
+      const id = requireValidId(req, res);
+      if (!id) return;
+      const existing = await storage.getRequestById(id);
       if (!existing) return res.status(404).json({ message: "Request not found" });
       if (existing.creatorId !== req.session.userId) {
         return res.status(403).json({ message: "Only the request creator can mark it complete" });
       }
-      const request = await storage.completeRequest(paramId(req));
+      const request = await storage.completeRequest(id);
       if (!request) return res.status(400).json({ message: "Cannot complete request" });
       return res.json(request);
     } catch (e) {
@@ -459,9 +575,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/requests/:id/note", requireAuth, async (req: Request, res: Response) => {
     try {
+      const id = requireValidId(req, res);
+      if (!id) return;
       const { note } = req.body;
       if (typeof note !== "string") return res.status(400).json({ message: "note must be a string" });
-      const updated = await storage.updateRequestNote(paramId(req), req.session.userId!, note.trim());
+      if (note.length > 500) return res.status(400).json({ message: "Note must be 500 characters or fewer" });
+      const updated = await storage.updateRequestNote(id, req.session.userId!, note.trim());
       if (!updated) return res.status(404).json({ message: "Request not found or not yours" });
       return res.json(updated);
     } catch (e) {
@@ -471,7 +590,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/requests/:id", requireAuth, async (req: Request, res: Response) => {
     try {
-      const deleted = await storage.deleteRequest(paramId(req), req.session.userId!);
+      const id = requireValidId(req, res);
+      if (!id) return;
+      const deleted = await storage.deleteRequest(id, req.session.userId!);
       if (!deleted) return res.status(404).json({ message: "Request not found or not yours" });
       return res.json({ ok: true });
     } catch (e) {
@@ -499,7 +620,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/notifications/:id/read", requireAuth, async (req: Request, res: Response) => {
     try {
-      await storage.markNotificationRead(paramId(req), req.session.userId!);
+      const id = requireValidId(req, res);
+      if (!id) return;
+      await storage.markNotificationRead(id, req.session.userId!);
       return res.json({ ok: true });
     } catch (e) {
       return res.status(500).json({ message: "Failed to mark notification read" });
@@ -517,7 +640,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/messages/:id", requireAuth, async (req: Request, res: Response) => {
     try {
-      const request = await storage.getRequestById(paramId(req));
+      const id = requireValidId(req, res);
+      if (!id) return;
+      const request = await storage.getRequestById(id);
       if (!request) return res.status(404).json({ message: "Request not found" });
       if (request.creatorId !== req.session.userId && request.acceptedBy !== req.session.userId) {
         return res.status(403).json({ message: "Not authorized to view messages" });
@@ -525,7 +650,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (request.status !== "accepted") {
         return res.status(403).json({ message: "Chat is only available while the request is active" });
       }
-      const msgs = await storage.getMessages(paramId(req));
+      const msgs = await storage.getMessages(id);
       return res.json(msgs);
     } catch (e) {
       return res.status(500).json({ message: "Failed to fetch messages" });
@@ -534,11 +659,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/messages/:id", requireAuth, async (req: Request, res: Response) => {
     try {
+      const id = requireValidId(req, res);
+      if (!id) return;
       const { text } = req.body;
-      if (!text || !text.trim()) {
+      if (!text || typeof text !== "string" || !text.trim()) {
         return res.status(400).json({ message: "Message text is required" });
       }
-      const request = await storage.getRequestById(paramId(req));
+      if (text.length > 1000) {
+        return res.status(400).json({ message: "Message must be 1000 characters or fewer" });
+      }
+      const request = await storage.getRequestById(id);
       if (!request) return res.status(404).json({ message: "Request not found" });
       if (request.status !== "accepted") {
         return res.status(403).json({ message: "Chat is only available while the request is active" });
@@ -546,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (request.creatorId !== req.session.userId && request.acceptedBy !== req.session.userId) {
         return res.status(403).json({ message: "Not authorized to send messages" });
       }
-      const msg = await storage.createMessage(paramId(req), req.session.userId!, text.trim());
+      const msg = await storage.createMessage(id, req.session.userId!, text.trim());
       const recipientId = req.session.userId === request.creatorId ? request.acceptedBy : request.creatorId;
       if (recipientId) {
         const sender = await storage.getUser(req.session.userId!);
@@ -1088,6 +1218,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { payoutInfo } = req.body;
       if (!payoutInfo || typeof payoutInfo !== "string") {
         return res.status(400).json({ message: "payoutInfo is required" });
+      }
+      if (payoutInfo.length > 200) {
+        return res.status(400).json({ message: "Payout info must be 200 characters or fewer" });
       }
       await storage.updatePayoutInfo(req.session.userId!, payoutInfo);
       return res.json({ success: true });
