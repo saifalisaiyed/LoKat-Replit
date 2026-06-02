@@ -60,7 +60,8 @@ function setupCors(app: express.Application) {
       origin?.startsWith("http://localhost:") ||
       origin?.startsWith("http://127.0.0.1:");
 
-    if (origin && (origins.has(origin) || isLocalhost)) {
+    const isProd = process.env.REPLIT_DEPLOYMENT === "1";
+    if (origin && (origins.has(origin) || (!isProd && isLocalhost))) {
       res.header("Access-Control-Allow-Origin", origin);
       res.header(
         "Access-Control-Allow-Methods",
@@ -240,7 +241,10 @@ function setupErrorHandler(app: express.Application) {
     };
 
     const status = error.status || error.statusCode || 500;
-    const message = error.message || "Internal Server Error";
+    const isProd = process.env.REPLIT_DEPLOYMENT === "1";
+    const message = isProd
+      ? status < 500 ? (error.message || "Bad request") : "Something went wrong"
+      : error.message || "Internal Server Error";
 
     console.error("Internal Server Error:", err);
 
@@ -269,6 +273,15 @@ async function initStripe() {
     console.error("Stripe init error (non-fatal):", err);
   }
 }
+
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled promise rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception — shutting down:", err);
+  process.exit(1);
+});
 
 (async () => {
   setupRateLimiting(app);

@@ -15,13 +15,20 @@ import {
 import { randomUUID } from "crypto";
 import { sendPushToUser, sendPushToUsers } from "./pushNotifications";
 import * as crypto from "crypto";
+import bcrypt from "bcryptjs";
+
+const BCRYPT_ROUNDS = 12;
 
 export function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update(password).digest("hex");
+  return bcrypt.hashSync(password, BCRYPT_ROUNDS);
 }
 
 export function verifyPassword(password: string, hash: string): boolean {
-  return hashPassword(password) === hash;
+  // Support legacy SHA-256 hashes (64-char hex) during migration period
+  if (/^[0-9a-f]{64}$/.test(hash)) {
+    return crypto.createHash("sha256").update(password).digest("hex") === hash;
+  }
+  return bcrypt.compareSync(password, hash);
 }
 
 export interface IStorage {

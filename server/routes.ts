@@ -1088,7 +1088,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(402).json({
           message: "Payment could not be processed. The seeker may need to update their card.",
           code,
-          stripeError: stripeErr.message,
         });
       }
 
