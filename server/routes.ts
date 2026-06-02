@@ -52,13 +52,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(
     session({
       store: getSessionStore(),
-      secret: process.env.SESSION_SECRET || "lokate-dev-secret-change-me",
+      secret: (() => {
+        const s = process.env.SESSION_SECRET;
+        if (!s) throw new Error("SESSION_SECRET environment variable is not set");
+        return s;
+      })(),
       resave: false,
       saveUninitialized: false,
       cookie: {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: false,
+        secure: process.env.REPLIT_DEPLOYMENT === "1",
         sameSite: "lax",
       },
     }),
