@@ -450,6 +450,7 @@ export default function CameraScreen() {
     return (
       <View style={styles.container}>
         <Image
+          key={processedUri ?? capturedUri}
           source={{ uri: processedUri ?? capturedUri }}
           style={StyleSheet.absoluteFill}
           contentFit="cover"

@@ -919,13 +919,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ blurredImageBase64: req.file.buffer.toString("base64"), faceCount: 0 });
       }
 
+      // Apply EXIF rotation first so the image pixels are in display orientation.
+      // Vision API will then receive an already-upright image, ensuring face bounds
+      // are in the same coordinate space as what sharp sees after rotation.
+      const rotated = await sharp(req.file.buffer).rotate().toBuffer();
+      const meta = await sharp(rotated).metadata();
+      const imgW = meta.width ?? 1920;
+      const imgH = meta.height ?? 1080;
+
       // Server-side face detection via Google Cloud Vision API (uses GOOGLE_MAPS_API_KEY).
-      // Fails silently — if Vision API isn't enabled on the key the original image is returned.
+      // Fails silently — if Vision API isn't enabled the original image is returned.
       let faces: Array<{ x: number; y: number; width: number; height: number }> = [];
       const apiKey = process.env.GOOGLE_MAPS_API_KEY;
       if (apiKey) {
         try {
-          const base64Image = req.file.buffer.toString("base64");
+          const base64Image = rotated.toString("base64");
           const visionRes = await fetch(
             `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
             {
@@ -942,34 +950,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (visionRes.ok) {
             const visionData = await visionRes.json();
             const annotations: any[] = visionData.responses?.[0]?.faceAnnotations ?? [];
+            console.log(`[face-blur] Vision API: ${annotations.length} face(s) detected (${imgW}x${imgH})`);
             for (const face of annotations) {
-              const vertices: any[] = face.boundingPoly?.vertices ?? [];
-              if (vertices.length < 4) continue;
+              // Prefer fdBoundingPoly (tight face box); fall back to boundingPoly
+              const vertices: any[] = (face.fdBoundingPoly ?? face.boundingPoly)?.vertices ?? [];
+              if (vertices.length < 2) continue;
               const xs = vertices.map((v: any) => v.x ?? 0);
               const ys = vertices.map((v: any) => v.y ?? 0);
-              faces.push({
-                x: Math.min(...xs),
-                y: Math.min(...ys),
-                width: Math.max(...xs) - Math.min(...xs),
-                height: Math.max(...ys) - Math.min(...ys),
-              });
+              const fx = Math.min(...xs);
+              const fy = Math.min(...ys);
+              const fw = Math.max(...xs) - fx;
+              const fh = Math.max(...ys) - fy;
+              // Add 15% padding around the detected region for a safe margin
+              const pad = Math.round(Math.min(fw, fh) * 0.15);
+              faces.push({ x: fx - pad, y: fy - pad, width: fw + pad * 2, height: fh + pad * 2 });
             }
+          } else {
+            const errText = await visionRes.text();
+            console.log(`[face-blur] Vision API error ${visionRes.status}:`, errText.slice(0, 200));
           }
         } catch (e) {
           console.log("[face-blur] Vision API unavailable (non-fatal):", (e as Error).message);
         }
       }
 
-      // No faces detected — return original unchanged
+      // No faces detected — return rotated original unchanged
       if (faces.length === 0) {
-        return res.json({ blurredImageBase64: req.file.buffer.toString("base64"), faceCount: 0 });
+        const orig = await sharp(rotated).jpeg({ quality: 85 }).toBuffer();
+        return res.json({ blurredImageBase64: orig.toString("base64"), faceCount: 0 });
       }
-
-      // Auto-rotate per EXIF so face bounds align with the visual orientation
-      const rotated = await sharp(req.file.buffer).rotate().toBuffer();
-      const meta = await sharp(rotated).metadata();
-      const imgW = meta.width ?? 1920;
-      const imgH = meta.height ?? 1080;
 
       let imgBuffer = rotated;
       let blurredCount = 0;
@@ -977,9 +986,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const face of faces) {
         const left   = Math.max(0, Math.round(face.x));
         const top    = Math.max(0, Math.round(face.y));
-        const width  = Math.min(Math.round(face.width),  imgW - left);
-        const height = Math.min(Math.round(face.height), imgH - top);
-        if (width <= 0 || height <= 0) continue;
+        const right  = Math.min(Math.round(face.x + face.width),  imgW);
+        const bottom = Math.min(Math.round(face.y + face.height), imgH);
+        const width  = right - left;
+        const height = bottom - top;
+        if (width <= 4 || height <= 4) continue;
         try {
           const blurredRegion = await sharp(imgBuffer)
             .extract({ left, top, width, height })
@@ -989,9 +1000,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .composite([{ input: blurredRegion, left, top }])
             .toBuffer();
           blurredCount++;
-        } catch (_) { /* skip bad bounds */ }
+        } catch (err) {
+          console.log(`[face-blur] sharp extract failed for face at ${left},${top} ${width}x${height}:`, (err as Error).message);
+        }
       }
 
+      console.log(`[face-blur] ${blurredCount}/${faces.length} face(s) blurred`);
       const final = await sharp(imgBuffer).jpeg({ quality: 85 }).toBuffer();
       return res.json({ blurredImageBase64: final.toString("base64"), faceCount: blurredCount });
     } catch (e) {
