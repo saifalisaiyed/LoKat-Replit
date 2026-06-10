@@ -305,16 +305,12 @@ export default function CameraScreen() {
 
       const data = await res.json();
       if (data.faceCount > 0 && data.blurredImageBase64) {
-        const FileSystem = require("expo-file-system");
-        const tmpPath = `${FileSystem.cacheDirectory}blurred_${Date.now()}.jpg`;
-        await FileSystem.writeAsStringAsync(tmpPath, data.blurredImageBase64, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        setProcessedUri(tmpPath);
+        // Use a data URI directly — avoids FileSystem write failures on device
+        setProcessedUri(`data:image/jpeg;base64,${data.blurredImageBase64}`);
         setFaceCount(data.faceCount);
       }
-    } catch (_) {
-      // Fail silently — original image will be uploaded
+    } catch (e) {
+      console.log("[face-blur] client error:", e);
     } finally {
       setIsProcessingFaces(false);
     }
@@ -377,7 +373,18 @@ export default function CameraScreen() {
     if (!capturedUri || !id || isUploading || isProcessingFaces) return;
     setIsUploading(true);
     try {
-      const uriToUpload = processedUri ?? capturedUri;
+      let uriToUpload = processedUri ?? capturedUri;
+      // If processedUri is a data URI (blurred result), write to a temp file
+      // before upload — expo-file-system File requires a real file path
+      if (uriToUpload.startsWith("data:") && Platform.OS !== "web") {
+        const FileSystem = require("expo-file-system");
+        const base64Data = uriToUpload.split(",")[1];
+        const tmpPath = `${FileSystem.cacheDirectory}submit_${Date.now()}.jpg`;
+        await FileSystem.writeAsStringAsync(tmpPath, base64Data, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        uriToUpload = tmpPath;
+      }
       if (Platform.OS !== "web") {
         const file = new File(uriToUpload);
         const uploadURL = await uploadFileToStorage(file);
