@@ -930,7 +930,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Server-side face detection via Google Cloud Vision API (uses GOOGLE_MAPS_API_KEY).
       // Fails silently — if Vision API isn't enabled the original image is returned.
       let faces: Array<{ x: number; y: number; width: number; height: number }> = [];
-      const apiKey = process.env.GOOGLE_VISION_API_KEY;
+      const apiKey = process.env.GOOGLE_API_KEY;
       if (apiKey) {
         try {
           const base64Image = rotated.toString("base64");
