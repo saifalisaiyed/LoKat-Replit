@@ -1,6 +1,20 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "node:http";
 import multer from "multer";
+
+// BlazeFace singleton — loaded once on first face-blur request
+let _blazeFaceModel: any = null;
+async function getBlazeModel() {
+  if (!_blazeFaceModel) {
+    const tf = await import("@tensorflow/tfjs" as any);
+    await tf.setBackend("cpu");
+    await tf.ready();
+    const blazeface = await import("@tensorflow-models/blazeface" as any);
+    _blazeFaceModel = await blazeface.load();
+    console.log("[face-blur] BlazeFace model loaded");
+  }
+  return _blazeFaceModel;
+}
 import * as fs from "fs";
 import * as path from "path";
 import session from "express-session";
@@ -927,51 +941,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const imgW = meta.width ?? 1920;
       const imgH = meta.height ?? 1080;
 
-      // Server-side face detection via Google Cloud Vision API (uses GOOGLE_MAPS_API_KEY).
-      // Fails silently — if Vision API isn't enabled the original image is returned.
+      // Server-side face detection via BlazeFace (runs locally, no external API).
       let faces: Array<{ x: number; y: number; width: number; height: number }> = [];
-      const apiKey = process.env.GOOGLE_API_KEY;
-      if (apiKey) {
-        try {
-          const base64Image = rotated.toString("base64");
-          const visionRes = await fetch(
-            `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                requests: [{
-                  image: { content: base64Image },
-                  features: [{ type: "FACE_DETECTION", maxResults: 20 }],
-                }],
-              }),
-            }
-          );
-          if (visionRes.ok) {
-            const visionData = await visionRes.json();
-            const annotations: any[] = visionData.responses?.[0]?.faceAnnotations ?? [];
-            console.log(`[face-blur] Vision API: ${annotations.length} face(s) detected (${imgW}x${imgH})`);
-            for (const face of annotations) {
-              // Prefer fdBoundingPoly (tight face box); fall back to boundingPoly
-              const vertices: any[] = (face.fdBoundingPoly ?? face.boundingPoly)?.vertices ?? [];
-              if (vertices.length < 2) continue;
-              const xs = vertices.map((v: any) => v.x ?? 0);
-              const ys = vertices.map((v: any) => v.y ?? 0);
-              const fx = Math.min(...xs);
-              const fy = Math.min(...ys);
-              const fw = Math.max(...xs) - fx;
-              const fh = Math.max(...ys) - fy;
-              // Add 15% padding around the detected region for a safe margin
-              const pad = Math.round(Math.min(fw, fh) * 0.15);
-              faces.push({ x: fx - pad, y: fy - pad, width: fw + pad * 2, height: fh + pad * 2 });
-            }
-          } else {
-            const errText = await visionRes.text();
-            console.log(`[face-blur] Vision API error ${visionRes.status}:`, errText.slice(0, 200));
-          }
-        } catch (e) {
-          console.log("[face-blur] Vision API unavailable (non-fatal):", (e as Error).message);
+      try {
+        const tf = await import("@tensorflow/tfjs" as any);
+        const model = await getBlazeModel();
+
+        // Feed raw RGB pixels to BlazeFace
+        const { data: rawPixels, info: rawInfo } = await sharp(rotated)
+          .removeAlpha()
+          .raw()
+          .toBuffer({ resolveWithObject: true });
+
+        const tensor = tf.tensor3d(new Uint8Array(rawPixels), [rawInfo.height, rawInfo.width, 3]);
+        const predictions: any[] = await model.estimateFaces(tensor, false);
+        tensor.dispose();
+
+        console.log(`[face-blur] BlazeFace: ${predictions.length} face(s) detected (${imgW}x${imgH})`);
+
+        for (const pred of predictions) {
+          const [x1, y1] = pred.topLeft as [number, number];
+          const [x2, y2] = pred.bottomRight as [number, number];
+          const fw = x2 - x1;
+          const fh = y2 - y1;
+          const pad = Math.round(Math.min(fw, fh) * 0.15);
+          faces.push({ x: x1 - pad, y: y1 - pad, width: fw + pad * 2, height: fh + pad * 2 });
         }
+      } catch (e) {
+        console.log("[face-blur] BlazeFace error (non-fatal):", (e as Error).message);
       }
 
       // No faces detected — return rotated original unchanged
