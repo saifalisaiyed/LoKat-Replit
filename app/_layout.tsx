@@ -2,6 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState, useCallback } from "react";
+import { getApiUrl } from "@/lib/query-client";
 import { View, Text, Image, ImageBackground, StyleSheet, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -163,8 +164,16 @@ export default function RootLayout() {
     SplashScreen.hideAsync();
   }, []);
 
-  const handleSplashFinish = useCallback(() => {
+  const handleSplashFinish = useCallback(async () => {
     setShowSplash(false);
+    try {
+      const baseUrl = getApiUrl();
+      const res = await fetch(`${baseUrl}api/auth/me`, { credentials: "include" });
+      if (res.ok) {
+        // Already authenticated — stay on current route, don't redirect to /auth
+        return;
+      }
+    } catch (_) {}
     setTimeout(() => {
       router.replace("/auth");
     }, 50);

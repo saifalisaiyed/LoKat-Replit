@@ -87,6 +87,7 @@ export default function RequestDetailScreen() {
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [freshRequest, setFreshRequest] = useState<any | null>(null);
   const [loadingFresh, setLoadingFresh] = useState(true);
+  const [isAccepting, setIsAccepting] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -139,8 +140,6 @@ export default function RequestDetailScreen() {
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   };
-
-  const [isAccepting, setIsAccepting] = useState(false);
 
   const handleAccept = async () => {
     if (!isAuthenticated) { setAuthPromptVisible(true); return; }

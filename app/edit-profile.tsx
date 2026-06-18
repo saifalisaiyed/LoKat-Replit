@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -26,6 +26,18 @@ export default function EditProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const initialized = useRef(false);
+
+  // Sync profile into fields once the real user data loads (useState initializer
+  // runs only once — if profile was still "Guest" on mount, fields stay empty)
+  useEffect(() => {
+    if (!initialized.current && profile.name !== "Guest") {
+      setName(profile.name);
+      setEmail(profile.email);
+      setPhone(profile.phone);
+      initialized.current = true;
+    }
+  }, [profile]);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const hasChanges =
