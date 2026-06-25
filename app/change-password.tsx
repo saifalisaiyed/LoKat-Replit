@@ -14,9 +14,24 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
-import { BLACK, GRAY_100, GRAY_105, GRAY_125, GRAY_150, GRAY_380, GREEN_25, GREEN_500, PURPLE_50, RED, RED_50, WHITE } from "@/constants/colors";
+import {
+  BLACK,
+  GRAY_100,
+  GRAY_105,
+  GRAY_125,
+  GRAY_150,
+  GRAY_380,
+  GRAY_600,
+  GRAY_850,
+  GREEN_25,
+  GREEN_500,
+  PURPLE,
+  PURPLE_50,
+  RED,
+  RED_50,
+  WHITE,
+} from "@/constants/colors";
 
 export default function ChangePasswordScreen() {
   const insets = useSafeAreaInsets();
@@ -71,7 +86,7 @@ export default function ChangePasswordScreen() {
     >
       <View style={[styles.header, { paddingTop: insets.top + 8 + webInsetTop }]}>
         <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={22} color={Colors.light.text} />
+          <Ionicons name="arrow-back" size={22} color={GRAY_850} />
         </Pressable>
         <Text style={styles.headerTitle}>Change Password</Text>
         <View style={{ width: 36 }} />
@@ -84,7 +99,7 @@ export default function ChangePasswordScreen() {
       >
         <View style={styles.iconSection}>
           <View style={styles.lockCircle}>
-            <Ionicons name="lock-closed" size={28} color={Colors.light.tint} />
+            <Ionicons name="lock-closed" size={28} color={PURPLE} />
           </View>
           <Text style={styles.description}>
             Enter your current password and choose a new one
@@ -197,7 +212,7 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: GRAY_105, alignItems: "center", justifyContent: "center",
   },
-  headerTitle: { fontSize: 17, color: Colors.light.text, fontFamily: "Archivo_600SemiBold" },
+  headerTitle: { fontSize: 17, color: GRAY_850, fontFamily: "Archivo_600SemiBold" },
   scrollContent: { paddingHorizontal: 20, paddingTop: 24 },
   iconSection: { alignItems: "center", marginBottom: 28, gap: 12 },
   lockCircle: {
@@ -205,7 +220,7 @@ const styles = StyleSheet.create({
     backgroundColor: PURPLE_50, alignItems: "center", justifyContent: "center",
   },
   description: {
-    fontSize: 14, color: Colors.light.textSecondary, textAlign: "center",
+    fontSize: 14, color: GRAY_600, textAlign: "center",
     fontFamily: "Archivo_400Regular", maxWidth: 260,
   },
   formSection: {
@@ -215,11 +230,11 @@ const styles = StyleSheet.create({
   },
   inputGroup: { gap: 6 },
   inputLabel: {
-    fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_500Medium", marginLeft: 2,
+    fontSize: 13, color: GRAY_600, fontFamily: "Archivo_500Medium", marginLeft: 2,
   },
   input: {
     backgroundColor: GRAY_100, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 14,
-    fontSize: 15, color: Colors.light.text, borderWidth: 1, borderColor: GRAY_150,
+    fontSize: 15, color: GRAY_850, borderWidth: 1, borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
   },
   passwordRow: {
@@ -229,7 +244,7 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     flex: 1, paddingHorizontal: 14, paddingVertical: 14, fontSize: 15,
-    color: Colors.light.text, fontFamily: "Archivo_400Regular",
+    color: GRAY_850, fontFamily: "Archivo_400Regular",
   },
   divider: { height: 1, backgroundColor: GRAY_125 },
   errorRow: {
@@ -243,9 +258,9 @@ const styles = StyleSheet.create({
   },
   successText: { fontSize: 13, color: GREEN_500, flex: 1, fontFamily: "Archivo_400Regular" },
   saveBtn: {
-    backgroundColor: Colors.light.tint, paddingVertical: 16, borderRadius: 12,
+    backgroundColor: PURPLE, paddingVertical: 16, borderRadius: 12,
     alignItems: "center", justifyContent: "center", marginTop: 24,
-    shadowColor: Colors.light.tint, shadowOffset: { width: 0, height: 4 },
+    shadowColor: PURPLE, shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2, shadowRadius: 8, elevation: 4,
   },
   saveBtnText: { color: WHITE, fontSize: 16, fontFamily: "Archivo_600SemiBold" },

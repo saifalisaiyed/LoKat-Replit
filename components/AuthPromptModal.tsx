@@ -17,8 +17,16 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { useEffect } from "react";
-import Colors from "@/constants/colors";
-import { BLACK, BLACK_A50, GRAY_100, GRAY_200, WHITE } from "@/constants/colors";
+import {
+  BLACK,
+  BLACK_A50,
+  GRAY_100,
+  GRAY_200,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  WHITE,
+} from "@/constants/colors";
 
 export type AuthPromptContext =
   | "create-request"
@@ -137,7 +145,7 @@ export default function AuthPromptModal({
             {config.features.map((feature, featureIndex) => (
               <View key={featureIndex} style={styles.featureRow}>
                 <View style={styles.featureIconWrap}>
-                  <Ionicons name={feature.icon as any} size={18} color={Colors.light.tint} />
+                  <Ionicons name={feature.icon as any} size={18} color={PURPLE} />
                 </View>
                 <Text style={styles.featureText}>{feature.text}</Text>
               </View>
@@ -207,11 +215,11 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
-    shadowColor: Colors.light.tint,
+    shadowColor: PURPLE,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -219,14 +227,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_700Bold",
     textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     textAlign: "center",
     lineHeight: 20,
@@ -261,7 +269,7 @@ const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: 14,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
     flex: 1,
   },
@@ -270,11 +278,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 16,
     borderRadius: 10,
     width: "100%",
-    shadowColor: Colors.light.tint,
+    shadowColor: PURPLE,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -291,11 +299,11 @@ const styles = StyleSheet.create({
   },
   loginBtnText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   loginBtnTextBold: {
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_600SemiBold",
   },
   dismissBtn: {
@@ -304,7 +312,7 @@ const styles = StyleSheet.create({
   },
   dismissText: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   bottomSpacer: {

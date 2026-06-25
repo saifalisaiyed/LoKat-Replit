@@ -15,14 +15,27 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import Colors from "@/constants/colors";
 import { apiRequest } from "@/lib/query-client";
-import { EMERALD, GRAY_105, GRAY_120, GRAY_125, GRAY_150, GRAY_370, ORANGE, ORANGE_A08, PURPLE_A08, WHITE } from "@/constants/colors";
+import {
+  EMERALD,
+  GRAY_105,
+  GRAY_120,
+  GRAY_125,
+  GRAY_150,
+  GRAY_370,
+  GRAY_600,
+  GRAY_850,
+  ORANGE,
+  ORANGE_A08,
+  PURPLE,
+  PURPLE_A08,
+  WHITE,
+} from "@/constants/colors";
 
 type FeedbackType = "feedback" | "bug";
 
 const TYPES: { key: FeedbackType; label: string; icon: string; color: string; bg: string }[] = [
-  { key: "feedback", label: "General Feedback", icon: "message-square", color: Colors.light.tint, bg: PURPLE_A08 },
+  { key: "feedback", label: "General Feedback", icon: "message-square", color: PURPLE, bg: PURPLE_A08 },
   { key: "bug", label: "Bug Report", icon: "alert-triangle", color: ORANGE, bg: ORANGE_A08 },
 ];
 
@@ -56,7 +69,7 @@ export default function FeedbackScreen() {
       <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
-            <Feather name="arrow-left" size={20} color={Colors.light.text} />
+            <Feather name="arrow-left" size={20} color={GRAY_850} />
           </Pressable>
           <Text style={styles.title}>Send Feedback</Text>
           <View style={{ width: 36 }} />
@@ -87,7 +100,7 @@ export default function FeedbackScreen() {
     >
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
-          <Feather name="arrow-left" size={20} color={Colors.light.text} />
+          <Feather name="arrow-left" size={20} color={GRAY_850} />
         </Pressable>
         <Text style={styles.title}>Send Feedback</Text>
         <View style={{ width: 36 }} />
@@ -124,7 +137,7 @@ export default function FeedbackScreen() {
                   }}
                 >
                   <View style={[styles.typeIconWrap, { backgroundColor: active ? t.bg : GRAY_105 }]}>
-                    <Feather name={t.icon as any} size={20} color={active ? t.color : Colors.light.textSecondary} />
+                    <Feather name={t.icon as any} size={20} color={active ? t.color : GRAY_600} />
                   </View>
                   <Text style={[styles.typeLabel, active && { color: t.color, fontFamily: "Archivo_600SemiBold" }]}>
                     {t.label}
@@ -156,7 +169,7 @@ export default function FeedbackScreen() {
         </View>
 
         <View style={styles.privacyNote}>
-          <Feather name="lock" size={13} color={Colors.light.textSecondary} />
+          <Feather name="lock" size={13} color={GRAY_600} />
           <Text style={styles.privacyText}>
             Your account email is included so we can follow up if needed. Messages go directly to the LoKat team.
           </Text>
@@ -196,15 +209,15 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 12,
     backgroundColor: GRAY_105, alignItems: "center", justifyContent: "center",
   },
-  title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: Colors.light.text },
+  title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: GRAY_850 },
   content: { padding: 20 },
   introText: {
-    fontSize: 14, color: Colors.light.textSecondary,
+    fontSize: 14, color: GRAY_600,
     fontFamily: "Archivo_400Regular", lineHeight: 20, marginBottom: 24,
   },
   section: { marginBottom: 20 },
   sectionLabel: {
-    fontSize: 12, color: Colors.light.textSecondary,
+    fontSize: 12, color: GRAY_600,
     fontFamily: "Archivo_600SemiBold", textTransform: "uppercase",
     letterSpacing: 0.6, marginBottom: 10, marginLeft: 2,
   },
@@ -219,17 +232,17 @@ const styles = StyleSheet.create({
   },
   typeLabel: {
     fontSize: 13, fontFamily: "Archivo_500Medium",
-    color: Colors.light.textSecondary, textAlign: "center",
+    color: GRAY_600, textAlign: "center",
   },
   messageInput: {
     backgroundColor: WHITE, borderRadius: 14, borderWidth: 1.5,
     borderColor: GRAY_150, padding: 16,
-    fontSize: 14, color: Colors.light.text,
+    fontSize: 14, color: GRAY_850,
     fontFamily: "Archivo_400Regular", minHeight: 150,
     lineHeight: 22,
   },
   charCount: {
-    fontSize: 11, color: Colors.light.textSecondary,
+    fontSize: 11, color: GRAY_600,
     fontFamily: "Archivo_400Regular", marginTop: 6, marginLeft: 2,
   },
   privacyNote: {
@@ -237,14 +250,14 @@ const styles = StyleSheet.create({
     backgroundColor: GRAY_120, borderRadius: 10, padding: 12, marginBottom: 20,
   },
   privacyText: {
-    flex: 1, fontSize: 12, color: Colors.light.textSecondary,
+    flex: 1, fontSize: 12, color: GRAY_600,
     fontFamily: "Archivo_400Regular", lineHeight: 17,
   },
   sendBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 8, backgroundColor: Colors.light.tint,
+    gap: 8, backgroundColor: PURPLE,
     borderRadius: 14, paddingVertical: 16,
-    shadowColor: Colors.light.tint, shadowOffset: { width: 0, height: 4 },
+    shadowColor: PURPLE, shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2, shadowRadius: 8, elevation: 4,
   },
   sendBtnDisabled: { opacity: 0.45 },
@@ -255,16 +268,16 @@ const styles = StyleSheet.create({
   },
   successIcon: { marginBottom: 8 },
   successTitle: {
-    fontSize: 24, fontFamily: "Archivo_700Bold", color: Colors.light.text,
+    fontSize: 24, fontFamily: "Archivo_700Bold", color: GRAY_850,
   },
   successText: {
-    fontSize: 14, color: Colors.light.textSecondary,
+    fontSize: 14, color: GRAY_600,
     fontFamily: "Archivo_400Regular", textAlign: "center", lineHeight: 22,
     maxWidth: 300,
   },
   doneBtn: {
     marginTop: 16, paddingVertical: 14, paddingHorizontal: 32,
-    borderRadius: 14, backgroundColor: Colors.light.tint,
+    borderRadius: 14, backgroundColor: PURPLE,
   },
   doneBtnText: { color: WHITE, fontSize: 15, fontFamily: "Archivo_600SemiBold" },
 });

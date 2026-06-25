@@ -1,8 +1,14 @@
 import React, { useMemo } from "react";
 import { StyleSheet, Platform } from "react-native";
 import MapView, { Marker, Heatmap, PROVIDER_GOOGLE } from "react-native-maps";
-import Colors from "@/constants/colors";
-import { PURPLE_A00, PURPLE_LIGHT_A40, PURPLE_MED_A80, PURPLE_MID_A60, PURPLE_PALE_A100 } from "@/constants/colors";
+import {
+  PURPLE,
+  PURPLE_A00,
+  PURPLE_LIGHT_A40,
+  PURPLE_MED_A80,
+  PURPLE_MID_A60,
+  PURPLE_PALE_A100,
+} from "@/constants/colors";
 
 interface MapWrapperProps {
   selectedPin: { latitude: number; longitude: number } | null;
@@ -66,13 +72,13 @@ export default function MapViewWrapper({
         />
       )}
       {selectedPin && isSeeker && (
-        <Marker coordinate={selectedPin} pinColor={Colors.light.tint} />
+        <Marker coordinate={selectedPin} pinColor={PURPLE} />
       )}
       {openRequests.map((req: any) => (
         <Marker
           key={req.id}
           coordinate={{ latitude: req.latitude, longitude: req.longitude }}
-          pinColor={Colors.light.tint}
+          pinColor={PURPLE}
           onPress={() => onMarkerPress(req.id)}
         />
       ))}

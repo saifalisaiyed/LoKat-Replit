@@ -21,9 +21,34 @@ import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import { consumePickedLocation } from "@/lib/mapPickerStore";
 import MiniMap from "@/components/MiniMap";
-import Colors from "@/constants/colors";
 import { type Orientation, type Angle, type Timing, type Category } from "@/lib/types";
-import { BLACK, BLACK_A40, BLACK_A55, EMERALD_100, GRAY_105, GRAY_130, GRAY_150, GRAY_170, GRAY_380, GRAY_600, GRAY_700, GRAY_80, GREEN_100, GREEN_50, GREEN_600, GREEN_700, PURPLE, PURPLE_100, PURPLE_30, PURPLE_75, RED, RED_50, WHITE } from "@/constants/colors";
+import {
+  BLACK,
+  BLACK_A40,
+  BLACK_A55,
+  EMERALD_100,
+  GRASS,
+  GRAY_105,
+  GRAY_130,
+  GRAY_150,
+  GRAY_170,
+  GRAY_380,
+  GRAY_600,
+  GRAY_700,
+  GRAY_80,
+  GRAY_850,
+  GREEN_100,
+  GREEN_50,
+  GREEN_600,
+  GREEN_700,
+  PURPLE,
+  PURPLE_100,
+  PURPLE_30,
+  PURPLE_75,
+  RED,
+  RED_50,
+  WHITE,
+} from "@/constants/colors";
 
 function OptionChip({
   icon,
@@ -47,7 +72,7 @@ function OptionChip({
       <Ionicons
         name={icon as any}
         size={18}
-        color={selected ? WHITE : Colors.light.textSecondary}
+        color={selected ? WHITE : GRAY_600}
       />
       <Text style={[styles.chipLabel, selected && styles.chipLabelActive]}>
         {label}
@@ -233,7 +258,7 @@ export default function CreateRequestScreen() {
       <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
         <View style={[styles.header, { paddingTop: 12 }]}>
           <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Ionicons name="chevron-back" size={24} color={Colors.light.text} />
+            <Ionicons name="chevron-back" size={24} color={GRAY_850} />
           </Pressable>
           <Text style={styles.headerTitle}>New Request</Text>
           <View style={{ width: 24 }} />
@@ -247,7 +272,7 @@ export default function CreateRequestScreen() {
             Photo requests cannot be created at {restrictionReason}. Please choose a different public location such as a landmark, park, or street.
           </Text>
           <View style={styles.restrictedLocationCard}>
-            <Ionicons name="location" size={16} color={Colors.light.textSecondary} />
+            <Ionicons name="location" size={16} color={GRAY_600} />
             <Text style={styles.restrictedLocationName} numberOfLines={1}>{locationName}</Text>
           </View>
           <Pressable
@@ -265,7 +290,7 @@ export default function CreateRequestScreen() {
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 12 + webInsetTop }]}>
         <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="chevron-back" size={24} color={Colors.light.text} />
+          <Ionicons name="chevron-back" size={24} color={GRAY_850} />
         </Pressable>
         <Text style={styles.headerTitle}>New Request</Text>
         <View style={{ width: 24 }} />
@@ -285,7 +310,7 @@ export default function CreateRequestScreen() {
           <View style={styles.locationDot} />
           <View style={styles.locationInfo}>
             {geocoding ? (
-              <ActivityIndicator size="small" color={Colors.light.tint} />
+              <ActivityIndicator size="small" color={PURPLE} />
             ) : (
               <>
                 <Text style={styles.locationName}>{locationName}</Text>
@@ -361,13 +386,13 @@ export default function CreateRequestScreen() {
             }}
           >
             <View style={styles.pinpointIconWrap}>
-              <Ionicons name="map-outline" size={18} color={Colors.light.tint} />
+              <Ionicons name="map-outline" size={18} color={PURPLE} />
             </View>
             <View style={styles.pinpointCardBody}>
               <Text style={styles.pinpointCardTitle}>Select exact spot on map</Text>
               <Text style={styles.pinpointCardSub}>Optional — refine the pin location</Text>
             </View>
-            <Ionicons name="chevron-forward" size={16} color={Colors.light.textSecondary} />
+            <Ionicons name="chevron-forward" size={16} color={GRAY_600} />
           </Pressable>
         )}
 
@@ -438,13 +463,13 @@ export default function CreateRequestScreen() {
                   setShowDatePicker(true);
                 }}
               >
-                <Ionicons name="calendar-outline" size={16} color={Colors.light.textSecondary} />
+                <Ionicons name="calendar-outline" size={16} color={GRAY_600} />
                 <Text style={[styles.scheduledFieldText, !scheduledDate && styles.scheduledPlaceholder]}>
                   {scheduledDate
                     ? scheduledDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
                     : "Select date"}
                 </Text>
-                <Ionicons name="chevron-forward" size={14} color={Colors.light.textSecondary} />
+                <Ionicons name="chevron-forward" size={14} color={GRAY_600} />
               </Pressable>
               <Pressable
                 style={styles.scheduledField}
@@ -453,13 +478,13 @@ export default function CreateRequestScreen() {
                   setShowTimePicker(true);
                 }}
               >
-                <Ionicons name="time-outline" size={16} color={Colors.light.textSecondary} />
+                <Ionicons name="time-outline" size={16} color={GRAY_600} />
                 <Text style={[styles.scheduledFieldText, !scheduledTime && styles.scheduledPlaceholder]}>
                   {scheduledTime
                     ? scheduledTime.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
                     : "Select time"}
                 </Text>
-                <Ionicons name="chevron-forward" size={14} color={Colors.light.textSecondary} />
+                <Ionicons name="chevron-forward" size={14} color={GRAY_600} />
               </Pressable>
             </View>
           )}
@@ -627,7 +652,7 @@ export default function CreateRequestScreen() {
         >
           <View style={styles.confirmationCard}>
             <View style={styles.confirmationIconWrap}>
-              <Ionicons name="checkmark-circle" size={52} color={Colors.light.accent} />
+              <Ionicons name="checkmark-circle" size={52} color={GRASS} />
             </View>
             <Text style={styles.confirmationTitle}>Request Launched!</Text>
             <Text style={styles.confirmationSub}>
@@ -663,13 +688,13 @@ const styles = StyleSheet.create({
   },
   restrictedTitle: {
     fontSize: 22,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_700Bold",
     textAlign: "center",
   },
   restrictedBody: {
     fontSize: 15,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     textAlign: "center",
     lineHeight: 22,
@@ -686,12 +711,12 @@ const styles = StyleSheet.create({
   },
   restrictedLocationName: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
     flex: 1,
   },
   restrictedBackBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 15,
     paddingHorizontal: 28,
     borderRadius: 12,
@@ -714,7 +739,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   scrollView: {
@@ -740,7 +765,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
   },
   locationInfo: {
     flex: 1,
@@ -748,12 +773,12 @@ const styles = StyleSheet.create({
   },
   locationName: {
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   locationAddr: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   pinnedContainer: {
@@ -857,12 +882,12 @@ const styles = StyleSheet.create({
   },
   pinpointCardTitle: {
     fontSize: 14,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_600SemiBold",
   },
   pinpointCardSub: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   section: {
@@ -870,7 +895,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_600SemiBold",
     textTransform: "uppercase",
     letterSpacing: 0.8,
@@ -892,8 +917,8 @@ const styles = StyleSheet.create({
     borderColor: GRAY_150,
   },
   chipActive: {
-    backgroundColor: Colors.light.tint,
-    borderColor: Colors.light.tint,
+    backgroundColor: PURPLE,
+    borderColor: PURPLE,
   },
   rewardRow: {
     flexDirection: "row",
@@ -911,20 +936,20 @@ const styles = StyleSheet.create({
     borderColor: GRAY_150,
   },
   rewardChipActive: {
-    backgroundColor: Colors.light.tint,
-    borderColor: Colors.light.tint,
+    backgroundColor: PURPLE,
+    borderColor: PURPLE,
   },
   rewardChipText: {
     fontSize: 15,
     fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
   },
   rewardChipTextActive: {
     color: WHITE,
   },
   chipLabel: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
   },
   chipLabelActive: {
@@ -948,7 +973,7 @@ const styles = StyleSheet.create({
   scheduledFieldText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_400Regular",
   },
   scheduledPlaceholder: {
@@ -970,11 +995,11 @@ const styles = StyleSheet.create({
   },
   pickerTitle: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   pickerDoneBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 10,
@@ -995,7 +1020,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 20,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
   },
   notesDoneBtnText: {
     fontSize: 13,
@@ -1009,14 +1034,14 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 12,
     fontSize: 14,
-    color: Colors.light.text,
+    color: GRAY_850,
     borderWidth: 1,
     borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
     minHeight: 90,
   },
   noteInputFocused: {
-    borderColor: Colors.light.tint,
+    borderColor: PURPLE,
     backgroundColor: WHITE,
   },
   bottomBar: {
@@ -1027,7 +1052,7 @@ const styles = StyleSheet.create({
     borderTopColor: GRAY_130,
   },
   submitBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -1065,13 +1090,13 @@ const styles = StyleSheet.create({
   },
   confirmationTitle: {
     fontSize: 22,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_700Bold",
     marginBottom: 8,
   },
   confirmationSub: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     textAlign: "center",
     lineHeight: 20,

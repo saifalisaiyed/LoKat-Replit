@@ -10,8 +10,17 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import Colors from "@/constants/colors";
-import { GRAY_105, GRAY_125, PURPLE_A06, PURPLE_A07, PURPLE_A15, WHITE } from "@/constants/colors";
+import {
+  GRAY_105,
+  GRAY_125,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  PURPLE_A06,
+  PURPLE_A07,
+  PURPLE_A15,
+  WHITE,
+} from "@/constants/colors";
 
 const SECTIONS = [
   {
@@ -73,7 +82,7 @@ export default function PrivacyPolicyScreen() {
     <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
-          <Feather name="arrow-left" size={20} color={Colors.light.text} />
+          <Feather name="arrow-left" size={20} color={GRAY_850} />
         </Pressable>
         <Text style={styles.title}>Privacy Policy</Text>
         <View style={{ width: 36 }} />
@@ -87,7 +96,7 @@ export default function PrivacyPolicyScreen() {
         ]}
       >
         <View style={styles.heroBanner}>
-          <Feather name="shield" size={28} color={Colors.light.tint} />
+          <Feather name="shield" size={28} color={PURPLE} />
           <Text style={styles.heroTitle}>Built on Trust. Backed by Action.</Text>
           <Text style={styles.heroBody}>
             At LoKat, your privacy is our priority. This policy explains what data we collect, why we collect it, and how we use it when you use the LoKat app.
@@ -113,7 +122,7 @@ export default function PrivacyPolicyScreen() {
         ))}
 
         <View style={styles.contactCard}>
-          <Feather name="mail" size={16} color={Colors.light.tint} />
+          <Feather name="mail" size={16} color={PURPLE} />
           <View style={{ flex: 1 }}>
             <Text style={styles.contactTitle}>Questions?</Text>
             <Text style={styles.contactBody}>Reach out to us at lokat.official@gmail.com</Text>
@@ -141,7 +150,7 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 12,
     backgroundColor: GRAY_105, alignItems: "center", justifyContent: "center",
   },
-  title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: Colors.light.text },
+  title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: GRAY_850 },
   content: { padding: 20 },
   heroBanner: {
     backgroundColor: PURPLE_A07, borderRadius: 16,
@@ -149,14 +158,14 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: 16, fontFamily: "Archivo_700Bold",
-    color: Colors.light.tint, textAlign: "center", lineHeight: 22,
+    color: PURPLE, textAlign: "center", lineHeight: 22,
   },
   heroBody: {
     fontSize: 13, fontFamily: "Archivo_400Regular",
-    color: Colors.light.textSecondary, textAlign: "center", lineHeight: 19,
+    color: GRAY_600, textAlign: "center", lineHeight: 19,
   },
   updated: {
-    fontSize: 12, color: Colors.light.textSecondary,
+    fontSize: 12, color: GRAY_600,
     fontFamily: "Archivo_400Regular", marginBottom: 20,
   },
   section: {
@@ -165,15 +174,15 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14, fontFamily: "Archivo_700Bold",
-    color: Colors.light.text, marginBottom: 8,
+    color: GRAY_850, marginBottom: 8,
   },
   subsection: { marginBottom: 10 },
   subsectionHeading: {
     fontSize: 13, fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.text, marginBottom: 3,
+    color: GRAY_850, marginBottom: 3,
   },
   sectionBody: {
-    fontSize: 13, color: Colors.light.textSecondary,
+    fontSize: 13, color: GRAY_600,
     fontFamily: "Archivo_400Regular", lineHeight: 20,
   },
   contactCard: {
@@ -182,18 +191,18 @@ const styles = StyleSheet.create({
     marginBottom: 12, borderWidth: 1.5, borderColor: PURPLE_A15,
   },
   contactTitle: {
-    fontSize: 13, fontFamily: "Archivo_600SemiBold", color: Colors.light.text,
+    fontSize: 13, fontFamily: "Archivo_600SemiBold", color: GRAY_850,
   },
   contactBody: {
     fontSize: 13, fontFamily: "Archivo_400Regular",
-    color: Colors.light.textSecondary, marginTop: 2,
+    color: GRAY_600, marginTop: 2,
   },
   footer: {
     marginTop: 4, padding: 16,
     backgroundColor: PURPLE_A06, borderRadius: 12,
   },
   footerText: {
-    fontSize: 13, color: Colors.light.tint,
+    fontSize: 13, color: PURPLE,
     fontFamily: "Archivo_500Medium", lineHeight: 20, textAlign: "center",
   },
 });

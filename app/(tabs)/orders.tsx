@@ -13,9 +13,27 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
-import Colors from "@/constants/colors";
 import { CATEGORIES, type Category, type RequestStatus } from "@/lib/types";
-import { AMBER, AMBER_A10, BLACK_A04, BLUE, BLUE_A10, EMERALD, EMERALD_A10, GRAY_105, GRAY_175, ORANGE, ORANGE_A08, PURPLE_A08, PURPLE_A10, WHITE } from "@/constants/colors";
+import {
+  AMBER,
+  AMBER_A10,
+  BLACK_A04,
+  BLUE,
+  BLUE_A10,
+  EMERALD,
+  EMERALD_A10,
+  GRAY_105,
+  GRAY_170,
+  GRAY_175,
+  GRAY_600,
+  GRAY_850,
+  ORANGE,
+  ORANGE_A08,
+  PURPLE,
+  PURPLE_A08,
+  PURPLE_A10,
+  WHITE,
+} from "@/constants/colors";
 
 type Tab = "active" | "history";
 type ActiveFilter = "all" | "requested";
@@ -24,7 +42,7 @@ type HistoryFilter = "all" | "requested" | "fulfilled";
 function getStatusConfig(status: RequestStatus) {
   switch (status) {
     case "open":
-      return { color: Colors.light.tint, bg: PURPLE_A10, label: "Waiting", icon: "radio-button-on" };
+      return { color: PURPLE, bg: PURPLE_A10, label: "Waiting", icon: "radio-button-on" };
     case "accepted":
       return { color: AMBER, bg: AMBER_A10, label: "In Progress", icon: "time-outline" };
     case "submitted":
@@ -32,13 +50,13 @@ function getStatusConfig(status: RequestStatus) {
     case "completed":
       return { color: EMERALD, bg: EMERALD_A10, label: "Completed", icon: "checkmark-circle" };
     default:
-      return { color: Colors.light.textSecondary, bg: GRAY_105, label: status, icon: "ellipse" };
+      return { color: GRAY_600, bg: GRAY_105, label: status, icon: "ellipse" };
   }
 }
 
 function getRoleConfig(isRequested: boolean, isActive: boolean) {
   if (isRequested) {
-    return { label: "Requested", color: Colors.light.tint, bg: PURPLE_A08, icon: "arrow-up-outline" };
+    return { label: "Requested", color: PURPLE, bg: PURPLE_A08, icon: "arrow-up-outline" };
   }
   return {
     label: isActive ? "Fulfilling" : "Fulfilled",
@@ -68,7 +86,7 @@ function OrderCard({ item, onPress, userId }: { item: any; onPress: () => void; 
     >
       <View style={styles.orderTop}>
         <View style={styles.orderLocationRow}>
-          <Ionicons name="location" size={16} color={Colors.light.tint} />
+          <Ionicons name="location" size={16} color={PURPLE} />
           <Text style={styles.orderLocationName} numberOfLines={1}>
             {item.locationName}
           </Text>
@@ -213,7 +231,7 @@ export default function OrdersScreen() {
       <Ionicons
         name={activeTab === "active" ? "document-outline" : "archive-outline"}
         size={36}
-        color={Colors.light.border}
+        color={GRAY_170}
       />
       <Text style={styles.emptyTitle}>{emptyLabel}</Text>
       <Text style={styles.emptySubtitle}>{emptySubtitle}</Text>
@@ -313,17 +331,17 @@ export default function OrdersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.light.background },
+  container: { flex: 1, backgroundColor: GRAY_105 },
   header: {
     backgroundColor: WHITE,
     paddingHorizontal: 20,
     paddingBottom: 0,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: GRAY_170,
   },
   headerTitle: {
     fontSize: 22,
-    color: Colors.light.text,
+    color: GRAY_850,
     marginBottom: 16,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -338,18 +356,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
-  tabBtnActive: { borderBottomColor: Colors.light.tint },
+  tabBtnActive: { borderBottomColor: PURPLE },
   tabBtnText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
   },
   tabBtnTextActive: {
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_600SemiBold",
   },
   tabBadge: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: 8,
@@ -362,7 +380,7 @@ const styles = StyleSheet.create({
   filterBar: {
     backgroundColor: WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: GRAY_170,
   },
   filterBarContent: {
     paddingHorizontal: 16,
@@ -383,15 +401,15 @@ const styles = StyleSheet.create({
   },
   filterChipActive: {
     backgroundColor: PURPLE_A08,
-    borderColor: Colors.light.tint,
+    borderColor: PURPLE,
   },
   filterChipText: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
   },
   filterChipTextActive: {
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_600SemiBold",
   },
   filterChipCount: {
@@ -403,11 +421,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   filterChipCountActive: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
   },
   filterChipCountText: {
     fontSize: 10,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_600SemiBold",
   },
   filterChipCountTextActive: {
@@ -436,18 +454,18 @@ const styles = StyleSheet.create({
   },
   orderLocationName: {
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
     flex: 1,
   },
   orderReward: {
     fontSize: 16,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_700Bold",
   },
   orderAddress: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     marginTop: 3,
     marginLeft: 24,
     fontFamily: "Archivo_400Regular",
@@ -492,7 +510,7 @@ const styles = StyleSheet.create({
   },
   orderCategory: {
     fontSize: 11,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   emptyContainer: {
@@ -502,12 +520,12 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   emptySubtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     textAlign: "center",
     paddingHorizontal: 40,
     fontFamily: "Archivo_400Regular",

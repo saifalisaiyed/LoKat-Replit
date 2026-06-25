@@ -16,9 +16,21 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import { apiRequest } from "@/lib/query-client";
-import Colors from "@/constants/colors";
 import type { PhotoRequest } from "@/lib/types";
-import { BLUE, GRAY_105, GRAY_125, GRAY_500, GRAY_80, GREEN_500, ORANGE, RED, WHITE } from "@/constants/colors";
+import {
+  BLUE,
+  GRAY_105,
+  GRAY_125,
+  GRAY_500,
+  GRAY_600,
+  GRAY_80,
+  GRAY_850,
+  GREEN_500,
+  ORANGE,
+  PURPLE,
+  RED,
+  WHITE,
+} from "@/constants/colors";
 
 const STATUS_FILTERS = [
   { key: "all", label: "All" },
@@ -33,7 +45,7 @@ const STATUS_COLORS: Record<string, string> = {
   open: GREEN_500,
   accepted: ORANGE,
   submitted: BLUE,
-  completed: Colors.light.tint,
+  completed: PURPLE,
   abandoned: RED,
 };
 
@@ -112,7 +124,7 @@ export default function AdminScreen() {
     return (
       <View style={[styles.container, { paddingTop: insets.top + 20 + webInsetTop }]}>
         <View style={styles.centerContent}>
-          <Ionicons name="lock-closed-outline" size={48} color={Colors.light.textSecondary} />
+          <Ionicons name="lock-closed-outline" size={48} color={GRAY_600} />
           <Text style={styles.accessDenied}>Admin access required</Text>
           <Pressable style={styles.backBtn} onPress={() => router.back()}>
             <Text style={styles.backBtnText}>Go Back</Text>
@@ -144,11 +156,11 @@ export default function AdminScreen() {
       <Text style={styles.requestAddress} numberOfLines={1}>{item.address}</Text>
       <View style={styles.requestMeta}>
         <View style={styles.metaItem}>
-          <Ionicons name="camera-outline" size={14} color={Colors.light.textSecondary} />
+          <Ionicons name="camera-outline" size={14} color={GRAY_600} />
           <Text style={styles.metaText}>{item.category}</Text>
         </View>
         <View style={styles.metaItem}>
-          <Ionicons name="compass-outline" size={14} color={Colors.light.textSecondary} />
+          <Ionicons name="compass-outline" size={14} color={GRAY_600} />
           <Text style={styles.metaText}>{item.orientation}</Text>
         </View>
         <Text style={styles.requestReward}>${item.reward}</Text>
@@ -160,7 +172,7 @@ export default function AdminScreen() {
     <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
       <View style={styles.header}>
         <Pressable style={styles.headerBackBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={22} color={Colors.light.text} />
+          <Ionicons name="chevron-back" size={22} color={GRAY_850} />
         </Pressable>
         <Text style={styles.headerTitle}>Admin Panel</Text>
         <View style={styles.headerRight}>
@@ -177,7 +189,7 @@ export default function AdminScreen() {
       {stats && (
         <View style={styles.statsGrid}>
           <StatCard label="Users" value={stats.totalUsers} icon="people-outline" color={BLUE} />
-          <StatCard label="Requests" value={stats.totalRequests} icon="images-outline" color={Colors.light.tint} />
+          <StatCard label="Requests" value={stats.totalRequests} icon="images-outline" color={PURPLE} />
           <StatCard label="Open" value={stats.openRequests} icon="radio-button-on-outline" color={GREEN_500} />
           <StatCard label="Completed" value={stats.completedRequests} icon="checkmark-circle-outline" color={ORANGE} />
         </View>
@@ -216,7 +228,7 @@ export default function AdminScreen() {
 
       {loading ? (
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color={Colors.light.tint} />
+          <ActivityIndicator size="large" color={PURPLE} />
         </View>
       ) : (
         <FlatList
@@ -227,11 +239,11 @@ export default function AdminScreen() {
             styles.list,
             { paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 20 },
           ]}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.light.tint} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PURPLE} />}
           scrollEnabled={!!requests.length}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="file-tray-outline" size={40} color={Colors.light.textSecondary} />
+              <Ionicons name="file-tray-outline" size={40} color={GRAY_600} />
               <Text style={styles.emptyText}>No requests found</Text>
             </View>
           }
@@ -266,12 +278,12 @@ const styles = StyleSheet.create({
   },
   accessDenied: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
   },
   backBtn: {
     marginTop: 8,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 10,
@@ -301,13 +313,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 20,
     fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.text,
+    color: GRAY_850,
   },
   adminBadge: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -359,12 +371,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontFamily: "Archivo_700Bold",
-    color: Colors.light.text,
+    color: GRAY_850,
   },
   statLabel: {
     fontSize: 11,
     fontFamily: "Archivo_400Regular",
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
   },
   filterRow: {
     backgroundColor: WHITE,
@@ -383,12 +395,12 @@ const styles = StyleSheet.create({
     backgroundColor: GRAY_125,
   },
   filterChipActive: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
   },
   filterText: {
     fontSize: 13,
     fontFamily: "Archivo_500Medium",
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
   },
   filterTextActive: {
     color: WHITE,
@@ -421,18 +433,18 @@ const styles = StyleSheet.create({
   requestDate: {
     fontSize: 11,
     fontFamily: "Archivo_400Regular",
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     marginLeft: "auto",
   },
   requestLocation: {
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.text,
+    color: GRAY_850,
   },
   requestAddress: {
     fontSize: 12,
     fontFamily: "Archivo_400Regular",
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
   },
   requestMeta: {
     flexDirection: "row",
@@ -448,12 +460,12 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: 12,
     fontFamily: "Archivo_400Regular",
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
   },
   requestReward: {
     fontSize: 14,
     fontFamily: "Archivo_700Bold",
-    color: Colors.light.tint,
+    color: PURPLE,
     marginLeft: "auto",
   },
   emptyState: {
@@ -465,6 +477,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     fontFamily: "Archivo_400Regular",
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
   },
 });

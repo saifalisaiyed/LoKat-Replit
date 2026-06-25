@@ -13,9 +13,19 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useApp } from "@/lib/store";
 import { apiRequest } from "@/lib/query-client";
-import Colors from "@/constants/colors";
 import type { PhotoRequest } from "@/lib/types";
-import { EMERALD, EMERALD_A08, GRAY_105, GRAY_125, GRAY_290, PURPLE_A08, WHITE } from "@/constants/colors";
+import {
+  EMERALD,
+  EMERALD_A08,
+  GRAY_105,
+  GRAY_125,
+  GRAY_290,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  PURPLE_A08,
+  WHITE,
+} from "@/constants/colors";
 
 const CATEGORY_LABELS: Record<string, string> = {
   landmarks: "Landmarks",
@@ -71,7 +81,7 @@ export default function TransactionHistoryScreen() {
           <Ionicons
             name={isEarned ? "arrow-down-outline" : "arrow-up-outline"}
             size={18}
-            color={isEarned ? EMERALD : Colors.light.tint}
+            color={isEarned ? EMERALD : PURPLE}
           />
         </View>
         <View style={styles.itemInfo}>
@@ -84,7 +94,7 @@ export default function TransactionHistoryScreen() {
           )}
         </View>
         <View style={styles.itemRight}>
-          <Text style={[styles.itemAmount, { color: isEarned ? EMERALD : Colors.light.text }]}>
+          <Text style={[styles.itemAmount, { color: isEarned ? EMERALD : GRAY_850 }]}>
             {isEarned ? "+" : "-"}${item.reward.toFixed(2)}
           </Text>
           <Text style={styles.itemType}>{isEarned ? "Earned" : "Paid"}</Text>
@@ -97,7 +107,7 @@ export default function TransactionHistoryScreen() {
     <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
-          <Feather name="arrow-left" size={20} color={Colors.light.text} />
+          <Feather name="arrow-left" size={20} color={GRAY_850} />
         </Pressable>
         <Text style={styles.title}>Transaction History</Text>
         <View style={{ width: 36 }} />
@@ -111,7 +121,7 @@ export default function TransactionHistoryScreen() {
           </View>
           <View style={styles.summaryDivider} />
           <View style={styles.summaryItem}>
-            <Text style={[styles.summaryAmount, { color: Colors.light.tint }]}>-${totalSpent.toFixed(2)}</Text>
+            <Text style={[styles.summaryAmount, { color: PURPLE }]}>-${totalSpent.toFixed(2)}</Text>
             <Text style={styles.summaryLabel}>Total Spent</Text>
           </View>
         </View>
@@ -119,7 +129,7 @@ export default function TransactionHistoryScreen() {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={Colors.light.tint} />
+          <ActivityIndicator size="large" color={PURPLE} />
         </View>
       ) : requests.length === 0 ? (
         <View style={styles.center}>
@@ -170,7 +180,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.text,
+    color: GRAY_850,
   },
   summaryRow: {
     flexDirection: "row",
@@ -196,7 +206,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   list: {
@@ -225,16 +235,16 @@ const styles = StyleSheet.create({
   itemLocation: {
     fontSize: 14,
     fontFamily: "Archivo_500Medium",
-    color: Colors.light.text,
+    color: GRAY_850,
   },
   itemMeta: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   itemBadge: {
     fontSize: 11,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_500Medium",
     marginTop: 2,
   },
@@ -248,7 +258,7 @@ const styles = StyleSheet.create({
   },
   itemType: {
     fontSize: 11,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   separator: {
@@ -264,12 +274,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.text,
+    color: GRAY_850,
     marginTop: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
 });

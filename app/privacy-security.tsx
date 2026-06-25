@@ -12,8 +12,25 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import Colors from "@/constants/colors";
-import { BLUE, BLUE_A08, EMERALD, EMERALD_A08, GRAY_100, GRAY_105, GRAY_125, GRAY_175, GRAY_250, PURPLE_A08, RED, RED_25, RED_A08, WHITE } from "@/constants/colors";
+import {
+  BLUE,
+  BLUE_A08,
+  EMERALD,
+  EMERALD_A08,
+  GRAY_100,
+  GRAY_105,
+  GRAY_125,
+  GRAY_175,
+  GRAY_250,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  PURPLE_A08,
+  RED,
+  RED_25,
+  RED_A08,
+  WHITE,
+} from "@/constants/colors";
 
 export default function PrivacySecurityScreen() {
   const insets = useSafeAreaInsets();
@@ -40,7 +57,7 @@ export default function PrivacySecurityScreen() {
     <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
-          <Feather name="arrow-left" size={20} color={Colors.light.text} />
+          <Feather name="arrow-left" size={20} color={GRAY_850} />
         </Pressable>
         <Text style={styles.title}>Privacy & Security</Text>
         <View style={{ width: 36 }} />
@@ -58,7 +75,7 @@ export default function PrivacySecurityScreen() {
               }}
             >
               <View style={[styles.iconWrap, { backgroundColor: PURPLE_A08 }]}>
-                <Feather name="lock" size={18} color={Colors.light.tint} />
+                <Feather name="lock" size={18} color={PURPLE} />
               </View>
               <Text style={styles.menuText}>Change Password</Text>
               <Feather name="chevron-right" size={16} color={GRAY_250} />
@@ -83,7 +100,7 @@ export default function PrivacySecurityScreen() {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   setLocationSharing(v);
                 }}
-                trackColor={{ false: GRAY_175, true: Colors.light.tint }}
+                trackColor={{ false: GRAY_175, true: PURPLE }}
                 thumbColor={WHITE}
               />
             </View>
@@ -157,7 +174,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.text,
+    color: GRAY_850,
   },
   content: {
     flex: 1,
@@ -169,7 +186,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_600SemiBold",
     textTransform: "uppercase",
     letterSpacing: 0.6,
@@ -203,11 +220,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontFamily: "Archivo_400Regular",
-    color: Colors.light.text,
+    color: GRAY_850,
   },
   menuSub: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   menuDivider: {
@@ -219,7 +236,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginHorizontal: 24,
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     textAlign: "center",
     lineHeight: 18,

@@ -1,7 +1,12 @@
 import React, { forwardRef } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Colors from "@/constants/colors";
-import { BLACK_A60, BLUE, DARK_MAP, WHITE } from "@/constants/colors";
+import {
+  BLACK_A60,
+  BLUE,
+  DARK_MAP,
+  PURPLE,
+  WHITE,
+} from "@/constants/colors";
 
 interface NavigationMapProps {
   userLocation: { latitude: number; longitude: number };
@@ -28,7 +33,7 @@ const NavigationMap = forwardRef<unknown, NavigationMapProps>(
                 <Text style={{ color: WHITE, fontSize: 12, fontFamily: "Archivo_400Regular" }}>You</Text>
               </View>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.light.tint }} />
+                <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: PURPLE }} />
                 <Text style={{ color: WHITE, fontSize: 12, fontFamily: "Archivo_400Regular" }}>Destination</Text>
               </View>
             </View>

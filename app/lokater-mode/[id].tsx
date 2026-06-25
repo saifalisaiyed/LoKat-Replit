@@ -17,7 +17,6 @@ import { router, useLocalSearchParams, useNavigation, useFocusEffect } from "exp
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
-import Colors from "@/constants/colors";
 import NavigationMap from "@/components/NavigationMap";
 import Animated, {
   useSharedValue,
@@ -25,7 +24,34 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
-import { BLACK, BLACK_A40, BLACK_A55, DARK_MAP, GRASS_A10, GRAY_170, GRAY_800, GREEN_500, ORANGE, PURPLE_A06, PURPLE_A07, PURPLE_A12, PURPLE_A18, PURPLE_A25, PURPLE_A30, RED, RED_100, WHITE, WHITE_A50, WHITE_A92, WHITE_A95 } from "@/constants/colors";
+import {
+  BLACK,
+  BLACK_A40,
+  BLACK_A55,
+  DARK_MAP,
+  GRASS,
+  GRASS_A10,
+  GRAY_105,
+  GRAY_170,
+  GRAY_600,
+  GRAY_800,
+  GRAY_850,
+  GREEN_500,
+  ORANGE,
+  PURPLE,
+  PURPLE_A06,
+  PURPLE_A07,
+  PURPLE_A12,
+  PURPLE_A18,
+  PURPLE_A25,
+  PURPLE_A30,
+  RED,
+  RED_100,
+  WHITE,
+  WHITE_A50,
+  WHITE_A92,
+  WHITE_A95,
+} from "@/constants/colors";
 
 const { width: _SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -361,7 +387,7 @@ export default function LoKaterModeScreen() {
     if (!target) return null;
     const bearingToTarget = getBearing(userLocation.latitude, userLocation.longitude, target.latitude, target.longitude);
     if (deviceHeading === null) {
-      return { rotation: 0, label: getDirectionLabel(bearingToTarget) + " to destination", color: Colors.light.tint };
+      return { rotation: 0, label: getDirectionLabel(bearingToTarget) + " to destination", color: PURPLE };
     }
     return getTurnInfo(normalizeAngle(bearingToTarget - deviceHeading));
   })();
@@ -430,7 +456,7 @@ if(route.length>1){
 }
 var userIcon=L.divIcon({html:'<div style="width:20px;height:20px;border-radius:10px;background:#4285F4;border:3px solid #fff;box-shadow:0 0 8px rgba(66,133,244,0.6)"></div>',className:'',iconSize:[20,20],iconAnchor:[10,10]});
 L.marker([uLat,uLng],{icon:userIcon}).addTo(map);
-var destIcon=L.divIcon({html:'<div style="width:32px;height:32px;border-radius:16px;background:${Colors.light.tint};border:3px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>',className:'',iconSize:[32,32],iconAnchor:[16,16]});
+var destIcon=L.divIcon({html:'<div style="width:32px;height:32px;border-radius:16px;background:${PURPLE};border:3px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>',className:'',iconSize:[32,32],iconAnchor:[16,16]});
 L.marker([dLat,dLng],{icon:destIcon}).addTo(map);
 window.addEventListener('message',function(event){try{var data=typeof event.data==='string'?JSON.parse(event.data):event.data;if(data.type==='centerLocation'){map.setView([data.lat,data.lng],16,{animate:true});}if(data.type==='updateRoute'&&data.route.length>1){map.eachLayer(function(l){if(l instanceof L.Polyline)map.removeLayer(l);});L.polyline(data.route,{color:'#fff',weight:10,opacity:0.5}).addTo(map);L.polyline(data.route,{color:'#4285F4',weight:6,opacity:1}).addTo(map);}}catch(e){}});
 </script></body></html>`
@@ -461,7 +487,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
           )
         ) : (
           <View style={[styles.mapArea, styles.centered]}>
-            <ActivityIndicator size="large" color={Colors.light.tint} />
+            <ActivityIndicator size="large" color={PURPLE} />
             <Text style={styles.loadingText}>Getting your location...</Text>
           </View>
         )}
@@ -501,16 +527,16 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             {isVeryClose ? "YOU HAVE REACHED" : "GOING TO"}
           </Text>
           <View style={styles.locationStripRow}>
-            <Ionicons name="location" size={18} color={Colors.light.tint} />
+            <Ionicons name="location" size={18} color={PURPLE} />
             <Text style={styles.locationStripName} numberOfLines={1}>{request.locationName}</Text>
           </View>
           <View style={styles.locationStripMeta}>
-            <Ionicons name="time-outline" size={14} color={Colors.light.textSecondary} />
+            <Ionicons name="time-outline" size={14} color={GRAY_600} />
             <Text style={styles.locationStripEta}>
               {distance !== null ? formatETA(distance) : "--"}
             </Text>
             <View style={styles.locationStripDot} />
-            <Ionicons name="navigate-outline" size={14} color={Colors.light.textSecondary} />
+            <Ionicons name="navigate-outline" size={14} color={GRAY_600} />
             <Text style={styles.locationStripDist}>
               {distance !== null ? formatDistance(distance) : "--"}
             </Text>
@@ -573,7 +599,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             <Ionicons
               name="checkmark-circle"
               size={18}
-              color={Colors.light.accent}
+              color={GRASS}
             />
             <Text style={styles.arrivedText}>
               You're in range — find the perfect angle
@@ -586,7 +612,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
           return (
             <View style={styles.angleBanner}>
               <View style={styles.angleBannerIcon}>
-                <Ionicons name={cfg.icon} size={20} color={Colors.light.tint} />
+                <Ionicons name={cfg.icon} size={20} color={PURPLE} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.angleBannerTitle}>{cfg.text}</Text>
@@ -601,7 +627,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             style={({ pressed }) => [styles.chatFloatBtn, pressed && { opacity: 0.7 }]}
             onPress={() => router.push({ pathname: "/chat/[id]", params: { id: id! } })}
           >
-            <Ionicons name="chatbubble-outline" size={20} color={Colors.light.tint} />
+            <Ionicons name="chatbubble-outline" size={20} color={PURPLE} />
           </Pressable>
           <Pressable
             style={({ pressed }) => [styles.instructionsBtn, pressed && { opacity: 0.7 }]}
@@ -610,7 +636,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
               setInstructionsVisible(true);
             }}
           >
-            <Ionicons name="document-text-outline" size={20} color={Colors.light.tint} />
+            <Ionicons name="document-text-outline" size={20} color={PURPLE} />
           </Pressable>
           <Pressable
             style={({ pressed }) => [
@@ -635,7 +661,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
 
         {!isCloseEnough && distance !== null && (
           <View style={styles.distanceHintRow}>
-            <Ionicons name="navigate-circle-outline" size={14} color={Colors.light.textSecondary} />
+            <Ionicons name="navigate-circle-outline" size={14} color={GRAY_600} />
             <Text style={styles.distanceHint}>
               {distance < 500
                 ? `${Math.round(distance)}m away — walk to the spot to unlock camera`
@@ -722,7 +748,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
 
             <View style={styles.instructionItem}>
               <View style={styles.instructionIconWrap}>
-                <Ionicons name="phone-portrait-outline" size={18} color={Colors.light.tint} />
+                <Ionicons name="phone-portrait-outline" size={18} color={PURPLE} />
               </View>
               <View style={styles.instructionInfo}>
                 <Text style={styles.instructionLabel}>Orientation</Text>
@@ -737,7 +763,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
                 <Ionicons
                   name={request.angle === "looking-up" ? "arrow-up-circle-outline" : request.angle === "looking-down" ? "arrow-down-circle-outline" : "eye-outline"}
                   size={18}
-                  color={Colors.light.tint}
+                  color={PURPLE}
                 />
               </View>
               <View style={styles.instructionInfo}>
@@ -756,11 +782,11 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             ) : (
               <View style={styles.instructionItem}>
                 <View style={styles.instructionIconWrap}>
-                  <Ionicons name="document-text-outline" size={18} color={Colors.light.textSecondary} />
+                  <Ionicons name="document-text-outline" size={18} color={GRAY_600} />
                 </View>
                 <View style={styles.instructionInfo}>
                   <Text style={styles.instructionLabel}>Notes</Text>
-                  <Text style={[styles.instructionValue, { color: Colors.light.textSecondary }]}>No additional notes</Text>
+                  <Text style={[styles.instructionValue, { color: GRAY_600 }]}>No additional notes</Text>
                 </View>
               </View>
             )}
@@ -786,18 +812,18 @@ const styles = StyleSheet.create({
   centered: { alignItems: "center", justifyContent: "center", gap: 12 },
   notFoundText: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   backLink: {
     fontSize: 15,
-    color: Colors.light.tint,
+    color: PURPLE,
     marginTop: 12,
     fontFamily: "Archivo_500Medium",
   },
   loadingText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     marginTop: 8,
     fontFamily: "Archivo_400Regular",
   },
@@ -837,13 +863,13 @@ const styles = StyleSheet.create({
   },
   locationStripLabel: {
     fontSize: 11,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_700Bold",
     letterSpacing: 1.5,
     marginBottom: 2,
   },
   locationStripLabelArrived: {
-    color: Colors.light.accent,
+    color: GRASS,
   },
   locationStripInner: {
     backgroundColor: WHITE_A95,
@@ -865,7 +891,7 @@ const styles = StyleSheet.create({
   locationStripName: {
     flex: 1,
     fontSize: 16,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   locationStripMeta: {
@@ -876,18 +902,18 @@ const styles = StyleSheet.create({
   },
   locationStripEta: {
     fontSize: 14,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   locationStripDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: Colors.light.textSecondary,
+    backgroundColor: GRAY_600,
   },
   locationStripDist: {
     fontSize: 14,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   lokaterLocBtn: {
@@ -929,7 +955,7 @@ const styles = StyleSheet.create({
   },
   arrivedText: {
     fontSize: 14,
-    color: Colors.light.accent,
+    color: GRASS,
     fontFamily: "Archivo_600SemiBold",
   },
   actionRow: {
@@ -942,7 +968,7 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: Colors.light.tint,
+    borderColor: PURPLE,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: PURPLE_A06,
@@ -952,7 +978,7 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: Colors.light.tint,
+    borderColor: PURPLE,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: PURPLE_A06,
@@ -962,13 +988,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 18,
     borderRadius: 12,
   },
   photoBtnActive: {
-    backgroundColor: Colors.light.accent,
-    shadowColor: Colors.light.accent,
+    backgroundColor: GRASS,
+    shadowColor: GRASS,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -994,7 +1020,7 @@ const styles = StyleSheet.create({
   distanceHint: {
     textAlign: "center",
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     flex: 1,
   },
@@ -1019,7 +1045,7 @@ const styles = StyleSheet.create({
   },
   navRowDist: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     marginTop: 2,
   },
@@ -1044,12 +1070,12 @@ const styles = StyleSheet.create({
   },
   angleBannerTitle: {
     fontSize: 14,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_600SemiBold",
   },
   angleBannerHint: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     marginTop: 1,
   },
@@ -1076,7 +1102,7 @@ const styles = StyleSheet.create({
   },
   menuTitle: {
     fontSize: 18,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
     marginBottom: 4,
   },
@@ -1107,19 +1133,19 @@ const styles = StyleSheet.create({
   },
   menuItemSub: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   menuCancelBtn: {
     alignItems: "center",
     paddingVertical: 16,
     borderRadius: 10,
-    backgroundColor: Colors.light.background,
+    backgroundColor: GRAY_105,
     marginTop: 4,
   },
   menuCancelText: {
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   instructionsSheet: {
@@ -1132,7 +1158,7 @@ const styles = StyleSheet.create({
   },
   instructionsSheetTitle: {
     fontSize: 18,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_700Bold",
     marginBottom: 4,
   },
@@ -1146,7 +1172,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: Colors.light.tint + "12",
+    backgroundColor: PURPLE + "12",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1156,32 +1182,32 @@ const styles = StyleSheet.create({
   },
   instructionLabel: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
     textTransform: "uppercase" as const,
     letterSpacing: 0.5,
   },
   instructionValue: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   instructionNoteCard: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: GRAY_105,
     borderRadius: 10,
     padding: 16,
     gap: 6,
   },
   instructionNoteLabel: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
     textTransform: "uppercase" as const,
     letterSpacing: 0.5,
   },
   instructionNoteText: {
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_400Regular",
     lineHeight: 22,
   },

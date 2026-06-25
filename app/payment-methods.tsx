@@ -13,9 +13,23 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
-import { BLACK, BLACK_A45, EMERALD, EMERALD_A10, GRAY_100, GRAY_105, GRAY_125, GRAY_250, ORANGE, PURPLE_A08, WHITE } from "@/constants/colors";
+import {
+  BLACK,
+  BLACK_A45,
+  EMERALD,
+  EMERALD_A10,
+  GRAY_100,
+  GRAY_105,
+  GRAY_125,
+  GRAY_250,
+  GRAY_600,
+  GRAY_850,
+  ORANGE,
+  PURPLE,
+  PURPLE_A08,
+  WHITE,
+} from "@/constants/colors";
 
 export default function PaymentMethodsScreen() {
   const insets = useSafeAreaInsets();
@@ -45,7 +59,7 @@ export default function PaymentMethodsScreen() {
     <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
-          <Feather name="arrow-left" size={20} color={Colors.light.text} />
+          <Feather name="arrow-left" size={20} color={GRAY_850} />
         </Pressable>
         <Text style={styles.title}>Wallet & Payments</Text>
         <View style={{ width: 36 }} />
@@ -55,7 +69,7 @@ export default function PaymentMethodsScreen() {
         <View style={styles.balanceCard}>
           <View style={styles.balanceTop}>
             <View style={styles.walletIconWrap}>
-              <Ionicons name="wallet-outline" size={22} color={Colors.light.tint} />
+              <Ionicons name="wallet-outline" size={22} color={PURPLE} />
             </View>
             <View>
               <Text style={styles.balanceLabel}>Available Balance</Text>
@@ -82,7 +96,7 @@ export default function PaymentMethodsScreen() {
             {[
               { icon: "check-circle", color: EMERALD, text: "Earnings are credited instantly when a request is completed" },
               { icon: "clock", color: ORANGE, text: "Withdrawal requests are processed within 2–3 business days" },
-              { icon: "shield", color: Colors.light.tint, text: "Payments are secured and processed via Stripe" },
+              { icon: "shield", color: PURPLE, text: "Payments are secured and processed via Stripe" },
               { icon: "dollar-sign", color: EMERALD, text: "No fees for withdrawals over $10" },
             ].map((item, index) => (
               <View key={index} style={[styles.infoRow, index > 0 && styles.infoRowBorder]}>
@@ -103,7 +117,7 @@ export default function PaymentMethodsScreen() {
             }}
           >
             <View style={[styles.iconWrap, { backgroundColor: PURPLE_A08 }]}>
-              <Feather name="clock" size={18} color={Colors.light.tint} />
+              <Feather name="clock" size={18} color={PURPLE} />
             </View>
             <Text style={styles.historyText}>View All Transactions</Text>
             <Feather name="chevron-right" size={16} color={GRAY_250} />
@@ -194,7 +208,7 @@ const styles = StyleSheet.create({
     backgroundColor: GRAY_105,
     alignItems: "center", justifyContent: "center",
   },
-  title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: Colors.light.text },
+  title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: GRAY_850 },
   content: { flex: 1 },
   balanceCard: {
     margin: 20,
@@ -214,18 +228,18 @@ const styles = StyleSheet.create({
     backgroundColor: PURPLE_A08,
     alignItems: "center", justifyContent: "center",
   },
-  balanceLabel: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
-  balanceAmount: { fontSize: 28, color: Colors.light.tint, fontFamily: "Archivo_700Bold" },
+  balanceLabel: { fontSize: 13, color: GRAY_600, fontFamily: "Archivo_400Regular" },
+  balanceAmount: { fontSize: 28, color: PURPLE, fontFamily: "Archivo_700Bold" },
   withdrawBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 8, backgroundColor: Colors.light.tint,
+    gap: 8, backgroundColor: PURPLE,
     borderRadius: 12, paddingVertical: 14,
   },
   withdrawBtnDisabled: { opacity: 0.45 },
   withdrawBtnText: { color: WHITE, fontSize: 15, fontFamily: "Archivo_600SemiBold" },
   section: { paddingHorizontal: 20, marginBottom: 20 },
   sectionLabel: {
-    fontSize: 12, color: Colors.light.textSecondary,
+    fontSize: 12, color: GRAY_600,
     fontFamily: "Archivo_600SemiBold",
     textTransform: "uppercase", letterSpacing: 0.6,
     marginBottom: 10, marginLeft: 4,
@@ -237,7 +251,7 @@ const styles = StyleSheet.create({
   },
   infoRowBorder: { borderTopWidth: 1, borderTopColor: GRAY_125 },
   infoText: {
-    flex: 1, fontSize: 13, color: Colors.light.text,
+    flex: 1, fontSize: 13, color: GRAY_850,
     fontFamily: "Archivo_400Regular", lineHeight: 18,
   },
   historyLink: {
@@ -249,7 +263,7 @@ const styles = StyleSheet.create({
     width: 34, height: 34, borderRadius: 9,
     alignItems: "center", justifyContent: "center",
   },
-  historyText: { flex: 1, fontSize: 15, fontFamily: "Archivo_400Regular", color: Colors.light.text },
+  historyText: { flex: 1, fontSize: 15, fontFamily: "Archivo_400Regular", color: GRAY_850 },
   modalOverlay: {
     flex: 1, backgroundColor: BLACK_A45,
     alignItems: "center", justifyContent: "center", padding: 24,
@@ -263,11 +277,11 @@ const styles = StyleSheet.create({
     backgroundColor: EMERALD_A10,
     alignItems: "center", justifyContent: "center", marginBottom: 8,
   },
-  modalTitle: { fontSize: 18, fontFamily: "Archivo_700Bold", color: Colors.light.text, marginBottom: 4 },
-  modalBody: { fontSize: 14, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular", textAlign: "center" },
-  modalAmount: { fontSize: 32, fontFamily: "Archivo_700Bold", color: Colors.light.tint, marginVertical: 4 },
+  modalTitle: { fontSize: 18, fontFamily: "Archivo_700Bold", color: GRAY_850, marginBottom: 4 },
+  modalBody: { fontSize: 14, color: GRAY_600, fontFamily: "Archivo_400Regular", textAlign: "center" },
+  modalAmount: { fontSize: 32, fontFamily: "Archivo_700Bold", color: PURPLE, marginVertical: 4 },
   modalNote: {
-    fontSize: 12, color: Colors.light.textSecondary,
+    fontSize: 12, color: GRAY_600,
     fontFamily: "Archivo_400Regular", textAlign: "center", lineHeight: 18,
   },
   modalActions: { flexDirection: "row", gap: 12, marginTop: 8, width: "100%" },
@@ -275,15 +289,15 @@ const styles = StyleSheet.create({
     flex: 1, paddingVertical: 14, borderRadius: 12,
     backgroundColor: GRAY_105, alignItems: "center",
   },
-  modalCancelText: { fontSize: 15, fontFamily: "Archivo_500Medium", color: Colors.light.textSecondary },
+  modalCancelText: { fontSize: 15, fontFamily: "Archivo_500Medium", color: GRAY_600 },
   modalConfirmBtn: {
     flex: 1, paddingVertical: 14, borderRadius: 12,
-    backgroundColor: Colors.light.tint, alignItems: "center",
+    backgroundColor: PURPLE, alignItems: "center",
   },
   modalConfirmText: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: WHITE },
   modalDoneBtn: {
     marginTop: 8, paddingVertical: 14, paddingHorizontal: 32,
-    borderRadius: 12, backgroundColor: Colors.light.tint, alignItems: "center",
+    borderRadius: 12, backgroundColor: PURPLE, alignItems: "center",
   },
   modalDoneText: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: WHITE },
 });

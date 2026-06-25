@@ -5,8 +5,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Platform, StyleSheet, useColorScheme, View } from "react-native";
 import React from "react";
 import { useApp } from "@/lib/store";
-import Colors from "@/constants/colors";
-import { BLACK, WHITE } from "@/constants/colors";
+import {
+  BLACK,
+  GRAY_450,
+  PURPLE,
+  RED,
+  WHITE,
+} from "@/constants/colors";
 
 function NativeTabLayout() {
   return (
@@ -37,8 +42,8 @@ function ClassicTabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.light.tint,
-        tabBarInactiveTintColor: Colors.light.tabIconDefault,
+        tabBarActiveTintColor: PURPLE,
+        tabBarInactiveTintColor: GRAY_450,
         tabBarShowLabel: false,
         tabBarStyle: {
           position: "absolute",
@@ -132,7 +137,7 @@ const tabStyles = StyleSheet.create({
     justifyContent: "center",
   },
   iconWrapActive: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
   },
   badge: {
     position: "absolute",
@@ -143,7 +148,7 @@ const tabStyles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.light.danger,
+    backgroundColor: RED,
     borderWidth: 1.5,
     borderColor: WHITE,
   },

@@ -24,10 +24,36 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useApp } from "@/lib/store";
-import Colors from "@/constants/colors";
 import { uploadFileToStorage } from "@/client/utils/objectStorageExpo";
 import { getApiUrl } from "@/lib/query-client";
-import { BLACK, BLACK_A40, BLACK_A50, BLACK_A55, BLACK_A60, BLACK_A65, DARK_MAP, GREEN_600_A88, PURPLE_A15, PURPLE_A30, WHITE, WHITE_A07, WHITE_A10, WHITE_A12, WHITE_A20, WHITE_A35, WHITE_A45, WHITE_A50, WHITE_A75, WHITE_A85 } from "@/constants/colors";
+import {
+  BLACK,
+  BLACK_A40,
+  BLACK_A50,
+  BLACK_A55,
+  BLACK_A60,
+  BLACK_A65,
+  DARK_MAP,
+  GRASS,
+  GRAY_105,
+  GRAY_170,
+  GRAY_600,
+  GRAY_850,
+  GREEN_600_A88,
+  PURPLE,
+  PURPLE_A15,
+  PURPLE_A30,
+  WHITE,
+  WHITE_A07,
+  WHITE_A10,
+  WHITE_A12,
+  WHITE_A20,
+  WHITE_A35,
+  WHITE_A45,
+  WHITE_A50,
+  WHITE_A75,
+  WHITE_A85,
+} from "@/constants/colors";
 
 function toRad(deg: number) {
   return (deg * Math.PI) / 180;
@@ -249,7 +275,7 @@ export default function CameraScreen() {
   if (!permission) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
+        <ActivityIndicator size="large" color={PURPLE} />
       </View>
     );
   }
@@ -257,7 +283,7 @@ export default function CameraScreen() {
   if (!permission.granted) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <Ionicons name="camera-outline" size={64} color={Colors.light.border} />
+        <Ionicons name="camera-outline" size={64} color={GRAY_170} />
         <Text style={styles.permTitle}>Camera Access Needed</Text>
         <Text style={styles.permSubtitle}>
           We need camera access to take photos for requests
@@ -611,7 +637,7 @@ export default function CameraScreen() {
                 arrowAnimStyle,
               ]}
             >
-              <Ionicons name="arrow-up" size={22} color={Colors.light.tint} />
+              <Ionicons name="arrow-up" size={22} color={PURPLE} />
             </Animated.View>
           </Animated.View>
           <Text style={styles.arDistText}>
@@ -721,28 +747,28 @@ export default function CameraScreen() {
 
             <View style={styles.instructionsGrid}>
               <View style={styles.instructionsCell}>
-                <Ionicons name="phone-portrait-outline" size={18} color={Colors.light.tint} />
+                <Ionicons name="phone-portrait-outline" size={18} color={PURPLE} />
                 <Text style={styles.instructionsCellLabel}>Orientation</Text>
                 <Text style={styles.instructionsCellValue} numberOfLines={1}>
                   {request.orientation}
                 </Text>
               </View>
               <View style={styles.instructionsCell}>
-                <Ionicons name="camera-outline" size={18} color={Colors.light.tint} />
+                <Ionicons name="camera-outline" size={18} color={PURPLE} />
                 <Text style={styles.instructionsCellLabel}>Angle</Text>
                 <Text style={styles.instructionsCellValue} numberOfLines={1}>
                   {request.angle.replace(/-/g, " ")}
                 </Text>
               </View>
               <View style={styles.instructionsCell}>
-                <Ionicons name="time-outline" size={18} color={Colors.light.tint} />
+                <Ionicons name="time-outline" size={18} color={PURPLE} />
                 <Text style={styles.instructionsCellLabel}>Timing</Text>
                 <Text style={styles.instructionsCellValue} numberOfLines={1}>
                   {request.timing}
                 </Text>
               </View>
               <View style={styles.instructionsCell}>
-                <Ionicons name="location-outline" size={18} color={Colors.light.tint} />
+                <Ionicons name="location-outline" size={18} color={PURPLE} />
                 <Text style={styles.instructionsCellLabel}>Location</Text>
                 <Text style={styles.instructionsCellValue} numberOfLines={1}>
                   {request.locationName}
@@ -752,7 +778,7 @@ export default function CameraScreen() {
 
             {request.note ? (
               <View style={styles.instructionsNotes}>
-                <Ionicons name="chatbubble-outline" size={15} color={Colors.light.tint} />
+                <Ionicons name="chatbubble-outline" size={15} color={PURPLE} />
                 <Text style={styles.instructionsNotesText}>{request.note}</Text>
               </View>
             ) : null}
@@ -778,24 +804,24 @@ const styles = StyleSheet.create({
   centered: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.light.background,
+    backgroundColor: GRAY_105,
     gap: 12,
     padding: 40,
   },
   permTitle: {
     fontSize: 20,
     fontWeight: "700" as const,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   permSubtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     textAlign: "center",
     fontFamily: "Archivo_400Regular",
   },
   permBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 14,
@@ -809,7 +835,7 @@ const styles = StyleSheet.create({
   },
   backLink: {
     fontSize: 15,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_500Medium",
   },
   // Grid
@@ -868,7 +894,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     backgroundColor: BLACK_A55,
     borderWidth: 1.5,
-    borderColor: Colors.light.tint,
+    borderColor: PURPLE,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -998,7 +1024,7 @@ const styles = StyleSheet.create({
   },
   submitPhotoBtn: {
     flex: 0.6,
-    backgroundColor: Colors.light.accent,
+    backgroundColor: GRASS,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -1091,7 +1117,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   instructionsDoneBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: "center",

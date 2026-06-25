@@ -14,9 +14,24 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
-import { BLACK, GRAY_100, GRAY_105, GRAY_125, GRAY_150, GRAY_280, GRAY_380, GREEN_25, GREEN_500, RED, RED_50, WHITE } from "@/constants/colors";
+import {
+  BLACK,
+  GRAY_100,
+  GRAY_105,
+  GRAY_125,
+  GRAY_150,
+  GRAY_280,
+  GRAY_380,
+  GRAY_600,
+  GRAY_850,
+  GREEN_25,
+  GREEN_500,
+  PURPLE,
+  RED,
+  RED_50,
+  WHITE,
+} from "@/constants/colors";
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -100,7 +115,7 @@ export default function EditProfileScreen() {
           onPress={() => router.back()}
           hitSlop={12}
         >
-          <Ionicons name="arrow-back" size={22} color={Colors.light.text} />
+          <Ionicons name="arrow-back" size={22} color={GRAY_850} />
         </Pressable>
         <Text style={styles.headerTitle}>Edit Profile</Text>
         <View style={{ width: 36 }} />
@@ -205,7 +220,7 @@ export default function EditProfileScreen() {
           ]}
           onPress={() => router.push("/change-password")}
         >
-          <Ionicons name="lock-closed-outline" size={18} color={Colors.light.tint} />
+          <Ionicons name="lock-closed-outline" size={18} color={PURPLE} />
           <Text style={styles.changePwdText}>Change Password</Text>
           <Ionicons name="chevron-forward" size={16} color={GRAY_280} />
         </Pressable>
@@ -239,7 +254,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   scrollContent: {
@@ -254,7 +269,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -279,7 +294,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
     marginLeft: 2,
   },
@@ -289,7 +304,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     borderWidth: 1,
     borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
@@ -327,13 +342,13 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_400Regular",
   },
   saveBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 24,
-    shadowColor: Colors.light.tint,
+    shadowColor: PURPLE,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -361,7 +376,7 @@ const styles = StyleSheet.create({
   changePwdText: {
     flex: 1,
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
 });

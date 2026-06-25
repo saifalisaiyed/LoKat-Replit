@@ -14,9 +14,24 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
-import Colors from "@/constants/colors";
 import AuthPromptModal from "@/components/AuthPromptModal";
-import { GRAY_100, GRAY_105, GRAY_125, GRAY_145, GRAY_150, GRAY_250, PURPLE_A06, PURPLE_A08, PURPLE_A19, RED, RED_100, WHITE } from "@/constants/colors";
+import {
+  GRAY_100,
+  GRAY_105,
+  GRAY_125,
+  GRAY_145,
+  GRAY_150,
+  GRAY_250,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  PURPLE_A06,
+  PURPLE_A08,
+  PURPLE_A19,
+  RED,
+  RED_100,
+  WHITE,
+} from "@/constants/colors";
 
 function formatMemberSince(iso?: string) {
   if (!iso) return null;
@@ -49,7 +64,7 @@ export default function ProfileScreen() {
       <View style={[styles.guestContainer, { paddingTop: insets.top + 20 + webInsetTop }]}>
         <View style={styles.guestContent}>
           <View style={styles.guestIconCircle}>
-            <Ionicons name="person-outline" size={28} color={Colors.light.textSecondary} />
+            <Ionicons name="person-outline" size={28} color={GRAY_600} />
           </View>
           <Text style={styles.guestTitle}>Sign in to view your profile</Text>
           <Text style={styles.guestSubtitle}>Track requests, earnings, and manage your account</Text>
@@ -91,7 +106,7 @@ export default function ProfileScreen() {
               router.push("/edit-profile");
             }}
           >
-            <Feather name="settings" size={20} color={Colors.light.text} />
+            <Feather name="settings" size={20} color={GRAY_850} />
           </Pressable>
         </View>
 
@@ -115,7 +130,7 @@ export default function ProfileScreen() {
               router.push("/edit-profile");
             }}
           >
-            <Feather name="edit-2" size={14} color={Colors.light.tint} />
+            <Feather name="edit-2" size={14} color={PURPLE} />
           </Pressable>
         </View>
       </View>
@@ -132,7 +147,7 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
-          <Text style={[styles.statNumber, { color: Colors.light.tint }]}>
+          <Text style={[styles.statNumber, { color: PURPLE }]}>
             ${profile.earnings.toFixed(0)}
           </Text>
           <Text style={styles.statDesc}>Earned</Text>
@@ -143,7 +158,7 @@ export default function ProfileScreen() {
         <View style={styles.earningsCard}>
           <View style={styles.earningsHeader}>
             <View style={styles.earningsIconWrap}>
-              <Ionicons name="wallet-outline" size={18} color={Colors.light.tint} />
+              <Ionicons name="wallet-outline" size={18} color={PURPLE} />
             </View>
             <View style={styles.earningsHeaderText}>
               <Text style={styles.earningsTitle}>Wallet</Text>
@@ -159,7 +174,7 @@ export default function ProfileScreen() {
                 router.push("/payment-methods");
               }}
             >
-              <Feather name="download" size={16} color={Colors.light.tint} />
+              <Feather name="download" size={16} color={PURPLE} />
               <Text style={styles.earningsActionText}>Withdraw</Text>
             </Pressable>
             <View style={styles.earningsActionDivider} />
@@ -170,8 +185,8 @@ export default function ProfileScreen() {
                 router.push("/transaction-history");
               }}
             >
-              <Feather name="clock" size={16} color={Colors.light.textSecondary} />
-              <Text style={[styles.earningsActionText, { color: Colors.light.textSecondary }]}>History</Text>
+              <Feather name="clock" size={16} color={GRAY_600} />
+              <Text style={[styles.earningsActionText, { color: GRAY_600 }]}>History</Text>
             </Pressable>
           </View>
         </View>
@@ -244,7 +259,7 @@ export default function ProfileScreen() {
               }}
             >
               <View style={[styles.menuIconWrap, { backgroundColor: PURPLE_A08 }]}>
-                <Feather name="shield" size={18} color={Colors.light.tint} />
+                <Feather name="shield" size={18} color={PURPLE} />
               </View>
               <Text style={styles.menuItemText}>Admin Panel</Text>
               <Feather name="chevron-right" size={16} color={GRAY_250} />
@@ -282,7 +297,7 @@ function MenuItem({
       }}
     >
       <View style={styles.menuIconWrap}>
-        <Feather name={icon as any} size={18} color={Colors.light.textSecondary} />
+        <Feather name={icon as any} size={18} color={GRAY_600} />
       </View>
       <Text style={styles.menuItemText}>{label}</Text>
       <Feather name="chevron-right" size={16} color={GRAY_250} />
@@ -313,24 +328,24 @@ const styles = StyleSheet.create({
   },
   guestTitle: {
     fontSize: 18,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
     textAlign: "center",
     marginBottom: 6,
   },
   guestSubtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     textAlign: "center",
     marginBottom: 24,
   },
   guestSignInBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 10,
-    shadowColor: Colors.light.tint,
+    shadowColor: PURPLE,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -358,7 +373,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 22,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   settingsBtn: {
@@ -378,7 +393,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 14,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -393,17 +408,17 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   subtitle: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   memberSince: {
     fontSize: 11,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     marginTop: 1,
     opacity: 0.7,
@@ -431,12 +446,12 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 22,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_700Bold",
   },
   statDesc: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   statDivider: {
@@ -451,7 +466,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     marginBottom: 10,
     marginLeft: 4,
     fontFamily: "Archivo_600SemiBold",
@@ -483,17 +498,17 @@ const styles = StyleSheet.create({
   },
   earningsTitle: {
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   earningsSubtitle: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   earningsAmount: {
     fontSize: 22,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_700Bold",
   },
   earningsActions: {
@@ -511,7 +526,7 @@ const styles = StyleSheet.create({
   },
   earningsActionText: {
     fontSize: 13,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_500Medium",
   },
   earningsActionDivider: {
@@ -541,7 +556,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     flex: 1,
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_400Regular",
   },
   menuDivider: {

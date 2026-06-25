@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
-import Colors from "@/constants/colors";
-import { DARK_MAP } from "@/constants/colors";
+import {
+  DARK_MAP,
+  PURPLE,
+} from "@/constants/colors";
 
 interface MapWrapperProps {
   selectedPin: { latitude: number; longitude: number } | null;
@@ -84,7 +86,7 @@ function MapViewWrapperInner({
         }).addTo(map);
 
         var markerIcon = L.divIcon({
-          html: '<div style="width:28px;height:28px;border-radius:14px;background:${Colors.light.tint};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>',
+          html: '<div style="width:28px;height:28px;border-radius:14px;background:${PURPLE};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>',
           className: '',
           iconSize: [28, 28],
           iconAnchor: [14, 14],

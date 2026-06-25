@@ -15,8 +15,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
-import Colors from "@/constants/colors";
-import { DARK_MAP, GRAY_400, GRAY_650, PURPLE_A12, PURPLE_A18, RED_LIGHT, RED_LIGHT_A12, WHITE, WHITE_A06, WHITE_A08, WHITE_A10 } from "@/constants/colors";
+import {
+  DARK_MAP,
+  GRAY_400,
+  GRAY_650,
+  PURPLE,
+  PURPLE_A12,
+  PURPLE_A18,
+  RED_LIGHT,
+  RED_LIGHT_A12,
+  WHITE,
+  WHITE_A06,
+  WHITE_A08,
+  WHITE_A10,
+} from "@/constants/colors";
 
 type PayoutType = "paypal" | "bank";
 
@@ -85,7 +97,7 @@ export default function PayoutSetupScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.iconCircle}>
-          <Ionicons name="wallet-outline" size={44} color={Colors.light.tint} />
+          <Ionicons name="wallet-outline" size={44} color={PURPLE} />
         </View>
 
         <Text style={styles.title}>How do you want to get paid?</Text>
@@ -260,7 +272,7 @@ const styles = StyleSheet.create({
   },
   typeBtnActive: {
     backgroundColor: PURPLE_A18,
-    borderColor: Colors.light.tint,
+    borderColor: PURPLE,
   },
   typeBtnText: {
     fontSize: 14,
@@ -314,7 +326,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   saveBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 16,
     borderRadius: 16,
     alignSelf: "stretch",

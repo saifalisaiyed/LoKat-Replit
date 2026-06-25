@@ -19,11 +19,39 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
-import Colors from "@/constants/colors";
 import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 import AuthPromptModal, { type AuthPromptContext } from "@/components/AuthPromptModal";
-import { BLACK, BLACK_A05, BLACK_A15, BLACK_A55, BLUE, DARK_GLASS, GOLD, GRAY_110, GRAY_130, GRAY_170, GRAY_450, GRAY_600, GRAY_90, GREEN_500, ORANGE, PINK, PURPLE_LIGHT, RED, TEAL, WHITE, WHITE_A25, WHITE_A70, WHITE_A95 } from "@/constants/colors";
+import {
+  BLACK,
+  BLACK_A05,
+  BLACK_A15,
+  BLACK_A55,
+  BLUE,
+  DARK_GLASS,
+  DARK_MAP,
+  GOLD,
+  GRASS,
+  GRAY_105,
+  GRAY_110,
+  GRAY_130,
+  GRAY_170,
+  GRAY_450,
+  GRAY_600,
+  GRAY_850,
+  GRAY_90,
+  GREEN_500,
+  ORANGE,
+  PINK,
+  PURPLE,
+  PURPLE_LIGHT,
+  RED,
+  TEAL,
+  WHITE,
+  WHITE_A25,
+  WHITE_A70,
+  WHITE_A95,
+} from "@/constants/colors";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.5;
@@ -99,7 +127,7 @@ const POPULAR_LOCATIONS = [
 ];
 
 function getCategoryColor(key: string): string {
-  return CATEGORY_COLORS[key] || Colors.light.tint;
+  return CATEGORY_COLORS[key] || PURPLE;
 }
 
 function timeAgo(dateStr: string): string {
@@ -157,11 +185,11 @@ function RequestCard({ item, onPress, userCoords }: { item: any; onPress: () => 
           {item.locationName}
         </Text>
         <View style={styles.cardMetaRow}>
-          <Ionicons name="navigate-circle-outline" size={13} color={Colors.light.textSecondary} />
+          <Ionicons name="navigate-circle-outline" size={13} color={GRAY_600} />
           <Text style={styles.cardDistance}>
             {getDistanceMi(item.latitude, item.longitude, userCoords)}
           </Text>
-          <Ionicons name="time-outline" size={13} color={Colors.light.orange} />
+          <Ionicons name="time-outline" size={13} color={ORANGE} />
           <Text style={styles.cardTime}>{timeAgo(item.createdAt)}</Text>
         </View>
       </View>
@@ -540,9 +568,9 @@ export default function HomeScreen() {
                     <Ionicons
                       name={heatmapEnabled ? "flame" : "flame-outline"}
                       size={16}
-                      color={heatmapEnabled ? Colors.light.tint : Colors.light.textSecondary}
+                      color={heatmapEnabled ? PURPLE : GRAY_600}
                     />
-                    <Text style={[styles.menuItemText, heatmapEnabled && { color: Colors.light.tint }]}>
+                    <Text style={[styles.menuItemText, heatmapEnabled && { color: PURPLE }]}>
                       Heatmap
                     </Text>
                     <View style={[styles.menuToggle, heatmapEnabled && styles.menuToggleOn]}>
@@ -579,7 +607,7 @@ export default function HomeScreen() {
                   key={cat.key}
                   style={[
                     styles.categoryPill,
-                    isActive && { backgroundColor: Colors.light.tint, borderColor: Colors.light.tint },
+                    isActive && { backgroundColor: PURPLE, borderColor: PURPLE },
                   ]}
                   onPress={() => handleCategoryPress(cat.key)}
                 >
@@ -616,15 +644,15 @@ export default function HomeScreen() {
             <Ionicons
               name={locationFilter === "anywhere" ? "funnel-outline" : "funnel"}
               size={13}
-              color={locationFilter === "anywhere" ? Colors.light.textSecondary : Colors.light.tint}
+              color={locationFilter === "anywhere" ? GRAY_600 : PURPLE}
             />
             <Text style={[
               styles.filterBtnText,
-              locationFilter !== "anywhere" && { color: Colors.light.tint },
+              locationFilter !== "anywhere" && { color: PURPLE },
             ]}>
               {LOCATION_FILTERS.find((f) => f.key === locationFilter)?.label || "Anywhere"}
             </Text>
-            <Ionicons name="chevron-down" size={12} color={Colors.light.textSecondary} />
+            <Ionicons name="chevron-down" size={12} color={GRAY_600} />
           </Pressable>
         </View>
       </View>
@@ -633,7 +661,7 @@ export default function HomeScreen() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="search-outline" size={36} color={Colors.light.border} />
+      <Ionicons name="search-outline" size={36} color={GRAY_170} />
       <Text style={styles.emptyTitle}>No requests found</Text>
       <Text style={styles.emptySubtitle}>
         {selectedCategory
@@ -685,12 +713,12 @@ export default function HomeScreen() {
                     <Ionicons
                       name={f.icon as any}
                       size={16}
-                      color={isActive ? Colors.light.tint : Colors.light.textSecondary}
+                      color={isActive ? PURPLE : GRAY_600}
                     />
                     <Text style={[styles.dropdownLabel, isActive && styles.dropdownLabelActive]}>
                       {f.label}
                     </Text>
-                    {isActive && <Ionicons name="checkmark" size={14} color={Colors.light.tint} />}
+                    {isActive && <Ionicons name="checkmark" size={14} color={PURPLE} />}
                   </Pressable>
                 );
               })}
@@ -741,17 +769,17 @@ export default function HomeScreen() {
 
           {!searchQuery.trim() && (
             <View style={styles.searchSectionHeader}>
-              <Ionicons name="star" size={14} color={Colors.light.orange} />
+              <Ionicons name="star" size={14} color={ORANGE} />
               <Text style={styles.searchSectionTitle}>Popular Locations</Text>
             </View>
           )}
           {searchQuery.trim().length > 0 && (filteredLocations.length > 0 || isSearching) && (
             <View style={styles.searchSectionHeader}>
-              <Ionicons name="search" size={14} color={Colors.light.tint} />
+              <Ionicons name="search" size={14} color={PURPLE} />
               <Text style={styles.searchSectionTitle}>
                 {isSearching && filteredLocations.length === 0 ? "Searching..." : `${filteredLocations.length} result${filteredLocations.length !== 1 ? "s" : ""}`}
               </Text>
-              {isSearching && <ActivityIndicator size="small" color={Colors.light.tint} style={{ marginLeft: 6 }} />}
+              {isSearching && <ActivityIndicator size="small" color={PURPLE} style={{ marginLeft: 6 }} />}
             </View>
           )}
           <FlatList
@@ -792,12 +820,12 @@ export default function HomeScreen() {
             ListEmptyComponent={
               isSearching ? (
                 <View style={styles.searchEmpty}>
-                  <ActivityIndicator size="large" color={Colors.light.tint} />
+                  <ActivityIndicator size="large" color={PURPLE} />
                   <Text style={styles.searchEmptyText}>Searching worldwide...</Text>
                 </View>
               ) : searchQuery.trim().length > 0 ? (
                 <View style={styles.searchEmpty}>
-                  <Ionicons name="location-outline" size={28} color={Colors.light.border} />
+                  <Ionicons name="location-outline" size={28} color={GRAY_170} />
                   <Text style={styles.searchEmptyText}>No locations match "{searchQuery}"</Text>
                 </View>
               ) : null
@@ -865,7 +893,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: GRAY_105,
   },
   activeRequestBanner: {
     position: "absolute",
@@ -874,7 +902,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
@@ -925,7 +953,7 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     height: MAP_HEIGHT,
-    backgroundColor: Colors.palette.mapDark,
+    backgroundColor: DARK_MAP,
     overflow: "hidden",
   },
   mapOverlay: {
@@ -973,7 +1001,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   contentSheet: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: GRAY_105,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     marginTop: -24,
@@ -987,7 +1015,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: GRAY_850,
     marginBottom: 14,
     paddingHorizontal: 20,
     fontFamily: "Archivo_600SemiBold",
@@ -1010,7 +1038,7 @@ const styles = StyleSheet.create({
   },
   categoryPillText: {
     fontSize: 13,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   feedHeader: {
@@ -1036,7 +1064,7 @@ const styles = StyleSheet.create({
   },
   filterBtnText: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
   },
   filterOverlay: {
@@ -1067,16 +1095,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   dropdownOptionActive: {
-    backgroundColor: Colors.light.tint + "0D",
+    backgroundColor: PURPLE + "0D",
   },
   dropdownLabel: {
     flex: 1,
     fontSize: 14,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   dropdownLabelActive: {
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_600SemiBold",
   },
   searchRow: {
@@ -1125,7 +1153,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     flex: 1,
     fontSize: 13,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   menuToggle: {
@@ -1137,7 +1165,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   menuToggleOn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
   },
   menuToggleThumb: {
     width: 16,
@@ -1175,7 +1203,7 @@ const styles = StyleSheet.create({
   },
   cardLocationName: {
     fontSize: 14,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   cardMetaRow: {
@@ -1185,17 +1213,17 @@ const styles = StyleSheet.create({
   },
   cardDistance: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     marginRight: 6,
   },
   cardTime: {
     fontSize: 12,
-    color: Colors.light.orange,
+    color: ORANGE,
     fontFamily: "Archivo_500Medium",
   },
   cardReward: {
-    backgroundColor: Colors.light.accent,
+    backgroundColor: GRASS,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -1212,12 +1240,12 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   emptySubtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   searchModal: {
@@ -1246,7 +1274,7 @@ const styles = StyleSheet.create({
   searchModalInput: {
     flex: 1,
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_400Regular",
     paddingVertical: 0,
   },
@@ -1256,7 +1284,7 @@ const styles = StyleSheet.create({
   },
   searchCancelText: {
     fontSize: 14,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_500Medium",
   },
   searchSectionHeader: {
@@ -1269,7 +1297,7 @@ const styles = StyleSheet.create({
   },
   searchSectionTitle: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_600SemiBold",
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -1296,12 +1324,12 @@ const styles = StyleSheet.create({
   },
   searchResultName: {
     fontSize: 14,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   searchResultAddr: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   searchResultCatDot: {
@@ -1320,7 +1348,7 @@ const styles = StyleSheet.create({
   },
   searchEmptyText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
 });

@@ -17,10 +17,33 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
-import { BLACK, BLACK_A03, BLACK_A40, GOOGLE_BLUE, GRAY_100, GRAY_105, GRAY_140, GRAY_150, GRAY_170, GRAY_210, GRAY_220, GRAY_380, GRAY_500, GRAY_550, PURPLE_40, PURPLE_A04, PURPLE_A12, RED, RED_50, WHITE } from "@/constants/colors";
+import {
+  BLACK,
+  BLACK_A03,
+  BLACK_A40,
+  GOOGLE_BLUE,
+  GRAY_100,
+  GRAY_105,
+  GRAY_140,
+  GRAY_150,
+  GRAY_170,
+  GRAY_210,
+  GRAY_220,
+  GRAY_380,
+  GRAY_500,
+  GRAY_550,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  PURPLE_40,
+  PURPLE_A04,
+  PURPLE_A12,
+  RED,
+  RED_50,
+  WHITE,
+} from "@/constants/colors";
 
 const lokatLogo = require("@/assets/images/lokat-logo.png");
 
@@ -398,7 +421,7 @@ export default function AuthScreen() {
             ]}
             onPress={handleSkip}
           >
-            <Ionicons name="eye-outline" size={18} color={Colors.light.textSecondary} />
+            <Ionicons name="eye-outline" size={18} color={GRAY_600} />
             <Text style={styles.guestBtnText}>Continue as Guest</Text>
           </Pressable>
 
@@ -476,7 +499,7 @@ export default function AuthScreen() {
                   <Text style={styles.countryRowCode}>{item.code}</Text>
                   {item.code === selectedCountry.code &&
                     item.name === selectedCountry.name && (
-                      <Ionicons name="checkmark-circle" size={20} color={Colors.light.tint} />
+                      <Ionicons name="checkmark-circle" size={20} color={PURPLE} />
                     )}
                 </Pressable>
               )}
@@ -494,7 +517,7 @@ export default function AuthScreen() {
               <>
                 <View style={{ alignItems: "center", paddingVertical: 24 }}>
                   <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: PURPLE_A12, alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                    <Ionicons name="checkmark-circle" size={32} color={Colors.light.tint} />
+                    <Ionicons name="checkmark-circle" size={32} color={PURPLE} />
                   </View>
                   <Text style={[styles.modalTitle, { marginBottom: 8 }]}>Password reset!</Text>
                   <Text style={{ color: GRAY_550, textAlign: "center", fontSize: 14, fontFamily: "Archivo_400Regular" }}>
@@ -622,14 +645,14 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 26,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_700Bold",
     letterSpacing: -0.5,
     marginBottom: 6,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     lineHeight: 20,
   },
@@ -649,7 +672,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 13,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
     marginLeft: 2,
   },
@@ -659,7 +682,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     borderWidth: 1,
     borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
@@ -701,7 +724,7 @@ const styles = StyleSheet.create({
   },
   countryCode: {
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   phoneInput: {
@@ -711,7 +734,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     borderWidth: 1,
     borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
@@ -732,12 +755,12 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_400Regular",
   },
   submitBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 16,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: Colors.light.tint,
+    shadowColor: PURPLE,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -764,7 +787,7 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   googleBtn: {
@@ -785,7 +808,7 @@ const styles = StyleSheet.create({
   },
   googleBtnText: {
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   guestBtn: {
@@ -799,7 +822,7 @@ const styles = StyleSheet.create({
   },
   guestBtnText: {
     fontSize: 15,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
   },
   forgotRow: {
@@ -809,7 +832,7 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     fontSize: 13,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_500Medium",
   },
   switchRow: {
@@ -818,11 +841,11 @@ const styles = StyleSheet.create({
   },
   switchText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
   },
   switchLink: {
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_600SemiBold",
   },
   termsText: {
@@ -835,7 +858,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   termsLink: {
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_500Medium",
   },
   modalOverlay: {
@@ -863,7 +886,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
     textAlign: "center",
     marginBottom: 12,
@@ -883,7 +906,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 12,
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_400Regular",
   },
   countryList: {
@@ -905,12 +928,12 @@ const styles = StyleSheet.create({
   countryRowName: {
     flex: 1,
     fontSize: 15,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_400Regular",
   },
   countryRowCode: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
     marginRight: 4,
   },

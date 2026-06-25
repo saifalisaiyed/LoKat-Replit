@@ -10,8 +10,15 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import Colors from "@/constants/colors";
-import { GRAY_105, GRAY_125, PURPLE_A06, WHITE } from "@/constants/colors";
+import {
+  GRAY_105,
+  GRAY_125,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  PURPLE_A06,
+  WHITE,
+} from "@/constants/colors";
 
 const SECTIONS = [
   {
@@ -68,7 +75,7 @@ export default function TermsScreen() {
     <View style={[styles.container, { paddingTop: insets.top + webInsetTop }]}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
-          <Feather name="arrow-left" size={20} color={Colors.light.text} />
+          <Feather name="arrow-left" size={20} color={GRAY_850} />
         </Pressable>
         <Text style={styles.title}>Terms & Conditions</Text>
         <View style={{ width: 36 }} />
@@ -111,19 +118,19 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 12,
     backgroundColor: GRAY_105, alignItems: "center", justifyContent: "center",
   },
-  title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: Colors.light.text },
+  title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: GRAY_850 },
   content: { padding: 20 },
   updated: {
-    fontSize: 12, color: Colors.light.textSecondary,
+    fontSize: 12, color: GRAY_600,
     fontFamily: "Archivo_400Regular", marginBottom: 20,
   },
   section: { marginBottom: 20 },
   sectionTitle: {
     fontSize: 14, fontFamily: "Archivo_600SemiBold",
-    color: Colors.light.text, marginBottom: 6,
+    color: GRAY_850, marginBottom: 6,
   },
   sectionBody: {
-    fontSize: 13, color: Colors.light.textSecondary,
+    fontSize: 13, color: GRAY_600,
     fontFamily: "Archivo_400Regular", lineHeight: 20,
   },
   footer: {
@@ -132,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   footerText: {
-    fontSize: 13, color: Colors.light.tint,
+    fontSize: 13, color: PURPLE,
     fontFamily: "Archivo_500Medium", lineHeight: 20, textAlign: "center",
   },
 });

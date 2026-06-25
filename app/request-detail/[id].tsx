@@ -20,11 +20,44 @@ import { router, useLocalSearchParams, useFocusEffect, useNavigation } from "exp
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
-import Colors from "@/constants/colors";
 import { CATEGORIES } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 import AuthPromptModal from "@/components/AuthPromptModal";
-import { BLACK_A03, BLACK_A04, BLACK_A40, BLUE, GOLD, GRASS_A06, GRASS_A07, GRASS_A10, GRASS_A12, GRASS_A25, GRAY_170, GREEN_500, ORANGE, PINK, PURPLE_A06, PURPLE_A07, PURPLE_A08, PURPLE_A12, PURPLE_A18, PURPLE_A20, PURPLE_LIGHT, RED, RED_100, SKY_100, SKY_A08, TEAL, WHITE, WHITE_A90 } from "@/constants/colors";
+import {
+  BLACK_A03,
+  BLACK_A04,
+  BLACK_A40,
+  BLUE,
+  GOLD,
+  GRASS,
+  GRASS_A06,
+  GRASS_A07,
+  GRASS_A10,
+  GRASS_A12,
+  GRASS_A25,
+  GRAY_105,
+  GRAY_170,
+  GRAY_600,
+  GRAY_850,
+  GREEN_500,
+  ORANGE,
+  PINK,
+  PURPLE,
+  PURPLE_A06,
+  PURPLE_A07,
+  PURPLE_A08,
+  PURPLE_A12,
+  PURPLE_A18,
+  PURPLE_A20,
+  PURPLE_LIGHT,
+  RED,
+  RED_100,
+  SKY_100,
+  SKY_A08,
+  TEAL,
+  WHITE,
+  WHITE_A90,
+} from "@/constants/colors";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;
@@ -41,7 +74,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 function getCatColor(key: string): string {
-  return CATEGORY_COLORS[key] || Colors.light.tint;
+  return CATEGORY_COLORS[key] || PURPLE;
 }
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -61,7 +94,7 @@ function DetailRow({ icon, label, value }: { icon: string; label: string; value:
   return (
     <View style={styles.detailRow}>
       <View style={styles.detailIcon}>
-        <Ionicons name={icon as any} size={18} color={Colors.light.tint} />
+        <Ionicons name={icon as any} size={18} color={PURPLE} />
       </View>
       <View style={styles.detailInfo}>
         <Text style={styles.detailLabel}>{label}</Text>
@@ -118,7 +151,7 @@ export default function RequestDetailScreen() {
     return (
       <View style={[styles.container, styles.centered]}>
         {loadingFresh ? (
-          <ActivityIndicator size="large" color={Colors.light.tint} />
+          <ActivityIndicator size="large" color={PURPLE} />
         ) : (
           <>
             <Text style={styles.notFoundText}>Request not found</Text>
@@ -223,7 +256,7 @@ export default function RequestDetailScreen() {
             onPress={() => router.back()}
             hitSlop={12}
           >
-            <Ionicons name="arrow-back" size={22} color={Colors.light.text} />
+            <Ionicons name="arrow-back" size={22} color={GRAY_850} />
           </Pressable>
         )}
         {isMyRequest && request.status === "open" && (
@@ -232,7 +265,7 @@ export default function RequestDetailScreen() {
             onPress={handleDelete}
             hitSlop={12}
           >
-            <Ionicons name="trash-outline" size={20} color={Colors.light.danger} />
+            <Ionicons name="trash-outline" size={20} color={RED} />
           </Pressable>
         )}
         {isActiveLoKater && (
@@ -241,7 +274,7 @@ export default function RequestDetailScreen() {
             onPress={() => setMenuVisible(true)}
             hitSlop={12}
           >
-            <Ionicons name="ellipsis-vertical" size={20} color={Colors.light.text} />
+            <Ionicons name="ellipsis-vertical" size={20} color={GRAY_850} />
           </Pressable>
         )}
       </View>
@@ -260,7 +293,7 @@ export default function RequestDetailScreen() {
               <Text style={styles.address}>{request.address}</Text>
               {request.specificSpotName ? (
                 <View style={styles.specificSpotRow}>
-                  <Ionicons name="navigate-circle-outline" size={13} color={Colors.light.tint} />
+                  <Ionicons name="navigate-circle-outline" size={13} color={PURPLE} />
                   <Text style={styles.specificSpotText}>Exact spot: {request.specificSpotName}</Text>
                 </View>
               ) : null}
@@ -295,7 +328,7 @@ export default function RequestDetailScreen() {
           {isMyRequest && request.status === "accepted" && (
             <View style={styles.acceptedCard}>
               <View style={styles.acceptedIconWrap}>
-                <Ionicons name="walk" size={22} color={Colors.light.tint} />
+                <Ionicons name="walk" size={22} color={PURPLE} />
               </View>
               <View style={styles.acceptedInfo}>
                 <Text style={styles.acceptedTitle}>LoKater accepted your request</Text>
@@ -310,10 +343,10 @@ export default function RequestDetailScreen() {
           {isMyRequest && request.status === "submitted" && (
             <View style={[styles.acceptedCard, styles.submittedCard]}>
               <View style={[styles.acceptedIconWrap, { backgroundColor: GRASS_A12 }]}>
-                <Ionicons name="checkmark-circle" size={22} color={Colors.light.accent} />
+                <Ionicons name="checkmark-circle" size={22} color={GRASS} />
               </View>
               <View style={styles.acceptedInfo}>
-                <Text style={[styles.acceptedTitle, { color: Colors.light.accent }]}>Photo submitted!</Text>
+                <Text style={[styles.acceptedTitle, { color: GRASS }]}>Photo submitted!</Text>
                 <Text style={styles.acceptedSub}>
                   Your photo is ready — scroll down to view it. Payment is being processed.
                 </Text>
@@ -352,7 +385,7 @@ export default function RequestDetailScreen() {
                     onPress={() => { setNoteText(request.note ?? ""); setEditingNote(true); }}
                     style={styles.editNoteBtn}
                   >
-                    <Ionicons name="pencil-outline" size={16} color={Colors.light.tint} />
+                    <Ionicons name="pencil-outline" size={16} color={PURPLE} />
                     <Text style={styles.editNoteBtnText}>{request.note ? "Edit" : "Add"}</Text>
                   </Pressable>
                 )}
@@ -365,7 +398,7 @@ export default function RequestDetailScreen() {
                     value={noteText}
                     onChangeText={setNoteText}
                     placeholder="Describe what you're looking for — angle, framing, time of day…"
-                    placeholderTextColor={Colors.light.textSecondary}
+                    placeholderTextColor={GRAY_600}
                     multiline
                     autoFocus
                     maxLength={500}
@@ -434,7 +467,7 @@ export default function RequestDetailScreen() {
             style={({ pressed }) => [styles.ignoreBtn, pressed && { opacity: 0.7 }]}
             onPress={handleIgnore}
           >
-            <Ionicons name="close" size={20} color={Colors.light.textSecondary} />
+            <Ionicons name="close" size={20} color={GRAY_600} />
             <Text style={styles.ignoreBtnText}>Ignore</Text>
           </Pressable>
           <Pressable
@@ -458,7 +491,7 @@ export default function RequestDetailScreen() {
             style={({ pressed }) => [styles.chatBtn, pressed && { opacity: 0.7 }]}
             onPress={() => router.push({ pathname: "/chat/[id]", params: { id: request.id } })}
           >
-            <Ionicons name="chatbubble-outline" size={20} color={Colors.light.tint} />
+            <Ionicons name="chatbubble-outline" size={20} color={PURPLE} />
           </Pressable>
           <Pressable
             style={({ pressed }) => [styles.acceptBtn, { flex: 1 }, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
@@ -485,7 +518,7 @@ export default function RequestDetailScreen() {
       {request.status === "completed" && (
         <View style={[styles.actionBar, { paddingBottom: Platform.OS === "web" ? 34 + 8 : insets.bottom + 12 }]}>
           <View style={styles.completedBanner}>
-            <Ionicons name="checkmark-circle" size={22} color={Colors.light.accent} />
+            <Ionicons name="checkmark-circle" size={22} color={GRASS} />
             <Text style={styles.completedText}>Completed</Text>
           </View>
         </View>
@@ -494,8 +527,8 @@ export default function RequestDetailScreen() {
       {request.status === "submitted" && (
         <View style={[styles.actionBar, { paddingBottom: Platform.OS === "web" ? 34 + 8 : insets.bottom + 12 }]}>
           <View style={styles.completedBanner}>
-            <Ionicons name="checkmark-done" size={22} color={Colors.light.tint} />
-            <Text style={[styles.completedText, { color: Colors.light.tint }]}>Photo Sent</Text>
+            <Ionicons name="checkmark-done" size={22} color={PURPLE} />
+            <Text style={[styles.completedText, { color: PURPLE }]}>Photo Sent</Text>
           </View>
         </View>
       )}
@@ -545,10 +578,10 @@ export default function RequestDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.light.background },
+  container: { flex: 1, backgroundColor: GRAY_105 },
   centered: { alignItems: "center", justifyContent: "center" },
-  notFoundText: { fontSize: 16, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
-  backLink: { fontSize: 15, color: Colors.light.tint, marginTop: 12, fontFamily: "Archivo_500Medium" },
+  notFoundText: { fontSize: 16, color: GRAY_600, fontFamily: "Archivo_400Regular" },
+  backLink: { fontSize: 15, color: PURPLE, marginTop: 12, fontFamily: "Archivo_500Medium" },
   mapSection: { backgroundColor: SKY_100, overflow: "hidden", borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   backBtn: {
     position: "absolute", left: 16, width: 42, height: 42, borderRadius: 21,
@@ -562,11 +595,11 @@ const styles = StyleSheet.create({
   detailsContent: { padding: 16, gap: 16 },
   titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
   titleInfo: { flex: 1, marginRight: 12 },
-  locationName: { fontSize: 20, color: Colors.light.text, fontFamily: "Archivo_600SemiBold" },
-  address: { fontSize: 14, color: Colors.light.textSecondary, marginTop: 4, fontFamily: "Archivo_400Regular" },
+  locationName: { fontSize: 20, color: GRAY_850, fontFamily: "Archivo_600SemiBold" },
+  address: { fontSize: 14, color: GRAY_600, marginTop: 4, fontFamily: "Archivo_400Regular" },
   specificSpotRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
-  specificSpotText: { fontSize: 12, color: Colors.light.tint, fontFamily: "Archivo_500Medium", flex: 1 },
-  rewardBadge: { backgroundColor: Colors.light.accent, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
+  specificSpotText: { fontSize: 12, color: PURPLE, fontFamily: "Archivo_500Medium", flex: 1 },
+  rewardBadge: { backgroundColor: GRASS, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
   rewardText: { fontSize: 18, color: WHITE, fontFamily: "Archivo_600SemiBold" },
   chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   categoryPill: {
@@ -575,46 +608,46 @@ const styles = StyleSheet.create({
   },
   categoryPillText: { fontSize: 13, fontFamily: "Archivo_500Medium" },
   chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: WHITE, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: GRAY_170 },
-  chipText: { fontSize: 13, color: Colors.light.tint, fontFamily: "Archivo_500Medium" },
-  chipTextMuted: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
+  chipText: { fontSize: 13, color: PURPLE, fontFamily: "Archivo_500Medium" },
+  chipTextMuted: { fontSize: 13, color: GRAY_600, fontFamily: "Archivo_400Regular" },
   detailsCard: { backgroundColor: WHITE, borderRadius: 12, padding: 4, borderWidth: 1, borderColor: BLACK_A03 },
   detailRow: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14 },
   detailIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: SKY_A08, alignItems: "center", justifyContent: "center" },
   detailInfo: { flex: 1 },
-  detailLabel: { fontSize: 12, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
-  detailValue: { fontSize: 15, color: Colors.light.text, marginTop: 1, fontFamily: "Archivo_500Medium" },
+  detailLabel: { fontSize: 12, color: GRAY_600, fontFamily: "Archivo_400Regular" },
+  detailValue: { fontSize: 15, color: GRAY_850, marginTop: 1, fontFamily: "Archivo_500Medium" },
   detailDivider: { height: 1, backgroundColor: BLACK_A04, marginHorizontal: 14 },
-  instructionsCard: { backgroundColor: GRASS_A06, borderRadius: 12, padding: 16, borderLeftWidth: 3, borderLeftColor: Colors.light.accent, gap: 10 },
+  instructionsCard: { backgroundColor: GRASS_A06, borderRadius: 12, padding: 16, borderLeftWidth: 3, borderLeftColor: GRASS, gap: 10 },
   instructionsHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  instructionsTitle: { fontSize: 14, color: Colors.light.text, fontFamily: "Archivo_600SemiBold" },
-  instructionsText: { fontSize: 14, color: Colors.light.text, lineHeight: 20, fontFamily: "Archivo_400Regular" },
+  instructionsTitle: { fontSize: 14, color: GRAY_850, fontFamily: "Archivo_600SemiBold" },
+  instructionsText: { fontSize: 14, color: GRAY_850, lineHeight: 20, fontFamily: "Archivo_400Regular" },
   editNoteBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: PURPLE_A08, borderRadius: 8, borderWidth: 1, borderColor: PURPLE_A20 },
-  editNoteBtnText: { fontSize: 13, color: Colors.light.tint, fontFamily: "Archivo_500Medium" },
+  editNoteBtnText: { fontSize: 13, color: PURPLE, fontFamily: "Archivo_500Medium" },
   noteInput: {
-    backgroundColor: WHITE, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.light.tint,
-    padding: 12, fontSize: 14, fontFamily: "Archivo_400Regular", color: Colors.light.text,
+    backgroundColor: WHITE, borderRadius: 10, borderWidth: 1.5, borderColor: PURPLE,
+    padding: 12, fontSize: 14, fontFamily: "Archivo_400Regular", color: GRAY_850,
     minHeight: 90, textAlignVertical: "top",
   },
   noteActions: { flexDirection: "row", gap: 10 },
-  noteCancelBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.light.border, alignItems: "center" },
-  noteCancelText: { fontSize: 14, color: Colors.light.textSecondary, fontFamily: "Archivo_500Medium" },
-  noteSaveBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: Colors.light.tint, alignItems: "center" },
+  noteCancelBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: GRAY_170, alignItems: "center" },
+  noteCancelText: { fontSize: 14, color: GRAY_600, fontFamily: "Archivo_500Medium" },
+  noteSaveBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: PURPLE, alignItems: "center" },
   noteSaveText: { fontSize: 14, color: WHITE, fontFamily: "Archivo_600SemiBold" },
-  noteEmptyText: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular", fontStyle: "italic" },
+  noteEmptyText: { fontSize: 13, color: GRAY_600, fontFamily: "Archivo_400Regular", fontStyle: "italic" },
   photoSection: { gap: 8 },
-  photoContainer: { borderRadius: 12, overflow: "hidden", backgroundColor: Colors.light.border },
+  photoContainer: { borderRadius: 12, overflow: "hidden", backgroundColor: GRAY_170 },
   photo: { width: "100%", height: 300 },
   actionBar: {
     flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingTop: 12,
-    backgroundColor: WHITE, borderTopWidth: 1, borderTopColor: Colors.light.border,
+    backgroundColor: WHITE, borderTopWidth: 1, borderTopColor: GRAY_170,
   },
   ignoreBtn: {
     flex: 0.4, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6,
-    paddingVertical: 16, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.light.border,
+    paddingVertical: 16, borderRadius: 12, borderWidth: 1.5, borderColor: GRAY_170,
   },
-  ignoreBtnText: { fontSize: 15, color: Colors.light.textSecondary, fontFamily: "Archivo_500Medium" },
+  ignoreBtnText: { fontSize: 15, color: GRAY_600, fontFamily: "Archivo_500Medium" },
   acceptBtn: {
-    flex: 0.6, backgroundColor: Colors.light.tint, flexDirection: "row", alignItems: "center",
+    flex: 0.6, backgroundColor: PURPLE, flexDirection: "row", alignItems: "center",
     justifyContent: "center", gap: 8, paddingVertical: 16, borderRadius: 12,
   },
   acceptBtnText: { color: WHITE, fontSize: 16, fontFamily: "Archivo_600SemiBold" },
@@ -622,14 +655,14 @@ const styles = StyleSheet.create({
     flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
     paddingVertical: 14, backgroundColor: GRASS_A10, borderRadius: 12,
   },
-  completedText: { fontSize: 15, color: Colors.light.accent, fontFamily: "Archivo_600SemiBold" },
+  completedText: { fontSize: 15, color: GRASS, fontFamily: "Archivo_600SemiBold" },
   menuOverlay: { flex: 1, backgroundColor: BLACK_A40, justifyContent: "flex-end" as const },
   menuSheet: {
     backgroundColor: WHITE, borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingHorizontal: 20, paddingTop: 12, gap: 12,
   },
   menuHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: GRAY_170, alignSelf: "center" as const, marginBottom: 4 },
-  menuTitle: { fontSize: 18, color: Colors.light.text, fontFamily: "Archivo_600SemiBold", marginBottom: 4 },
+  menuTitle: { fontSize: 18, color: GRAY_850, fontFamily: "Archivo_600SemiBold", marginBottom: 4 },
   menuItem: {
     flexDirection: "row" as const, alignItems: "center" as const, gap: 14,
     paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10,
@@ -640,26 +673,26 @@ const styles = StyleSheet.create({
   },
   menuItemInfo: { flex: 1, gap: 2 },
   menuItemText: { fontSize: 15, color: RED, fontFamily: "Archivo_600SemiBold" },
-  menuItemSub: { fontSize: 12, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
+  menuItemSub: { fontSize: 12, color: GRAY_600, fontFamily: "Archivo_400Regular" },
   menuCancelBtn: {
     alignItems: "center" as const, paddingVertical: 16, borderRadius: 10,
-    backgroundColor: Colors.light.background, marginTop: 4,
+    backgroundColor: GRAY_105, marginTop: 4,
   },
-  menuCancelText: { fontSize: 15, color: Colors.light.text, fontFamily: "Archivo_500Medium" },
+  menuCancelText: { fontSize: 15, color: GRAY_850, fontFamily: "Archivo_500Medium" },
   chatBtn: {
-    width: 52, height: 52, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.light.tint,
+    width: 52, height: 52, borderRadius: 12, borderWidth: 1.5, borderColor: PURPLE,
     alignItems: "center" as const, justifyContent: "center" as const, backgroundColor: PURPLE_A06,
   },
   chatFullBtn: {
     flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const,
-    gap: 10, paddingVertical: 16, borderRadius: 12, backgroundColor: Colors.light.tint,
+    gap: 10, paddingVertical: 16, borderRadius: 12, backgroundColor: PURPLE,
   },
   chatFullBtnText: { fontSize: 16, color: WHITE, fontFamily: "Archivo_600SemiBold" },
   activeBanner: {
     flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const, gap: 8,
     paddingVertical: 14, backgroundColor: PURPLE_A08, borderRadius: 12,
   },
-  activeText: { fontSize: 15, color: Colors.light.tint, fontFamily: "Archivo_600SemiBold" },
+  activeText: { fontSize: 15, color: PURPLE, fontFamily: "Archivo_600SemiBold" },
   acceptedCard: {
     flexDirection: "row" as const, alignItems: "flex-start" as const, gap: 14,
     backgroundColor: PURPLE_A07, borderRadius: 14, padding: 14,
@@ -673,6 +706,6 @@ const styles = StyleSheet.create({
     alignItems: "center" as const, justifyContent: "center" as const, flexShrink: 0,
   },
   acceptedInfo: { flex: 1, gap: 4 },
-  acceptedTitle: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: Colors.light.tint },
-  acceptedSub: { fontSize: 13, fontFamily: "Archivo_400Regular", color: Colors.light.textSecondary, lineHeight: 18 },
+  acceptedTitle: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: PURPLE },
+  acceptedSub: { fontSize: 13, fontFamily: "Archivo_400Regular", color: GRAY_600, lineHeight: 18 },
 });

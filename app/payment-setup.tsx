@@ -14,8 +14,21 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
-import Colors from "@/constants/colors";
-import { DARK_MAP, GRAY_190, GRAY_400, GRAY_580, GREEN_500, GREEN_500_A12, PURPLE_A12, RED_LIGHT, RED_LIGHT_A12, WHITE, WHITE_A05, WHITE_A08 } from "@/constants/colors";
+import {
+  DARK_MAP,
+  GRAY_190,
+  GRAY_400,
+  GRAY_580,
+  GREEN_500,
+  GREEN_500_A12,
+  PURPLE,
+  PURPLE_A12,
+  RED_LIGHT,
+  RED_LIGHT_A12,
+  WHITE,
+  WHITE_A05,
+  WHITE_A08,
+} from "@/constants/colors";
 
 export default function PaymentSetupScreen() {
   const insets = useSafeAreaInsets();
@@ -79,7 +92,7 @@ export default function PaymentSetupScreen() {
 
       <View style={styles.content}>
         <View style={styles.iconCircle}>
-          <Ionicons name="card-outline" size={48} color={Colors.light.tint} />
+          <Ionicons name="card-outline" size={48} color={PURPLE} />
         </View>
 
         <Text style={styles.title}>Add a payment method</Text>
@@ -95,7 +108,7 @@ export default function PaymentSetupScreen() {
             { icon: "refresh-outline", text: "Cancel any request before it's accepted" },
           ].map(({ icon, text }) => (
             <View key={text} style={styles.bullet}>
-              <Ionicons name={icon as any} size={18} color={Colors.light.tint} />
+              <Ionicons name={icon as any} size={18} color={PURPLE} />
               <Text style={styles.bulletText}>{text}</Text>
             </View>
           ))}
@@ -151,7 +164,7 @@ export default function PaymentSetupScreen() {
 
           {webViewLoading && (
             <View style={styles.webViewSpinner}>
-              <ActivityIndicator color={Colors.light.tint} size="large" />
+              <ActivityIndicator color={PURPLE} size="large" />
             </View>
           )}
 
@@ -236,7 +249,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 16,
     paddingHorizontal: 36,
     borderRadius: 16,

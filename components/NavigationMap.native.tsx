@@ -1,8 +1,13 @@
 import React, { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import Colors from "@/constants/colors";
-import { BLACK, GOOGLE_BLUE, WHITE, WHITE_A60 } from "@/constants/colors";
+import {
+  BLACK,
+  GOOGLE_BLUE,
+  PURPLE,
+  WHITE,
+  WHITE_A60,
+} from "@/constants/colors";
 
 export interface NavigationMapHandle {
   recenter: () => void;
@@ -115,7 +120,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: BLACK,

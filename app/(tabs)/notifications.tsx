@@ -13,9 +13,26 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
-import Colors from "@/constants/colors";
 import type { Notification } from "@/lib/types";
-import { BLACK_A03, BLACK_A05, BLUE, BLUE_A10, GRASS_A10, GRAY_105, ROSE, ROSE_A10, SKY_A03, SKY_A10, WHITE } from "@/constants/colors";
+import {
+  BLACK_A03,
+  BLACK_A05,
+  BLUE,
+  BLUE_A10,
+  GRASS,
+  GRASS_A10,
+  GRAY_105,
+  GRAY_170,
+  GRAY_450,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  ROSE,
+  ROSE_A10,
+  SKY_A03,
+  SKY_A10,
+  WHITE,
+} from "@/constants/colors";
 
 function getNotifIcon(type: Notification["type"]): {
   name: string;
@@ -24,15 +41,15 @@ function getNotifIcon(type: Notification["type"]): {
 } {
   switch (type) {
     case "accepted":
-      return { name: "checkmark-circle", color: Colors.light.tint, bg: SKY_A10 };
+      return { name: "checkmark-circle", color: PURPLE, bg: SKY_A10 };
     case "submitted":
       return { name: "cloud-upload", color: BLUE, bg: BLUE_A10 };
     case "completed":
-      return { name: "cash", color: Colors.light.accent, bg: GRASS_A10 };
+      return { name: "cash", color: GRASS, bg: GRASS_A10 };
     case "new_request":
       return { name: "location", color: ROSE, bg: ROSE_A10 };
     default:
-      return { name: "notifications", color: Colors.light.textSecondary, bg: BLACK_A05 };
+      return { name: "notifications", color: GRAY_600, bg: BLACK_A05 };
   }
 }
 
@@ -91,7 +108,7 @@ export default function NotificationsScreen() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="notifications-off-outline" size={36} color={Colors.light.border} />
+      <Ionicons name="notifications-off-outline" size={36} color={GRAY_170} />
       <Text style={styles.emptyTitle}>No notifications yet</Text>
       <Text style={styles.emptySubtitle}>
         You'll be notified when there's activity on your requests
@@ -111,7 +128,7 @@ export default function NotificationsScreen() {
               style={styles.backBtn}
               hitSlop={8}
             >
-              <Feather name="arrow-left" size={20} color={Colors.light.text} />
+              <Feather name="arrow-left" size={20} color={GRAY_850} />
             </Pressable>
           )}
           <Text style={styles.headerTitle}>Notifications</Text>
@@ -149,14 +166,14 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: GRAY_105,
   },
   header: {
     backgroundColor: WHITE,
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: GRAY_170,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
@@ -178,12 +195,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: "600",
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_600SemiBold",
   },
   markAllRead: {
     fontSize: 13,
-    color: Colors.light.tint,
+    color: PURPLE,
     fontFamily: "Archivo_500Medium",
     paddingBottom: 3,
   },
@@ -217,7 +234,7 @@ const styles = StyleSheet.create({
   notifTitle: {
     fontSize: 14,
     fontWeight: "500",
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   notifTitleUnread: {
@@ -226,13 +243,13 @@ const styles = StyleSheet.create({
   },
   notifBody: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     lineHeight: 18,
     fontFamily: "Archivo_400Regular",
   },
   notifTime: {
     fontSize: 11,
-    color: Colors.light.tabIconDefault,
+    color: GRAY_450,
     marginTop: 3,
     fontFamily: "Archivo_400Regular",
   },
@@ -240,7 +257,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     marginTop: 6,
   },
   emptyContainer: {
@@ -251,12 +268,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: "500",
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_500Medium",
   },
   emptySubtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     textAlign: "center",
     paddingHorizontal: 40,
     fontFamily: "Archivo_400Regular",

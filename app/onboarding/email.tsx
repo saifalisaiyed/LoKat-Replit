@@ -13,9 +13,20 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
-import { BLACK, GRAY_105, GRAY_150, GRAY_380, PURPLE_A08, RED, RED_50, WHITE } from "@/constants/colors";
+import {
+  BLACK,
+  GRAY_105,
+  GRAY_150,
+  GRAY_380,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  PURPLE_A08,
+  RED,
+  RED_50,
+  WHITE,
+} from "@/constants/colors";
 
 export default function OnboardingEmail() {
   const insets = useSafeAreaInsets();
@@ -69,7 +80,7 @@ export default function OnboardingEmail() {
         </View>
 
         <View style={styles.iconCircle}>
-          <Ionicons name="mail-outline" size={32} color={Colors.light.tint} />
+          <Ionicons name="mail-outline" size={32} color={PURPLE} />
         </View>
 
         <Text style={styles.title}>Add your email</Text>
@@ -144,14 +155,14 @@ const styles = StyleSheet.create({
     width: 32,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     opacity: 0.4,
   },
   progressDotActive: {
     width: 32,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
   },
   iconCircle: {
     width: 72,
@@ -164,7 +175,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    color: Colors.light.text,
+    color: GRAY_850,
     fontFamily: "Archivo_700Bold",
     letterSpacing: -0.5,
     marginBottom: 8,
@@ -172,7 +183,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 15,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_400Regular",
     textAlign: "center",
     lineHeight: 22,
@@ -188,7 +199,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 17,
-    color: Colors.light.text,
+    color: GRAY_850,
     borderWidth: 1.5,
     borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
@@ -220,13 +231,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   continueBtn: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: PURPLE,
     paddingVertical: 16,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
-    shadowColor: Colors.light.tint,
+    shadowColor: PURPLE,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -242,7 +253,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: GRAY_600,
     fontFamily: "Archivo_500Medium",
   },
 });
