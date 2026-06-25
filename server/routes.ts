@@ -142,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, ...safeUser } = user;
       return res.json({ user: safeUser });
     } catch (error: any) {
-      console.error("Register error:", e);
+      console.error("Register error:", error);
       return res.status(500).json({ message: "Registration failed" });
     }
   });
@@ -174,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, ...safeUser } = user;
       return res.json({ user: safeUser });
     } catch (error: any) {
-      console.error("Login error:", e);
+      console.error("Login error:", error);
       return res.status(500).json({ message: "Login failed" });
     }
   });
@@ -395,7 +395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       return res.json({ message: "Feedback sent successfully" });
     } catch (error) {
-      console.error("Feedback error:", e);
+      console.error("Feedback error:", error);
       return res.status(500).json({ message: "Failed to send feedback" });
     }
   });
@@ -425,7 +425,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       return res.json(requests);
     } catch (error) {
-      console.error("Get requests error:", e);
+      console.error("Get requests error:", error);
       return res.status(500).json({ message: "Failed to fetch requests" });
     }
   });
@@ -518,7 +518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       return res.status(201).json(request);
     } catch (error: any) {
-      console.error("Create request error:", e);
+      console.error("Create request error:", error);
       return res.status(500).json({ message: "Failed to create request" });
     }
   });
@@ -751,7 +751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         console.log("Google Directions status:", data.status, "— falling back to OSRM");
       } catch (error) {
-        console.log("Google Directions failed, falling back to OSRM:", e);
+        console.log("Google Directions failed, falling back to OSRM:", error);
       }
     }
 
@@ -766,7 +766,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.log("OSRM also failed:", data.code);
     } catch (error) {
-      console.error("OSRM error:", e);
+      console.error("OSRM error:", error);
     }
 
     return res.json({ polyline: [] });
@@ -816,7 +816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log("Google Places:", tsData.status, tsData.error_message || "");
         }
       } catch (error) {
-        console.error("Google Places error:", e);
+        console.error("Google Places error:", error);
       }
     }
 
@@ -838,7 +838,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       return res.json({ results, source: "nominatim" });
     } catch (error) {
-      console.error("Nominatim error:", e);
+      console.error("Nominatim error:", error);
       return res.json({ results: [], source: "error" });
     }
   });
@@ -858,7 +858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const address = [city, state, country].filter(Boolean).join(", ") || parts.slice(1, 4).join(", ") || data.display_name || "";
       return res.json({ name, address });
     } catch (error) {
-      console.error("Reverse geocode error:", e);
+      console.error("Reverse geocode error:", error);
       return res.json({ name: "Selected Location", address: "" });
     }
   });
@@ -869,7 +869,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       res.json({ uploadURL });
     } catch (error) {
-      console.error("Upload URL error:", e);
+      console.error("Upload URL error:", error);
       res.status(500).json({ error: "Failed to get upload URL" });
     }
   });
@@ -907,7 +907,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!request) return res.status(400).json({ message: "Cannot submit photo" });
       return res.json(request);
     } catch (error) {
-      console.error("Photo submit error:", e);
+      console.error("Photo submit error:", error);
       return res.status(500).json({ error: "Failed to submit photo" });
     }
   });
@@ -1322,7 +1322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       return res.json({ url: session.url, sessionId: session.id });
     } catch (error: any) {
-      console.error("Setup session error:", e.message);
+      console.error("Setup session error:", error.message);
       return res.status(500).json({ message: "Failed to create payment setup session" });
     }
   });

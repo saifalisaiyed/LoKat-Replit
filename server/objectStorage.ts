@@ -138,7 +138,7 @@ export class ObjectStorageService {
       }
       return { valid: true };
     } catch (error) {
-      console.error("validateUploadedImage error:", e);
+      console.error("validateUploadedImage error:", error);
       return { valid: false, error: "Could not verify the uploaded file." };
     }
   }
@@ -153,7 +153,7 @@ export class ObjectStorageService {
       const objectFile = await this.getObjectEntityFile(normalizedPath);
       await objectFile.delete();
     } catch (error) {
-      console.error("deleteObjectFile failed for path:", rawPath, e);
+      console.error("deleteObjectFile failed for path:", rawPath, error);
     }
   }
 

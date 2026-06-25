@@ -105,6 +105,6 @@ async function seed() {
 seed()
   .then(() => process.exit(0))
   .catch((e) => {
-    console.error("Seed error:", e);
+    console.error("Seed error:", error);
     process.exit(1);
   });
