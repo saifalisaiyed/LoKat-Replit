@@ -13,7 +13,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import tabStyles from "./_layout.styles";
+import tabStyles from "./tabStyles";
 
 function NativeTabLayout() {
   return (

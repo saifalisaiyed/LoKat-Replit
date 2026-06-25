@@ -1,0 +1,110 @@
+Uncaught Error
+The layouts "./(tabs)/_layout.tsx" and "./(tabs)/_layout.styles.ts" conflict on the route "/(tabs)/_layout". Remove or rename one of these files.
+Source
+ 
+ 665 |
+         * Each of these layouts will have a different anchor based upon the first group.
+ 
+ 666 |
+         */
+>
+ 667 |
+        
+const
+ groupName 
+=
+ (
+0
+,
+ matchers_1
+.
+matchGroupName)(node
+.
+route)
+;
+ 
+     |
+                              
+^
+ 
+ 668 |
+        
+const
+ childMatchingGroup 
+=
+ node
+.
+children
+.
+find((child) 
+=>
+ {
+ 
+ 669 |
+            
+return
+ child
+.
+route
+.
+replace(
+/\/index$/
+,
+ 
+''
+) 
+===
+ groupName
+;
+ 
+ 670 |
+        })
+;
+Call Stack
+crawlAndAppendInitialRoutesAndEntryFiles
+node_modules/expo-router/build/getRoutesCore.js:667:31
+getDirectoryTree
+node_modules/expo-router/build/getRoutesCore.js:327:42
+populateParams
+node_modules/expo-router/build/fork/getStateFromPath-forks.js:36:5
+setLastUnhandledLink$argument_0
+node_modules/expo-router/build/fork/NavigationContainer.js:57:45
+<anonymous>
+node_modules/react-dom/cjs/react-dom-client.development.js:23871:20
+renderWithHooks
+node_modules/react-dom/cjs/react-dom-client.development.js:5547:19
+updateFunctionComponent
+node_modules/react-dom/cjs/react-dom-client.development.js:8915:34
+setCurrentFiber
+node_modules/react-dom/cjs/react-dom-client.development.js:1532:58
+replaySuspendedUnitOfWork
+node_modules/react-dom/cjs/react-dom-client.development.js:15155:79
+renderRootConcurrent
+node_modules/react-dom/cjs/react-dom-client.development.js:14965:9
+renderRootSync
+node_modules/react-dom/cjs/react-dom-client.development.js:14944:7
+performWorkOnRoot
+node_modules/react-dom/cjs/react-dom-client.development.js:14478:19
+performSyncWorkOnRoot
+node_modules/react-dom/cjs/react-dom-client.development.js:16230:7
+performWorkUntilDeadline
+node_modules/scheduler/cjs/scheduler.development.js:54:21
+Collapse all 14 frames
+Component Stack
+NavigationContainerInner
+node_modules/expo-router/build/fork/NavigationContainer.js:33:193
+globalListeners.forEach$argument_0
+node_modules/expo/src/dom/global-events.ts:6:36
+_HelmetProvider
+https://1a60cfca-56d9-4696-ba7b-66821d177410-00-1vqeonx4vo9t8.kirk.replit.dev/node_modules/expo-router/entry.bundle
+App
+unknown:0:0
+LogBoxStateSubscription#constructor
+node_modules/@expo/metro-runtime/src/error-overlay/Data/LogBoxData.tsx:365:12
+ErrorOverlay
+unknown:0:0
+withDevTools(ErrorOverlay)
+unknown:0:0
+<global>
+node_modules/react-native-web/dist/vendor/react-native/LayoutAnimation/index.js:59
+Collapse all 8 frames
