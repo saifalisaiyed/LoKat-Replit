@@ -11,6 +11,7 @@ import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Colors from "@/constants/colors";
+import { GRAY_105, GRAY_125, PURPLE_A06, WHITE } from "@/constants/colors.js";
 
 const SECTIONS = [
   {
@@ -100,15 +101,15 @@ export default function TermsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5F7" },
+  container: { flex: 1, backgroundColor: GRAY_105 },
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 20, paddingVertical: 16,
-    backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#F0F0F2",
+    backgroundColor: WHITE, borderBottomWidth: 1, borderBottomColor: GRAY_125,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 12,
-    backgroundColor: "#F5F5F7", alignItems: "center", justifyContent: "center",
+    backgroundColor: GRAY_105, alignItems: "center", justifyContent: "center",
   },
   title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: Colors.light.text },
   content: { padding: 20 },
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     marginTop: 8, padding: 16,
-    backgroundColor: "rgba(124,58,237,0.06)",
+    backgroundColor: PURPLE_A06,
     borderRadius: 12,
   },
   footerText: {

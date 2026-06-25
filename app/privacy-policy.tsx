@@ -11,6 +11,7 @@ import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Colors from "@/constants/colors";
+import { GRAY_105, GRAY_125, PURPLE_A06, PURPLE_A07, PURPLE_A15, WHITE } from "@/constants/colors.js";
 
 const SECTIONS = [
   {
@@ -130,20 +131,20 @@ export default function PrivacyPolicyScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5F7" },
+  container: { flex: 1, backgroundColor: GRAY_105 },
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 20, paddingVertical: 16,
-    backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#F0F0F2",
+    backgroundColor: WHITE, borderBottomWidth: 1, borderBottomColor: GRAY_125,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 12,
-    backgroundColor: "#F5F5F7", alignItems: "center", justifyContent: "center",
+    backgroundColor: GRAY_105, alignItems: "center", justifyContent: "center",
   },
   title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: Colors.light.text },
   content: { padding: 20 },
   heroBanner: {
-    backgroundColor: "rgba(124,58,237,0.07)", borderRadius: 16,
+    backgroundColor: PURPLE_A07, borderRadius: 16,
     padding: 20, marginBottom: 20, alignItems: "center", gap: 8,
   },
   heroTitle: {
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_400Regular", marginBottom: 20,
   },
   section: {
-    backgroundColor: "#fff", borderRadius: 14, padding: 16,
+    backgroundColor: WHITE, borderRadius: 14, padding: 16,
     marginBottom: 12, gap: 4,
   },
   sectionTitle: {
@@ -177,8 +178,8 @@ const styles = StyleSheet.create({
   },
   contactCard: {
     flexDirection: "row", gap: 12, alignItems: "flex-start",
-    backgroundColor: "#fff", borderRadius: 14, padding: 16,
-    marginBottom: 12, borderWidth: 1.5, borderColor: "rgba(124,58,237,0.15)",
+    backgroundColor: WHITE, borderRadius: 14, padding: 16,
+    marginBottom: 12, borderWidth: 1.5, borderColor: PURPLE_A15,
   },
   contactTitle: {
     fontSize: 13, fontFamily: "Archivo_600SemiBold", color: Colors.light.text,
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     marginTop: 4, padding: 16,
-    backgroundColor: "rgba(124,58,237,0.06)", borderRadius: 12,
+    backgroundColor: PURPLE_A06, borderRadius: 12,
   },
   footerText: {
     fontSize: 13, color: Colors.light.tint,

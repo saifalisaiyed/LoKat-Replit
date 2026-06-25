@@ -17,12 +17,13 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { apiRequest } from "@/lib/query-client";
+import { EMERALD, GRAY_105, GRAY_120, GRAY_125, GRAY_150, GRAY_370, ORANGE, ORANGE_A08, PURPLE_A08, WHITE } from "@/constants/colors.js";
 
 type FeedbackType = "feedback" | "bug";
 
 const TYPES: { key: FeedbackType; label: string; icon: string; color: string; bg: string }[] = [
-  { key: "feedback", label: "General Feedback", icon: "message-square", color: Colors.light.tint, bg: "rgba(124,58,237,0.08)" },
-  { key: "bug", label: "Bug Report", icon: "alert-triangle", color: "#F97316", bg: "rgba(249,115,22,0.08)" },
+  { key: "feedback", label: "General Feedback", icon: "message-square", color: Colors.light.tint, bg: PURPLE_A08 },
+  { key: "bug", label: "Bug Report", icon: "alert-triangle", color: ORANGE, bg: ORANGE_A08 },
 ];
 
 export default function FeedbackScreen() {
@@ -62,7 +63,7 @@ export default function FeedbackScreen() {
         </View>
         <View style={styles.successContainer}>
           <View style={styles.successIcon}>
-            <Ionicons name="checkmark-circle" size={56} color="#10B981" />
+            <Ionicons name="checkmark-circle" size={56} color={EMERALD} />
           </View>
           <Text style={styles.successTitle}>Thank you!</Text>
           <Text style={styles.successText}>
@@ -115,14 +116,14 @@ export default function FeedbackScreen() {
                   style={[
                     styles.typeCard,
                     active && { borderColor: t.color, borderWidth: 2, backgroundColor: t.bg },
-                    !active && { borderColor: "#EBEBEB", borderWidth: 1.5 },
+                    !active && { borderColor: GRAY_150, borderWidth: 1.5 },
                   ]}
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     setType(t.key);
                   }}
                 >
-                  <View style={[styles.typeIconWrap, { backgroundColor: active ? t.bg : "#F5F5F7" }]}>
+                  <View style={[styles.typeIconWrap, { backgroundColor: active ? t.bg : GRAY_105 }]}>
                     <Feather name={t.icon as any} size={20} color={active ? t.color : Colors.light.textSecondary} />
                   </View>
                   <Text style={[styles.typeLabel, active && { color: t.color, fontFamily: "Archivo_600SemiBold" }]}>
@@ -143,7 +144,7 @@ export default function FeedbackScreen() {
                 ? "Describe the bug: what happened, what you expected, and how to reproduce it..."
                 : "Share your thoughts, ideas, or suggestions..."
             }
-            placeholderTextColor="#B0B0BC"
+            placeholderTextColor={GRAY_370}
             value={message}
             onChangeText={setMessage}
             multiline
@@ -171,10 +172,10 @@ export default function FeedbackScreen() {
           disabled={!canSubmit || loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size="small" />
+            <ActivityIndicator color={WHITE} size="small" />
           ) : (
             <>
-              <Feather name="send" size={16} color="#fff" />
+              <Feather name="send" size={16} color={WHITE} />
               <Text style={styles.sendBtnText}>Send Message</Text>
             </>
           )}
@@ -185,15 +186,15 @@ export default function FeedbackScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5F7" },
+  container: { flex: 1, backgroundColor: GRAY_105 },
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 20, paddingVertical: 16,
-    backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#F0F0F2",
+    backgroundColor: WHITE, borderBottomWidth: 1, borderBottomColor: GRAY_125,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 12,
-    backgroundColor: "#F5F5F7", alignItems: "center", justifyContent: "center",
+    backgroundColor: GRAY_105, alignItems: "center", justifyContent: "center",
   },
   title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: Colors.light.text },
   content: { padding: 20 },
@@ -209,7 +210,7 @@ const styles = StyleSheet.create({
   },
   typeRow: { flexDirection: "row", gap: 12 },
   typeCard: {
-    flex: 1, backgroundColor: "#fff", borderRadius: 14,
+    flex: 1, backgroundColor: WHITE, borderRadius: 14,
     padding: 14, alignItems: "center", gap: 10,
   },
   typeIconWrap: {
@@ -221,8 +222,8 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary, textAlign: "center",
   },
   messageInput: {
-    backgroundColor: "#fff", borderRadius: 14, borderWidth: 1.5,
-    borderColor: "#EBEBEB", padding: 16,
+    backgroundColor: WHITE, borderRadius: 14, borderWidth: 1.5,
+    borderColor: GRAY_150, padding: 16,
     fontSize: 14, color: Colors.light.text,
     fontFamily: "Archivo_400Regular", minHeight: 150,
     lineHeight: 22,
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
   },
   privacyNote: {
     flexDirection: "row", gap: 8, alignItems: "flex-start",
-    backgroundColor: "#F0F0F8", borderRadius: 10, padding: 12, marginBottom: 20,
+    backgroundColor: GRAY_120, borderRadius: 10, padding: 12, marginBottom: 20,
   },
   privacyText: {
     flex: 1, fontSize: 12, color: Colors.light.textSecondary,
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2, shadowRadius: 8, elevation: 4,
   },
   sendBtnDisabled: { opacity: 0.45 },
-  sendBtnText: { color: "#fff", fontSize: 16, fontFamily: "Archivo_600SemiBold" },
+  sendBtnText: { color: WHITE, fontSize: 16, fontFamily: "Archivo_600SemiBold" },
   successContainer: {
     flex: 1, alignItems: "center", justifyContent: "center",
     padding: 32, gap: 12,
@@ -265,5 +266,5 @@ const styles = StyleSheet.create({
     marginTop: 16, paddingVertical: 14, paddingHorizontal: 32,
     borderRadius: 14, backgroundColor: Colors.light.tint,
   },
-  doneBtnText: { color: "#fff", fontSize: 15, fontFamily: "Archivo_600SemiBold" },
+  doneBtnText: { color: WHITE, fontSize: 15, fontFamily: "Archivo_600SemiBold" },
 });

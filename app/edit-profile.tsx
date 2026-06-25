@@ -16,6 +16,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
+import { BLACK, GRAY_100, GRAY_105, GRAY_125, GRAY_150, GRAY_280, GRAY_380, GREEN_25, GREEN_500, RED, RED_50, WHITE } from "@/constants/colors.js";
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -127,7 +128,7 @@ export default function EditProfileScreen() {
             <TextInput
               style={styles.input}
               placeholder="Enter your name"
-              placeholderTextColor="#B0B0B0"
+              placeholderTextColor={GRAY_380}
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
@@ -140,7 +141,7 @@ export default function EditProfileScreen() {
             <TextInput
               style={styles.input}
               placeholder="Add your email"
-              placeholderTextColor="#B0B0B0"
+              placeholderTextColor={GRAY_380}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -155,7 +156,7 @@ export default function EditProfileScreen() {
             <TextInput
               style={styles.input}
               placeholder="Add your phone number"
-              placeholderTextColor="#B0B0B0"
+              placeholderTextColor={GRAY_380}
               value={phone}
               onChangeText={(text) => {
                 const cleaned = text.replace(/[^0-9+\- ]/g, "");
@@ -169,14 +170,14 @@ export default function EditProfileScreen() {
 
         {error ? (
           <View style={styles.errorRow}>
-            <Ionicons name="alert-circle" size={16} color="#EF4444" />
+            <Ionicons name="alert-circle" size={16} color={RED} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
 
         {success ? (
           <View style={styles.successRow}>
-            <Ionicons name="checkmark-circle" size={16} color="#22C55E" />
+            <Ionicons name="checkmark-circle" size={16} color={GREEN_500} />
             <Text style={styles.successText}>Profile updated</Text>
           </View>
         ) : null}
@@ -191,7 +192,7 @@ export default function EditProfileScreen() {
           disabled={!hasChanges || loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size="small" />
+            <ActivityIndicator color={WHITE} size="small" />
           ) : (
             <Text style={styles.saveBtnText}>Save Changes</Text>
           )}
@@ -206,7 +207,7 @@ export default function EditProfileScreen() {
         >
           <Ionicons name="lock-closed-outline" size={18} color={Colors.light.tint} />
           <Text style={styles.changePwdText}>Change Password</Text>
-          <Ionicons name="chevron-forward" size={16} color="#CCC" />
+          <Ionicons name="chevron-forward" size={16} color={GRAY_280} />
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -216,7 +217,7 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
   },
   header: {
     flexDirection: "row",
@@ -224,15 +225,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F2",
+    borderBottomColor: GRAY_125,
   },
   backBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -259,15 +260,15 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 28,
-    color: "#fff",
+    color: WHITE,
     fontFamily: "Archivo_700Bold",
   },
   formSection: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 18,
     padding: 20,
     gap: 18,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -283,14 +284,14 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   input: {
-    backgroundColor: "#F8F8FA",
+    backgroundColor: GRAY_100,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
     color: Colors.light.text,
     borderWidth: 1,
-    borderColor: "#EBEBEB",
+    borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
   },
   errorRow: {
@@ -298,14 +299,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
     marginTop: 16,
-    backgroundColor: "#FEF2F2",
+    backgroundColor: RED_50,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 10,
   },
   errorText: {
     fontSize: 13,
-    color: "#EF4444",
+    color: RED,
     flex: 1,
     fontFamily: "Archivo_400Regular",
   },
@@ -314,14 +315,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
     marginTop: 16,
-    backgroundColor: "#F0FDF4",
+    backgroundColor: GREEN_25,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 10,
   },
   successText: {
     fontSize: 13,
-    color: "#22C55E",
+    color: GREEN_500,
     flex: 1,
     fontFamily: "Archivo_400Regular",
   },
@@ -339,19 +340,19 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   saveBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
   },
   changePwdBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 14,
     padding: 16,
     marginTop: 16,
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
     shadowRadius: 4,

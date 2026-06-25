@@ -23,6 +23,7 @@ import Colors from "@/constants/colors";
 import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 import AuthPromptModal, { type AuthPromptContext } from "@/components/AuthPromptModal";
+import { BLACK, BLACK_A05, BLACK_A15, BLACK_A55, BLUE, DARK_GLASS, GOLD, GRAY_110, GRAY_130, GRAY_170, GRAY_450, GRAY_600, GRAY_90, GREEN_500, ORANGE, PINK, PURPLE_LIGHT, RED, TEAL, WHITE, WHITE_A25, WHITE_A70, WHITE_A95 } from "@/constants/colors.js";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.5;
@@ -44,14 +45,14 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  landmarks: "#D4A017",
-  nature: "#22C55E",
-  markets: "#EC4899",
-  beaches: "#F97316",
-  cityscapes: "#3B82F6",
-  food: "#EF4444",
-  "hidden-gems": "#8B5CF6",
-  events: "#14B8A6",
+  landmarks: GOLD,
+  nature: GREEN_500,
+  markets: PINK,
+  beaches: ORANGE,
+  cityscapes: BLUE,
+  food: RED,
+  "hidden-gems": PURPLE_LIGHT,
+  events: TEAL,
 };
 
 const POPULAR_LOCATIONS = [
@@ -513,7 +514,7 @@ export default function HomeScreen() {
               style={styles.searchBar}
               onPress={() => setSearchVisible(true)}
             >
-              <Ionicons name="search" size={18} color="#9CA3AF" style={{ marginLeft: 10 }} />
+              <Ionicons name="search" size={18} color={GRAY_450} style={{ marginLeft: 10 }} />
               <Text style={styles.searchPlaceholder}>Want to see something?</Text>
             </Pressable>
             <View>
@@ -524,7 +525,7 @@ export default function HomeScreen() {
                   setMenuVisible(!menuVisible);
                 }}
               >
-                <Ionicons name="ellipsis-vertical" size={18} color="#6B7280" />
+                <Ionicons name="ellipsis-vertical" size={18} color={GRAY_600} />
               </Pressable>
               {menuVisible && (
                 <View style={styles.menuDropdown}>
@@ -556,7 +557,7 @@ export default function HomeScreen() {
           <View style={styles.mapBottomRow} pointerEvents="box-none">
             <View />
             <Pressable style={styles.locationBtn} onPress={handleCenterLocation}>
-              <Ionicons name="locate" size={20} color="#fff" />
+              <Ionicons name="locate" size={20} color={WHITE} />
             </Pressable>
           </View>
         </View>
@@ -585,12 +586,12 @@ export default function HomeScreen() {
                   <Ionicons
                     name={cat.icon as any}
                     size={15}
-                    color={isActive ? "#fff" : catColor}
+                    color={isActive ? WHITE : catColor}
                   />
                   <Text
                     style={[
                       styles.categoryPillText,
-                      isActive && { color: "#fff" },
+                      isActive && { color: WHITE },
                     ]}
                   >
                     {cat.label}
@@ -710,12 +711,12 @@ export default function HomeScreen() {
         <View style={[styles.searchModal, { paddingTop: insets.top + 12 + webInsetTop }]}>
           <View style={styles.searchModalHeader}>
             <View style={styles.searchModalBar}>
-              <Ionicons name="search" size={18} color="#9CA3AF" />
+              <Ionicons name="search" size={18} color={GRAY_450} />
               <TextInput
                 ref={searchInputRef}
                 style={styles.searchModalInput}
                 placeholder="Search for a location..."
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={GRAY_450}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus
@@ -723,7 +724,7 @@ export default function HomeScreen() {
               />
               {searchQuery.length > 0 && (
                 <Pressable onPress={() => setSearchQuery("")}>
-                  <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+                  <Ionicons name="close-circle" size={18} color={GRAY_450} />
                 </Pressable>
               )}
             </View>
@@ -818,7 +819,7 @@ export default function HomeScreen() {
             { top: insets.top + (Platform.OS === "web" ? 67 : 0) + 8 },
           ]}
         >
-          <Ionicons name="walk" size={18} color="#fff" />
+          <Ionicons name="walk" size={18} color={WHITE} />
           <Text style={styles.activeRequestBannerText} numberOfLines={1}>
             You have an active request
           </Text>
@@ -837,7 +838,7 @@ export default function HomeScreen() {
               await abandonRequest(activeRequestId);
             }}
           >
-            <Ionicons name="close" size={18} color="rgba(255,255,255,0.7)" />
+            <Ionicons name="close" size={18} color={WHITE_A70} />
           </Pressable>
         </View>
       )}
@@ -853,7 +854,7 @@ export default function HomeScreen() {
           ]}
           pointerEvents="none"
         >
-          <Ionicons name="checkmark-circle" size={18} color="#fff" />
+          <Ionicons name="checkmark-circle" size={18} color={WHITE} />
           <Text style={styles.toastText}>{toastMessage}</Text>
         </Animated.View>
       )}
@@ -877,7 +878,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -886,18 +887,18 @@ const styles = StyleSheet.create({
   },
   activeRequestBannerText: {
     flex: 1,
-    color: "#fff",
+    color: WHITE,
     fontSize: 14,
     fontFamily: "Archivo_500Medium",
   },
   activeRequestBannerBtn: {
-    backgroundColor: "rgba(255,255,255,0.25)",
+    backgroundColor: WHITE_A25,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 8,
   },
   activeRequestBannerBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 13,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -907,18 +908,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(30,30,40,0.92)",
+    backgroundColor: DARK_GLASS,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 24,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 10,
     elevation: 6,
   },
   toastText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 14,
     fontFamily: "Archivo_500Medium",
   },
@@ -941,11 +942,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: WHITE_A95,
     borderRadius: 28,
     paddingHorizontal: 4,
     paddingVertical: 12,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
@@ -954,7 +955,7 @@ const styles = StyleSheet.create({
   searchPlaceholder: {
     flex: 1,
     fontSize: 14,
-    color: "#9CA3AF",
+    color: GRAY_450,
     fontFamily: "Archivo_400Regular",
     marginLeft: 10,
   },
@@ -967,7 +968,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: "rgba(0,0,0,0.55)",
+    backgroundColor: BLACK_A55,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1003,9 +1004,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GRAY_170,
   },
   categoryPillText: {
     fontSize: 13,
@@ -1026,12 +1027,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GRAY_170,
   },
   filterBtnText: {
     fontSize: 12,
@@ -1040,22 +1041,22 @@ const styles = StyleSheet.create({
   },
   filterOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.15)",
+    backgroundColor: BLACK_A15,
     justifyContent: "center",
     alignItems: "center",
   },
   filterDropdown: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 10,
     padding: 4,
     width: 180,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 8,
     borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderColor: GRAY_130,
   },
   dropdownOption: {
     flexDirection: "row",
@@ -1087,10 +1088,10 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -1100,17 +1101,17 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 42,
     right: 0,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 10,
     padding: 4,
     width: 160,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 8,
     borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderColor: GRAY_130,
     zIndex: 100,
   },
   menuItem: {
@@ -1131,7 +1132,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 20,
     borderRadius: 10,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: GRAY_170,
     padding: 2,
     justifyContent: "center",
   },
@@ -1142,7 +1143,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
   },
   menuToggleThumbOn: {
     alignSelf: "flex-end",
@@ -1152,13 +1153,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 16,
     marginBottom: 8,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 12,
     paddingVertical: 14,
     paddingLeft: 14,
     paddingRight: 10,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.05)",
+    borderColor: BLACK_A05,
     gap: 12,
   },
   cardIconCircle: {
@@ -1201,7 +1202,7 @@ const styles = StyleSheet.create({
   },
   cardRewardText: {
     fontSize: 14,
-    color: "#fff",
+    color: WHITE,
     fontFamily: "Archivo_600SemiBold",
   },
   emptyContainer: {
@@ -1221,7 +1222,7 @@ const styles = StyleSheet.create({
   },
   searchModal: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
   },
   searchModalHeader: {
     flexDirection: "row",
@@ -1230,13 +1231,13 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     gap: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomColor: GRAY_110,
   },
   searchModalBar: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: GRAY_110,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -1280,7 +1281,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F9FAFB",
+    borderBottomColor: GRAY_90,
   },
   searchResultIcon: {
     width: 38,

@@ -27,6 +27,7 @@ import Animated, {
   withSequence,
   Easing,
 } from "react-native-reanimated";
+import { BLACK, BLACK_A40, BLACK_A55, BLUE, BLUE_A30, DARK_MAP, GRASS_A10, GRAY_170, GRAY_800, GREEN_500, ORANGE, PURPLE_A06, PURPLE_A07, PURPLE_A12, PURPLE_A18, PURPLE_A25, PURPLE_A30, RED, RED_100, WHITE, WHITE_A50, WHITE_A92, WHITE_A95 } from "@/constants/colors.js";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -108,11 +109,11 @@ function normalizeAngle(a: number): number {
 }
 
 function getTurnInfo(relAngle: number): { rotation: number; label: string; color: string } {
-  if (relAngle < -45) return { rotation: -90, label: "Sharp Left", color: "#EF4444" };
-  if (relAngle < -20) return { rotation: -48, label: "Turn Left", color: "#F97316" };
-  if (relAngle <= 20)  return { rotation: 0,   label: "Head Straight", color: "#22C55E" };
-  if (relAngle <= 45)  return { rotation: 48,  label: "Turn Right", color: "#F97316" };
-  return { rotation: 90, label: "Sharp Right", color: "#EF4444" };
+  if (relAngle < -45) return { rotation: -90, label: "Sharp Left", color: RED };
+  if (relAngle < -20) return { rotation: -48, label: "Turn Left", color: ORANGE };
+  if (relAngle <= 20)  return { rotation: 0,   label: "Head Straight", color: GREEN_500 };
+  if (relAngle <= 45)  return { rotation: 48,  label: "Turn Right", color: ORANGE };
+  return { rotation: 90, label: "Sharp Right", color: RED };
 }
 
 const ANGLE_CONFIG = {
@@ -516,7 +517,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
           }
           hitSlop={12}
         >
-          <Ionicons name="arrow-back" size={22} color="#333" />
+          <Ionicons name="arrow-back" size={22} color={GRAY_800} />
         </Pressable>
 
         <View style={{ flex: 1 }} />
@@ -526,7 +527,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
           onPress={() => setMenuVisible(true)}
           hitSlop={12}
         >
-          <Ionicons name="ellipsis-vertical" size={20} color="#333" />
+          <Ionicons name="ellipsis-vertical" size={20} color={GRAY_800} />
         </Pressable>
       </View>
 
@@ -578,7 +579,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
           }
         }}
       >
-        <Ionicons name="locate" size={20} color="#fff" />
+        <Ionicons name="locate" size={20} color={WHITE} />
       </Pressable>
 
       <View
@@ -660,9 +661,9 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             <Ionicons
               name={isCloseEnough ? "camera" : "lock-closed"}
               size={22}
-              color={isCloseEnough ? "#fff" : "rgba(255,255,255,0.5)"}
+              color={isCloseEnough ? WHITE : WHITE_A50}
             />
-            <Text style={[styles.photoBtnText, !isCloseEnough && { color: "rgba(255,255,255,0.5)" }]}>
+            <Text style={[styles.photoBtnText, !isCloseEnough && { color: WHITE_A50 }]}>
               {isCloseEnough ? "Take Photo" : "Get Closer"}
             </Text>
           </Pressable>
@@ -705,12 +706,12 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
             <Pressable
               style={({ pressed }) => [
                 styles.menuItem,
-                pressed && { backgroundColor: "#FEE2E2" },
+                pressed && { backgroundColor: RED_100 },
               ]}
               onPress={handleAbandon}
             >
               <View style={styles.menuItemIconDanger}>
-                <Ionicons name="close-circle-outline" size={20} color="#EF4444" />
+                <Ionicons name="close-circle-outline" size={20} color={RED} />
               </View>
               <View style={styles.menuItemInfo}>
                 <Text style={styles.menuItemTextDanger}>Abandon Request</Text>
@@ -828,20 +829,20 @@ const navStyles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: "rgba(59,130,246,0.3)",
+    backgroundColor: BLUE_A30,
   },
   userDot: {
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: "#3B82F6",
+    backgroundColor: BLUE,
     borderWidth: 3,
-    borderColor: "#fff",
+    borderColor: WHITE,
   },
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1A1B2E" },
+  container: { flex: 1, backgroundColor: DARK_MAP },
   centered: { alignItems: "center", justifyContent: "center", gap: 12 },
   notFoundText: {
     fontSize: 16,
@@ -862,7 +863,7 @@ const styles = StyleSheet.create({
   },
   mapArea: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#1A1B2E",
+    backgroundColor: DARK_MAP,
   },
   topBar: {
     position: "absolute",
@@ -879,10 +880,10 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.92)",
+    backgroundColor: WHITE_A92,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -905,12 +906,12 @@ const styles = StyleSheet.create({
     color: Colors.light.accent,
   },
   locationStripInner: {
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: WHITE_A95,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 4,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -956,7 +957,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 10,
-    backgroundColor: "rgba(0,0,0,0.55)",
+    backgroundColor: BLACK_A55,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -965,12 +966,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 20,
     paddingTop: 20,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
@@ -981,7 +982,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(123,192,67,0.1)",
+    backgroundColor: GRASS_A10,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 10,
@@ -1004,7 +1005,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(124,58,237,0.06)",
+    backgroundColor: PURPLE_A06,
   },
   instructionsBtn: {
     width: 52,
@@ -1014,7 +1015,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(124,58,237,0.06)",
+    backgroundColor: PURPLE_A06,
   },
   photoBtn: {
     flexDirection: "row",
@@ -1034,13 +1035,13 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   photoBtnLocked: {
-    backgroundColor: "rgba(124,58,237,0.25)",
+    backgroundColor: PURPLE_A25,
     borderWidth: 1.5,
-    borderColor: "rgba(124,58,237,0.3)",
+    borderColor: PURPLE_A30,
   },
   photoBtnText: {
     fontSize: 17,
-    color: "#fff",
+    color: WHITE,
     fontFamily: "Archivo_600SemiBold",
   },
   distanceHintRow: {
@@ -1086,9 +1087,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: "rgba(124,58,237,0.07)",
+    backgroundColor: PURPLE_A07,
     borderWidth: 1,
-    borderColor: "rgba(124,58,237,0.18)",
+    borderColor: PURPLE_A18,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -1097,7 +1098,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 9,
-    backgroundColor: "rgba(124,58,237,0.12)",
+    backgroundColor: PURPLE_A12,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1114,11 +1115,11 @@ const styles = StyleSheet.create({
   },
   menuOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: BLACK_A40,
     justifyContent: "flex-end",
   },
   menuSheet: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -1129,7 +1130,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: GRAY_170,
     alignSelf: "center",
     marginBottom: 4,
   },
@@ -1151,7 +1152,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: "#FEE2E2",
+    backgroundColor: RED_100,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1161,7 +1162,7 @@ const styles = StyleSheet.create({
   },
   menuItemTextDanger: {
     fontSize: 15,
-    color: "#EF4444",
+    color: RED,
     fontFamily: "Archivo_600SemiBold",
   },
   menuItemSub: {
@@ -1182,7 +1183,7 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_500Medium",
   },
   instructionsSheet: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,

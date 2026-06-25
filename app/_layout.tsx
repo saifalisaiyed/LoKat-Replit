@@ -28,6 +28,7 @@ import {
   Archivo_600SemiBold,
   Archivo_700Bold,
 } from "@expo-google-fonts/archivo";
+import { DARK_MAP, WHITE_A70 } from "@/constants/colors.js";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -98,7 +99,7 @@ const splashStyles = StyleSheet.create({
   },
   tagline: {
     fontSize: 15,
-    color: "rgba(255, 255, 255, 0.7)",
+    color: WHITE_A70,
     fontFamily: "Archivo_400Regular",
     textAlign: "center",
     letterSpacing: 0.2,
@@ -183,7 +184,7 @@ export default function RootLayout() {
     if (!fontsLoaded) {
       // Fonts still loading — show the same dark background as the splash so
       // there is no visible gap or flash after the native splash hides.
-      return <View style={{ flex: 1, backgroundColor: "#1A1B2E" }} />;
+      return <View style={{ flex: 1, backgroundColor: DARK_MAP }} />;
     }
     return (
       <ErrorBoundary>

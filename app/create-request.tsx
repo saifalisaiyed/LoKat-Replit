@@ -23,6 +23,7 @@ import { consumePickedLocation } from "@/lib/mapPickerStore";
 import MiniMap from "@/components/MiniMap";
 import Colors from "@/constants/colors";
 import { type Orientation, type Angle, type Timing, type Category } from "@/lib/types";
+import { BLACK, BLACK_A40, BLACK_A55, EMERALD_100, GRAY_105, GRAY_130, GRAY_150, GRAY_170, GRAY_380, GRAY_600, GRAY_700, GRAY_80, GREEN_100, GREEN_50, GREEN_600, GREEN_700, PURPLE, PURPLE_100, PURPLE_30, PURPLE_75, RED, RED_50, WHITE } from "@/constants/colors.js";
 
 function OptionChip({
   icon,
@@ -46,7 +47,7 @@ function OptionChip({
       <Ionicons
         name={icon as any}
         size={18}
-        color={selected ? "#fff" : Colors.light.textSecondary}
+        color={selected ? WHITE : Colors.light.textSecondary}
       />
       <Text style={[styles.chipLabel, selected && styles.chipLabelActive]}>
         {label}
@@ -239,7 +240,7 @@ export default function CreateRequestScreen() {
         </View>
         <View style={styles.restrictedContainer}>
           <View style={styles.restrictedIconWrap}>
-            <Ionicons name="ban" size={40} color="#EF4444" />
+            <Ionicons name="ban" size={40} color={RED} />
           </View>
           <Text style={styles.restrictedTitle}>Location Not Allowed</Text>
           <Text style={styles.restrictedBody}>
@@ -303,14 +304,14 @@ export default function CreateRequestScreen() {
             />
             <View style={styles.pinnedRow}>
               <View style={styles.pinnedIconWrap}>
-                <Ionicons name="location" size={16} color="#fff" />
+                <Ionicons name="location" size={16} color={WHITE} />
               </View>
               <View style={styles.pinnedBody}>
                 <Text style={styles.pinnedLabel}>Exact spot pinned</Text>
                 <Text style={styles.pinnedSub}>{resolvedName}</Text>
                 {facingDirection ? (
                   <View style={styles.dirBadge}>
-                    <Ionicons name="compass-outline" size={11} color="#7C3AED" />
+                    <Ionicons name="compass-outline" size={11} color={PURPLE} />
                     <Text style={styles.dirBadgeText}>Facing {facingDirection}</Text>
                   </View>
                 ) : null}
@@ -343,7 +344,7 @@ export default function CreateRequestScreen() {
                     setFacingDirection(null);
                   }}
                 >
-                  <Ionicons name="close" size={13} color="#6B7280" />
+                  <Ionicons name="close" size={13} color={GRAY_600} />
                 </Pressable>
               </View>
             </View>
@@ -574,7 +575,7 @@ export default function CreateRequestScreen() {
           <TextInput
             style={[styles.noteInput, notesFocused && styles.noteInputFocused]}
             placeholder="Any specific instructions for the LoKater..."
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor={GRAY_380}
             value={note}
             onChangeText={setNote}
             multiline
@@ -600,7 +601,7 @@ export default function CreateRequestScreen() {
           onPress={handleSubmit}
           disabled={isSubmitting}
         >
-          <Feather name="send" size={18} color="#fff" />
+          <Feather name="send" size={18} color={WHITE} />
           <Text style={styles.submitBtnText}>
             {isSubmitting ? "Submitting..." : `Launch Request · $${reward}`}
           </Text>
@@ -642,7 +643,7 @@ export default function CreateRequestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
   },
   restrictedContainer: {
     flex: 1,
@@ -655,7 +656,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#FEF2F2",
+    backgroundColor: RED_50,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8,
@@ -677,7 +678,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 10,
@@ -697,7 +698,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   restrictedBackBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 15,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -707,9 +708,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingBottom: 14,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: GRAY_130,
   },
   headerTitle: {
     fontSize: 16,
@@ -728,12 +729,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: GRAY_80,
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderColor: GRAY_130,
   },
   locationDot: {
     width: 10,
@@ -759,7 +760,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#BBF7D0",
+    borderColor: GREEN_100,
   },
   miniMap: {
     borderRadius: 0,
@@ -770,7 +771,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: "#EDFBF0",
+    backgroundColor: GREEN_50,
     paddingVertical: 10,
     paddingHorizontal: 12,
   },
@@ -783,7 +784,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: "#16A34A",
+    backgroundColor: GREEN_600,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -793,12 +794,12 @@ const styles = StyleSheet.create({
   },
   pinnedLabel: {
     fontSize: 13,
-    color: "#15803D",
+    color: GREEN_700,
     fontFamily: "Archivo_600SemiBold",
   },
   pinnedSub: {
     fontSize: 12,
-    color: "#4B5563",
+    color: GRAY_700,
     fontFamily: "Archivo_400Regular",
   },
   dirBadge: {
@@ -809,25 +810,25 @@ const styles = StyleSheet.create({
   },
   dirBadgeText: {
     fontSize: 11,
-    color: "#7C3AED",
+    color: PURPLE,
     fontFamily: "Archivo_500Medium",
   },
   pinnedChangeBtn: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
-    backgroundColor: "#D1FAE5",
+    backgroundColor: EMERALD_100,
   },
   pinnedChangeBtnText: {
     fontSize: 12,
-    color: "#15803D",
+    color: GREEN_700,
     fontFamily: "Archivo_600SemiBold",
   },
   pinnedClearBtn: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: GRAY_170,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -835,18 +836,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: "#F5F0FF",
+    backgroundColor: PURPLE_30,
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#E4D9FF",
+    borderColor: PURPLE_100,
   },
   pinpointIconWrap: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#EDE5FF",
+    backgroundColor: PURPLE_75,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -886,9 +887,9 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: GRAY_80,
     borderWidth: 1,
-    borderColor: "#EBEBEB",
+    borderColor: GRAY_150,
   },
   chipActive: {
     backgroundColor: Colors.light.tint,
@@ -905,9 +906,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     borderRadius: 10,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: GRAY_80,
     borderWidth: 1.5,
-    borderColor: "#EBEBEB",
+    borderColor: GRAY_150,
   },
   rewardChipActive: {
     backgroundColor: Colors.light.tint,
@@ -919,7 +920,7 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
   },
   rewardChipTextActive: {
-    color: "#fff",
+    color: WHITE,
   },
   chipLabel: {
     fontSize: 13,
@@ -927,7 +928,7 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_500Medium",
   },
   chipLabelActive: {
-    color: "#fff",
+    color: WHITE,
   },
   scheduledFields: {
     gap: 8,
@@ -937,10 +938,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: GRAY_80,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#EBEBEB",
+    borderColor: GRAY_150,
     paddingHorizontal: 14,
     paddingVertical: 14,
   },
@@ -951,16 +952,16 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_400Regular",
   },
   scheduledPlaceholder: {
-    color: "#B0B0B0",
+    color: GRAY_380,
   },
   pickerOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: BLACK_A40,
     justifyContent: "center",
     alignItems: "center",
   },
   pickerSheet: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 14,
     padding: 20,
     width: 320,
@@ -980,7 +981,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   pickerDoneText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 15,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -998,11 +999,11 @@ const styles = StyleSheet.create({
   },
   notesDoneBtnText: {
     fontSize: 13,
-    color: "#fff",
+    color: WHITE,
     fontFamily: "Archivo_600SemiBold",
   },
   noteInput: {
-    backgroundColor: "#FAFAFA",
+    backgroundColor: GRAY_80,
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingTop: 12,
@@ -1010,20 +1011,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.text,
     borderWidth: 1,
-    borderColor: "#EBEBEB",
+    borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
     minHeight: 90,
   },
   noteInputFocused: {
     borderColor: Colors.light.tint,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
   },
   bottomBar: {
     paddingHorizontal: 20,
     paddingTop: 12,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    borderTopColor: GRAY_130,
   },
   submitBtn: {
     backgroundColor: Colors.light.tint,
@@ -1035,25 +1036,25 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   submitBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 15,
     fontFamily: "Archivo_600SemiBold",
   },
   confirmationOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.55)",
+    backgroundColor: BLACK_A55,
     alignItems: "center",
     justifyContent: "center",
     zIndex: 100,
   },
   confirmationCard: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 14,
     paddingHorizontal: 32,
     paddingVertical: 36,
     alignItems: "center",
     marginHorizontal: 40,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 24,

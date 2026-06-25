@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { BLACK, BLACK_A10, BLACK_A50, BLACK_A70, BLUE_IOS, DARK_SURFACE, GRAY_115, WHITE, WHITE_A10, WHITE_A70 } from "@/constants/colors.js";
 
 export type ErrorFallbackProps = {
   error: Error;
@@ -24,12 +25,12 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
   const insets = useSafeAreaInsets();
 
   const theme = {
-    background: isDark ? "#000000" : "#FFFFFF",
-    backgroundSecondary: isDark ? "#1C1C1E" : "#F2F2F7",
-    text: isDark ? "#FFFFFF" : "#000000",
-    textSecondary: isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.7)",
-    link: "#007AFF",
-    buttonText: "#FFFFFF",
+    background: isDark ? BLACK : WHITE,
+    backgroundSecondary: isDark ? DARK_SURFACE : GRAY_115,
+    text: isDark ? WHITE : BLACK,
+    textSecondary: isDark ? WHITE_A70 : BLACK_A70,
+    link: BLUE_IOS,
+    buttonText: WHITE,
   };
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -122,8 +123,8 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255, 255, 255, 0.1)"
-                      : "rgba(0, 0, 0, 0.1)",
+                      ? WHITE_A10
+                      : BLACK_A10,
                   },
                 ]}
               >
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 24,
     minWidth: 200,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: BLACK_A50,
     justifyContent: "flex-end",
   },
   modalContainer: {

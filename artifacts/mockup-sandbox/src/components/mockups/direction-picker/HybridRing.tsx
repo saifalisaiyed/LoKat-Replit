@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { DARK_MAP, GRAY_105, GRAY_110, GRAY_170, GRAY_450, GRAY_900, PURPLE, PURPLE_A08, WHITE } from "@/constants/colors.js";
 
 const SEGMENT_COUNT = 16;
 const SEG_DEG = 360 / SEGMENT_COUNT; // 22.5°
@@ -70,7 +71,7 @@ export function HybridRing() {
   return (
     <div style={{
       fontFamily: "'Inter', sans-serif",
-      background: "#F5F5F7",
+      background: GRAY_105,
       minHeight: "100vh",
       display: "flex",
       alignItems: "center",
@@ -81,13 +82,13 @@ export function HybridRing() {
 
         {/* Mock map-picker header */}
         <div style={{
-          background: "#1A1B2E",
+          background: DARK_MAP,
           borderRadius: "16px 16px 0 0",
           padding: "14px 16px 12px",
           display: "flex", alignItems: "center", gap: 10,
         }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#7C3AED" }} />
-          <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Select exact spot</span>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: PURPLE }} />
+          <span style={{ color: WHITE, fontSize: 13, fontWeight: 600 }}>Select exact spot</span>
         </div>
 
         {/* Mock map area */}
@@ -120,7 +121,7 @@ export function HybridRing() {
             <div style={{
               width: 26, height: 26,
               borderRadius: "50% 50% 50% 0",
-              background: "#7C3AED",
+              background: PURPLE,
               transform: "rotate(-45deg)",
               border: "3px solid #fff",
               boxShadow: "0 4px 12px rgba(124,58,237,0.5)",
@@ -131,13 +132,13 @@ export function HybridRing() {
 
         {/* Bottom sheet */}
         <div style={{
-          background: "#fff",
+          background: WHITE,
           borderRadius: "0 0 16px 16px",
           padding: "18px 16px 16px",
           boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
         }}>
-          <p style={{ margin: "0 0 16px", fontSize: 13, fontWeight: 600, color: "#111827" }}>
-            Photo facing direction — <span style={{ color: "#9CA3AF", fontWeight: 400 }}>tap the ring</span>
+          <p style={{ margin: "0 0 16px", fontSize: 13, fontWeight: 600, color: GRAY_900 }}>
+            Photo facing direction — <span style={{ color: GRAY_450, fontWeight: 400 }}>tap the ring</span>
           </p>
 
           {/* Ring picker */}
@@ -178,8 +179,8 @@ export function HybridRing() {
                 ].join(" ");
 
                 const segColor = isSelected
-                  ? "#7C3AED"
-                  : isAdjacent ? "#DDD6FE" : "#F3F4F6";
+                  ? PURPLE
+                  : isAdjacent ? "#DDD6FE" : GRAY_110;
 
                 // Label sits at the CENTER of the segment
                 const lp = polarToXY(centerBearing, R_LABEL, CX, CY);
@@ -200,7 +201,7 @@ export function HybridRing() {
                         dominantBaseline="central"
                         fontSize={isSelected ? 10 : 8.5}
                         fontWeight={isSelected ? 800 : 600}
-                        fill={isSelected ? "#fff" : "#9CA3AF"}
+                        fill={isSelected ? WHITE : GRAY_450}
                         fontFamily="Inter, sans-serif"
                         style={{ transition: "all 0.15s", pointerEvents: "none", userSelect: "none" }}
                       >
@@ -212,8 +213,8 @@ export function HybridRing() {
               })}
 
               {/* Inner circle */}
-              <circle cx={CX} cy={CY} r={R_INNER - 2} fill="#fff" />
-              <circle cx={CX} cy={CY} r={R_INNER - 2} fill="none" stroke="#E5E7EB" strokeWidth={1} />
+              <circle cx={CX} cy={CY} r={R_INNER - 2} fill={WHITE} />
+              <circle cx={CX} cy={CY} r={R_INNER - 2} fill="none" stroke={GRAY_170} strokeWidth={1} />
 
               {/* Needle — rotates to selectedBearing; 0° = straight up = North */}
               <g style={{
@@ -224,23 +225,23 @@ export function HybridRing() {
                 <line
                   x1={CX} y1={CY}
                   x2={CX} y2={CY - R_NEEDLE}
-                  stroke="#7C3AED" strokeWidth={2.5} strokeLinecap="round"
+                  stroke={PURPLE} strokeWidth={2.5} strokeLinecap="round"
                 />
                 <polygon
                   points={`${CX},${CY - R_NEEDLE - 7} ${CX - 5},${CY - R_NEEDLE + 3} ${CX + 5},${CY - R_NEEDLE + 3}`}
-                  fill="#7C3AED"
+                  fill={PURPLE}
                 />
               </g>
 
               {/* Center hub */}
-              <circle cx={CX} cy={CY} r={14} fill="#7C3AED" />
+              <circle cx={CX} cy={CY} r={14} fill={PURPLE} />
               <text x={CX} y={CY} textAnchor="middle" dominantBaseline="central" fontSize={14}>📷</text>
             </svg>
           </div>
 
           {/* Result */}
           <div style={{
-            background: "rgba(124,58,237,0.08)",
+            background: PURPLE_A08,
             border: "1px solid rgba(124,58,237,0.25)",
             borderRadius: 10, padding: "10px 14px",
             display: "flex", alignItems: "center", gap: 8,
@@ -248,8 +249,8 @@ export function HybridRing() {
           }}>
             <span style={{ fontSize: 16 }}>🧭</span>
             <div>
-              <p style={{ margin: 0, fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>Camera will face</p>
-              <p style={{ margin: 0, fontSize: 14, color: "#111827", fontWeight: 700 }}>
+              <p style={{ margin: 0, fontSize: 11, color: GRAY_450, fontWeight: 500 }}>Camera will face</p>
+              <p style={{ margin: 0, fontSize: 14, color: GRAY_900, fontWeight: 700 }}>
                 {FULL_NAMES[selectedLabel]}
               </p>
             </div>
@@ -257,8 +258,8 @@ export function HybridRing() {
 
           <button style={{
             width: "100%", padding: "14px", borderRadius: 12,
-            background: "#7C3AED", border: "none", cursor: "pointer",
-            color: "#fff", fontSize: 15, fontWeight: 700,
+            background: PURPLE, border: "none", cursor: "pointer",
+            color: WHITE, fontSize: 15, fontWeight: 700,
           }}>
             Confirm Direction
           </button>

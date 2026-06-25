@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { DARK_MAP, GRAY_105, GRAY_450, GRAY_900, PURPLE, PURPLE_A08, WHITE } from "@/constants/colors.js";
 
 const DIRS = [
   { label: "N",  angle: 0   },
@@ -56,7 +57,7 @@ export function RotationDial() {
     <div
       style={{
         fontFamily: "'Inter', sans-serif",
-        background: "#F5F5F7",
+        background: GRAY_105,
         minHeight: "100vh",
         display: "flex",
         alignItems: "center",
@@ -68,7 +69,7 @@ export function RotationDial() {
         {/* Mock map-picker header */}
         <div
           style={{
-            background: "#1A1B2E",
+            background: DARK_MAP,
             borderRadius: "16px 16px 0 0",
             padding: "14px 16px 12px",
             display: "flex",
@@ -76,8 +77,8 @@ export function RotationDial() {
             gap: 10,
           }}
         >
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#7C3AED" }} />
-          <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Select exact spot</span>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: PURPLE }} />
+          <span style={{ color: WHITE, fontSize: 13, fontWeight: 600 }}>Select exact spot</span>
         </div>
 
         {/* Mock map area */}
@@ -113,21 +114,21 @@ export function RotationDial() {
               }} />
             </div>
             {/* Pin */}
-            <div style={{ width: 26, height: 26, borderRadius: "50% 50% 50% 0", background: "#7C3AED", transform: "rotate(-45deg)", border: "3px solid #fff", boxShadow: "0 4px 12px rgba(124,58,237,0.5)", position: "relative", zIndex: 2 }} />
+            <div style={{ width: 26, height: 26, borderRadius: "50% 50% 50% 0", background: PURPLE, transform: "rotate(-45deg)", border: "3px solid #fff", boxShadow: "0 4px 12px rgba(124,58,237,0.5)", position: "relative", zIndex: 2 }} />
           </div>
         </div>
 
         {/* Bottom sheet */}
         <div
           style={{
-            background: "#fff",
+            background: WHITE,
             borderRadius: "0 0 16px 16px",
             padding: "16px",
             boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
           }}
         >
-          <p style={{ margin: "0 0 14px", fontSize: 13, fontWeight: 600, color: "#111827" }}>
-            Photo facing direction — <span style={{ color: "#9CA3AF", fontWeight: 400 }}>drag the dial</span>
+          <p style={{ margin: "0 0 14px", fontSize: 13, fontWeight: 600, color: GRAY_900 }}>
+            Photo facing direction — <span style={{ color: GRAY_450, fontWeight: 400 }}>drag the dial</span>
           </p>
 
           {/* Dial */}
@@ -176,7 +177,7 @@ export function RotationDial() {
                       transform: "translate(-50%, -50%)",
                       fontSize: isActive ? 13 : 10,
                       fontWeight: isActive ? 800 : 500,
-                      color: isActive ? "#7C3AED" : "#9CA3AF",
+                      color: isActive ? PURPLE : GRAY_450,
                       transition: "all 0.2s",
                       pointerEvents: "none",
                       letterSpacing: "0.03em",
@@ -197,7 +198,7 @@ export function RotationDial() {
                 const y2 = 110 + r2 * Math.sin(rad);
                 return (
                   <svg key={`tick-${dir.label}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
-                    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={snapped.label === dir.label ? "#7C3AED" : "#C4B5FD"} strokeWidth={snapped.label === dir.label ? 2.5 : 1.5} />
+                    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={snapped.label === dir.label ? PURPLE : "#C4B5FD"} strokeWidth={snapped.label === dir.label ? 2.5 : 1.5} />
                   </svg>
                 );
               })}
@@ -243,7 +244,7 @@ export function RotationDial() {
               }}>
                 <div style={{
                   width: 36, height: 36, borderRadius: "50%",
-                  background: "#7C3AED",
+                  background: PURPLE,
                   border: "3px solid #fff",
                   boxShadow: "0 2px 10px rgba(124,58,237,0.4)",
                   display: "flex", alignItems: "center", justifyContent: "center",
@@ -257,7 +258,7 @@ export function RotationDial() {
 
           {/* Result pill */}
           <div style={{
-            background: "rgba(124,58,237,0.08)",
+            background: PURPLE_A08,
             border: "1px solid rgba(124,58,237,0.25)",
             borderRadius: 10,
             padding: "10px 14px",
@@ -268,8 +269,8 @@ export function RotationDial() {
           }}>
             <span style={{ fontSize: 16 }}>🧭</span>
             <div>
-              <p style={{ margin: 0, fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>Camera will face</p>
-              <p style={{ margin: 0, fontSize: 14, color: "#111827", fontWeight: 700 }}>
+              <p style={{ margin: 0, fontSize: 11, color: GRAY_450, fontWeight: 500 }}>Camera will face</p>
+              <p style={{ margin: 0, fontSize: 14, color: GRAY_900, fontWeight: 700 }}>
                 {FULL_NAMES[snapped.label]}
               </p>
             </div>
@@ -277,8 +278,8 @@ export function RotationDial() {
 
           <button style={{
             width: "100%", padding: "14px", borderRadius: 12,
-            background: "#7C3AED", border: "none", cursor: "pointer",
-            color: "#fff", fontSize: 15, fontWeight: 700,
+            background: PURPLE, border: "none", cursor: "pointer",
+            color: WHITE, fontSize: 15, fontWeight: 700,
           }}>
             Confirm Direction
           </button>

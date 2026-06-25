@@ -15,6 +15,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
+import { BLACK, GRAY_105, GRAY_150, GRAY_380, PURPLE_A08, RED, RED_50, WHITE } from "@/constants/colors.js";
 
 export default function OnboardingEmail() {
   const insets = useSafeAreaInsets();
@@ -78,7 +79,7 @@ export default function OnboardingEmail() {
           <TextInput
             style={styles.input}
             placeholder="you@example.com"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor={GRAY_380}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -93,7 +94,7 @@ export default function OnboardingEmail() {
 
         {error ? (
           <View style={styles.errorRow}>
-            <Ionicons name="alert-circle" size={16} color="#EF4444" />
+            <Ionicons name="alert-circle" size={16} color={RED} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
@@ -110,7 +111,7 @@ export default function OnboardingEmail() {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size="small" />
+            <ActivityIndicator color={WHITE} size="small" />
           ) : (
             <Text style={styles.continueBtnText}>Get Started</Text>
           )}
@@ -127,7 +128,7 @@ export default function OnboardingEmail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
   },
   content: {
     flex: 1,
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 14,
-    backgroundColor: "rgba(124, 58, 237, 0.08)",
+    backgroundColor: PURPLE_A08,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
@@ -182,17 +183,17 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 17,
     color: Colors.light.text,
     borderWidth: 1.5,
-    borderColor: "#EBEBEB",
+    borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
     textAlign: "center",
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
     marginTop: 12,
-    backgroundColor: "#FEF2F2",
+    backgroundColor: RED_50,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
@@ -211,7 +212,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 13,
-    color: "#EF4444",
+    color: RED,
     flex: 1,
     fontFamily: "Archivo_400Regular",
   },
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   continueBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
   },

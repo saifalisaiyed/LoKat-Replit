@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import MapView, { Marker, Polygon } from "react-native-maps";
+import { PURPLE, PURPLE_A25, PURPLE_A75 } from "@/constants/colors.js";
 
 interface Props {
   initialLat: number;
@@ -92,14 +93,14 @@ export default function NativeMapPickerView({
         {facingDirection && coneCoords.length > 0 && (
           <Polygon
             coordinates={coneCoords}
-            fillColor="rgba(124,58,237,0.25)"
-            strokeColor="rgba(124,58,237,0.75)"
+            fillColor={PURPLE_A25}
+            strokeColor={PURPLE_A75}
             strokeWidth={2}
           />
         )}
         <Marker
           coordinate={{ latitude: lockedLat, longitude: lockedLng }}
-          pinColor="#7C3AED"
+          pinColor={PURPLE}
         />
       </MapView>
     );

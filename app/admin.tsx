@@ -18,6 +18,7 @@ import { useApp } from "@/lib/store";
 import { apiRequest } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import type { PhotoRequest } from "@/lib/types";
+import { BLUE, GRAY_105, GRAY_125, GRAY_500, GRAY_80, GREEN_500, ORANGE, RED, WHITE } from "@/constants/colors.js";
 
 const STATUS_FILTERS = [
   { key: "all", label: "All" },
@@ -29,11 +30,11 @@ const STATUS_FILTERS = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "#22C55E",
-  accepted: "#F97316",
-  submitted: "#3B82F6",
+  open: GREEN_500,
+  accepted: ORANGE,
+  submitted: BLUE,
   completed: Colors.light.tint,
-  abandoned: "#EF4444",
+  abandoned: RED,
 };
 
 interface AdminStats {
@@ -135,7 +136,7 @@ export default function AdminScreen() {
       }}
     >
       <View style={styles.requestHeader}>
-        <View style={[styles.statusDot, { backgroundColor: STATUS_COLORS[item.status] || "#999" }]} />
+        <View style={[styles.statusDot, { backgroundColor: STATUS_COLORS[item.status] || GRAY_500 }]} />
         <Text style={styles.requestStatus}>{item.status.toUpperCase()}</Text>
         <Text style={styles.requestDate}>{formatDate(item.createdAt)}</Text>
       </View>
@@ -164,21 +165,21 @@ export default function AdminScreen() {
         <Text style={styles.headerTitle}>Admin Panel</Text>
         <View style={styles.headerRight}>
           <Pressable style={styles.clearBtn} onPress={handleClearAll}>
-            <Ionicons name="trash-outline" size={16} color="#EF4444" />
+            <Ionicons name="trash-outline" size={16} color={RED} />
             <Text style={styles.clearBtnText}>Clear</Text>
           </Pressable>
           <View style={styles.adminBadge}>
-            <Ionicons name="shield-checkmark" size={14} color="#fff" />
+            <Ionicons name="shield-checkmark" size={14} color={WHITE} />
           </View>
         </View>
       </View>
 
       {stats && (
         <View style={styles.statsGrid}>
-          <StatCard label="Users" value={stats.totalUsers} icon="people-outline" color="#3B82F6" />
+          <StatCard label="Users" value={stats.totalUsers} icon="people-outline" color={BLUE} />
           <StatCard label="Requests" value={stats.totalRequests} icon="images-outline" color={Colors.light.tint} />
-          <StatCard label="Open" value={stats.openRequests} icon="radio-button-on-outline" color="#22C55E" />
-          <StatCard label="Completed" value={stats.completedRequests} icon="checkmark-circle-outline" color="#F97316" />
+          <StatCard label="Open" value={stats.openRequests} icon="radio-button-on-outline" color={GREEN_500} />
+          <StatCard label="Completed" value={stats.completedRequests} icon="checkmark-circle-outline" color={ORANGE} />
         </View>
       )}
 
@@ -255,7 +256,7 @@ function StatCard({ label, value, icon, color }: { label: string; value: number;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
   },
   centerContent: {
     flex: 1,
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   backBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 14,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -285,14 +286,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     gap: 10,
   },
   headerBackBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -323,10 +324,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#EF4444",
+    borderColor: RED,
   },
   clearBtnText: {
-    color: "#EF4444",
+    color: RED,
     fontSize: 13,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -335,14 +336,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     gap: 10,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F2",
+    borderBottomColor: GRAY_125,
   },
   statCard: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#FAFAFA",
+    backgroundColor: GRAY_80,
     borderRadius: 12,
     paddingVertical: 12,
     gap: 4,
@@ -366,10 +367,10 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
   },
   filterRow: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F2",
+    borderBottomColor: GRAY_125,
   },
   filterList: {
     paddingHorizontal: 16,
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderRadius: 20,
-    backgroundColor: "#F0F0F2",
+    backgroundColor: GRAY_125,
   },
   filterChipActive: {
     backgroundColor: Colors.light.tint,
@@ -390,14 +391,14 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
   },
   filterTextActive: {
-    color: "#fff",
+    color: WHITE,
   },
   list: {
     padding: 16,
     gap: 10,
   },
   requestCard: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 14,
     padding: 14,
     gap: 6,

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DARK_MAP, GRAY_105, GRAY_450, GRAY_600, GRAY_750, GRAY_90, GRAY_900, PURPLE, PURPLE_A08, WHITE } from "@/constants/colors.js";
 
 const DIRECTIONS = [
   { label: "NW", angle: 315, row: 0, col: 0 },
@@ -23,7 +24,7 @@ export function CompassGrid() {
     <div
       style={{
         fontFamily: "'Inter', sans-serif",
-        background: "#F5F5F7",
+        background: GRAY_105,
         minHeight: "100vh",
         display: "flex",
         alignItems: "center",
@@ -35,7 +36,7 @@ export function CompassGrid() {
         {/* Mock map-picker header */}
         <div
           style={{
-            background: "#1A1B2E",
+            background: DARK_MAP,
             borderRadius: "16px 16px 0 0",
             padding: "14px 16px 12px",
             display: "flex",
@@ -43,8 +44,8 @@ export function CompassGrid() {
             gap: 10,
           }}
         >
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#7C3AED" }} />
-          <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Select exact spot</span>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: PURPLE }} />
+          <span style={{ color: WHITE, fontSize: 13, fontWeight: 600 }}>Select exact spot</span>
         </div>
 
         {/* Mock map area */}
@@ -62,7 +63,7 @@ export function CompassGrid() {
           }} />
           {/* Pin */}
           <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -100%)" }}>
-            <div style={{ width: 28, height: 28, borderRadius: "50% 50% 50% 0", background: "#7C3AED", transform: "rotate(-45deg)", border: "3px solid #fff", boxShadow: "0 4px 12px rgba(124,58,237,0.5)" }} />
+            <div style={{ width: 28, height: 28, borderRadius: "50% 50% 50% 0", background: PURPLE, transform: "rotate(-45deg)", border: "3px solid #fff", boxShadow: "0 4px 12px rgba(124,58,237,0.5)" }} />
           </div>
           {/* Direction arrow overlay on map */}
           {selected && (
@@ -81,13 +82,13 @@ export function CompassGrid() {
         {/* Bottom sheet */}
         <div
           style={{
-            background: "#fff",
+            background: WHITE,
             borderRadius: "0 0 16px 16px",
             padding: "16px",
             boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
           }}
         >
-          <p style={{ margin: "0 0 12px", fontSize: 13, fontWeight: 600, color: "#111827" }}>
+          <p style={{ margin: "0 0 12px", fontSize: 13, fontWeight: 600, color: GRAY_900 }}>
             Photo facing direction
           </p>
 
@@ -102,7 +103,7 @@ export function CompassGrid() {
                       style={{
                         aspectRatio: "1",
                         borderRadius: 12,
-                        background: "#F9FAFB",
+                        background: GRAY_90,
                         border: "1.5px solid #E5E7EB",
                         display: "flex",
                         alignItems: "center",
@@ -124,7 +125,7 @@ export function CompassGrid() {
                       aspectRatio: "1",
                       borderRadius: 12,
                       border: isSelected ? "2px solid #7C3AED" : "1.5px solid #E5E7EB",
-                      background: isSelected ? "#7C3AED" : "#F9FAFB",
+                      background: isSelected ? PURPLE : GRAY_90,
                       cursor: "pointer",
                       display: "flex",
                       flexDirection: "column",
@@ -141,13 +142,13 @@ export function CompassGrid() {
                       fontSize: 16,
                       display: "inline-block",
                       transform: `rotate(${dir.angle}deg)`,
-                      color: isSelected ? "#fff" : "#6B7280",
+                      color: isSelected ? WHITE : GRAY_600,
                       lineHeight: 1,
                     }}>↑</span>
                     <span style={{
                       fontSize: 11,
                       fontWeight: 700,
-                      color: isSelected ? "#fff" : "#374151",
+                      color: isSelected ? WHITE : GRAY_750,
                       letterSpacing: "0.02em",
                     }}>{dir.label}</span>
                   </button>
@@ -158,7 +159,7 @@ export function CompassGrid() {
 
           {/* Result pill */}
           <div style={{
-            background: selected ? "rgba(124,58,237,0.08)" : "#F9FAFB",
+            background: selected ? PURPLE_A08 : GRAY_90,
             border: selected ? "1px solid rgba(124,58,237,0.25)" : "1px solid #E5E7EB",
             borderRadius: 10,
             padding: "10px 14px",
@@ -169,8 +170,8 @@ export function CompassGrid() {
           }}>
             <span style={{ fontSize: 16 }}>🧭</span>
             <div>
-              <p style={{ margin: 0, fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>Camera will face</p>
-              <p style={{ margin: 0, fontSize: 14, color: "#111827", fontWeight: 700 }}>
+              <p style={{ margin: 0, fontSize: 11, color: GRAY_450, fontWeight: 500 }}>Camera will face</p>
+              <p style={{ margin: 0, fontSize: 14, color: GRAY_900, fontWeight: 700 }}>
                 {selected ? FULL_NAMES[selected] : "Tap a direction"}
               </p>
             </div>
@@ -178,8 +179,8 @@ export function CompassGrid() {
 
           <button style={{
             width: "100%", padding: "14px", borderRadius: 12,
-            background: "#7C3AED", border: "none", cursor: "pointer",
-            color: "#fff", fontSize: 15, fontWeight: 700,
+            background: PURPLE, border: "none", cursor: "pointer",
+            color: WHITE, fontSize: 15, fontWeight: 700,
           }}>
             Confirm Direction
           </button>

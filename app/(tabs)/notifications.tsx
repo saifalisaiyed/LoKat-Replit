@@ -15,6 +15,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import type { Notification } from "@/lib/types";
+import { BLACK_A03, BLACK_A05, BLUE, BLUE_A10, GRASS_A10, GRAY_105, ROSE, ROSE_A10, SKY_A03, SKY_A10, WHITE } from "@/constants/colors.js";
 
 function getNotifIcon(type: Notification["type"]): {
   name: string;
@@ -23,15 +24,15 @@ function getNotifIcon(type: Notification["type"]): {
 } {
   switch (type) {
     case "accepted":
-      return { name: "checkmark-circle", color: Colors.light.tint, bg: "rgba(0,174,239,0.1)" };
+      return { name: "checkmark-circle", color: Colors.light.tint, bg: SKY_A10 };
     case "submitted":
-      return { name: "cloud-upload", color: "#3B82F6", bg: "rgba(59,130,246,0.1)" };
+      return { name: "cloud-upload", color: BLUE, bg: BLUE_A10 };
     case "completed":
-      return { name: "cash", color: Colors.light.accent, bg: "rgba(123,192,67,0.1)" };
+      return { name: "cash", color: Colors.light.accent, bg: GRASS_A10 };
     case "new_request":
-      return { name: "location", color: "#F43F5E", bg: "rgba(244,63,94,0.1)" };
+      return { name: "location", color: ROSE, bg: ROSE_A10 };
     default:
-      return { name: "notifications", color: Colors.light.textSecondary, bg: "rgba(0,0,0,0.05)" };
+      return { name: "notifications", color: Colors.light.textSecondary, bg: BLACK_A05 };
   }
 }
 
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
   },
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 2,
@@ -192,15 +193,15 @@ const styles = StyleSheet.create({
     gap: 12,
     marginHorizontal: 16,
     marginTop: 8,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.03)",
+    borderColor: BLACK_A03,
   },
   notifCardUnread: {
-    backgroundColor: "rgba(0,174,239,0.03)",
-    borderColor: "rgba(0,174,239,0.1)",
+    backgroundColor: SKY_A03,
+    borderColor: SKY_A10,
   },
   notifIconBg: {
     width: 40,

@@ -16,6 +16,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import type { ChatMessage } from "@/lib/types";
+import { GRAY_105, GRAY_170, GRAY_450, WHITE, WHITE_A70 } from "@/constants/colors.js";
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
@@ -129,7 +130,7 @@ export default function ChatScreen() {
         <TextInput
           style={styles.input}
           placeholder="Type a message..."
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={GRAY_450}
           value={text}
           onChangeText={setText}
           multiline
@@ -143,9 +144,9 @@ export default function ChatScreen() {
           disabled={!text.trim() || sending}
         >
           {sending ? (
-            <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="small" color={WHITE} />
           ) : (
-            <Ionicons name="send" size={18} color="#fff" />
+            <Ionicons name="send" size={18} color={WHITE} />
           )}
         </Pressable>
       </View>
@@ -154,14 +155,14 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5F7" },
+  container: { flex: 1, backgroundColor: GRAY_105 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
   },
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -194,22 +195,22 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   msgBubbleOther: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomLeftRadius: 4,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GRAY_170,
   },
   msgText: { fontSize: 15, color: Colors.light.text, fontFamily: "Archivo_400Regular", lineHeight: 20 },
-  msgTextMe: { color: "#fff" },
+  msgTextMe: { color: WHITE },
   msgTime: { fontSize: 10, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular", marginTop: 4, alignSelf: "flex-end" },
-  msgTimeMe: { color: "rgba(255,255,255,0.7)" },
+  msgTimeMe: { color: WHITE_A70 },
   inputBar: {
     flexDirection: "row",
     alignItems: "flex-end",
     gap: 8,
     paddingHorizontal: 16,
     paddingTop: 10,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderTopWidth: 1,
     borderTopColor: Colors.light.border,
   },
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.light.text,
     fontFamily: "Archivo_400Regular",
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,

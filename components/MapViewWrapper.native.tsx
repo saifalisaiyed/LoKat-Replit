@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { StyleSheet, Platform } from "react-native";
 import MapView, { Marker, Heatmap, PROVIDER_GOOGLE } from "react-native-maps";
 import Colors from "@/constants/colors";
+import { PURPLE_A00, PURPLE_LIGHT_A40, PURPLE_MED_A80, PURPLE_MID_A60, PURPLE_PALE_A100 } from "@/constants/colors.js";
 
 interface MapWrapperProps {
   selectedPin: { latitude: number; longitude: number } | null;
@@ -58,7 +59,7 @@ export default function MapViewWrapper({
           radius={40}
           opacity={0.6}
           gradient={{
-            colors: ["rgba(124, 58, 237, 0)", "rgba(139, 92, 246, 0.4)", "rgba(147, 51, 234, 0.6)", "rgba(168, 85, 247, 0.8)", "rgba(192, 132, 252, 1)"],
+            colors: [PURPLE_A00, PURPLE_LIGHT_A40, PURPLE_MID_A60, PURPLE_MED_A80, PURPLE_PALE_A100],
             startPoints: [0.0, 0.25, 0.5, 0.75, 1.0],
             colorMapSize: 256,
           }}

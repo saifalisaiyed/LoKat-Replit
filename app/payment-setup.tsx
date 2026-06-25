@@ -15,6 +15,7 @@ import { router } from "expo-router";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
+import { DARK_MAP, GRAY_190, GRAY_400, GRAY_580, GREEN_500, GREEN_500_A12, PURPLE_A12, RED_LIGHT, RED_LIGHT_A12, WHITE, WHITE_A05, WHITE_A08 } from "@/constants/colors.js";
 
 export default function PaymentSetupScreen() {
   const insets = useSafeAreaInsets();
@@ -73,7 +74,7 @@ export default function PaymentSetupScreen() {
         style={[styles.backBtn, { top: insets.top + webTop + 12 }]}
         onPress={() => router.back()}
       >
-        <Ionicons name="chevron-back" size={24} color="#fff" />
+        <Ionicons name="chevron-back" size={24} color={WHITE} />
       </Pressable>
 
       <View style={styles.content}>
@@ -102,14 +103,14 @@ export default function PaymentSetupScreen() {
 
         {status === "done" && (
           <View style={styles.successBanner}>
-            <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
+            <Ionicons name="checkmark-circle" size={20} color={GREEN_500} />
             <Text style={styles.successText}>Card saved! Heading back…</Text>
           </View>
         )}
 
         {status === "error" && (
           <View style={styles.errorBanner}>
-            <Ionicons name="alert-circle-outline" size={20} color="#f87171" />
+            <Ionicons name="alert-circle-outline" size={20} color={RED_LIGHT} />
             <Text style={styles.errorText}>Something went wrong. Please try again.</Text>
           </View>
         )}
@@ -120,10 +121,10 @@ export default function PaymentSetupScreen() {
           disabled={isLoading || status === "done"}
         >
           {isLoading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={WHITE} />
           ) : (
             <>
-              <Ionicons name="card-outline" size={18} color="#fff" />
+              <Ionicons name="card-outline" size={18} color={WHITE} />
               <Text style={styles.btnText}>Add card</Text>
             </>
           )}
@@ -144,7 +145,7 @@ export default function PaymentSetupScreen() {
           <View style={[styles.webViewHeader, { paddingTop: insets.top + 12 }]}>
             <Text style={styles.webViewTitle}>Add Card</Text>
             <Pressable onPress={() => setShowWebView(false)} style={styles.webViewClose}>
-              <Ionicons name="close" size={22} color="#fff" />
+              <Ionicons name="close" size={22} color={WHITE} />
             </Pressable>
           </View>
 
@@ -174,7 +175,7 @@ export default function PaymentSetupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1A1B2E",
+    backgroundColor: DARK_MAP,
   },
   backBtn: {
     position: "absolute",
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "rgba(124,58,237,0.12)",
+    backgroundColor: PURPLE_A12,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 28,
@@ -201,14 +202,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#fff",
+    color: WHITE,
     textAlign: "center",
     marginBottom: 12,
     fontFamily: "Archivo_700Bold",
   },
   subtitle: {
     fontSize: 15,
-    color: "#A1A1AA",
+    color: GRAY_400,
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 32,
@@ -222,13 +223,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: WHITE_A05,
     borderRadius: 12,
     padding: 14,
   },
   bulletText: {
     fontSize: 14,
-    color: "#E4E4E7",
+    color: GRAY_190,
     flex: 1,
   },
   btn: {
@@ -249,21 +250,21 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#fff",
+    color: WHITE,
     fontFamily: "Archivo_700Bold",
   },
   successBanner: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(34,197,94,0.12)",
+    backgroundColor: GREEN_500_A12,
     borderRadius: 12,
     padding: 14,
     width: "100%",
     marginBottom: 16,
   },
   successText: {
-    color: "#22c55e",
+    color: GREEN_500,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -271,26 +272,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(248,113,113,0.12)",
+    backgroundColor: RED_LIGHT_A12,
     borderRadius: 12,
     padding: 14,
     width: "100%",
     marginBottom: 16,
   },
   errorText: {
-    color: "#f87171",
+    color: RED_LIGHT,
     fontSize: 14,
   },
   skipBtn: {
     padding: 12,
   },
   skipText: {
-    color: "#71717A",
+    color: GRAY_580,
     fontSize: 15,
   },
   webViewContainer: {
     flex: 1,
-    backgroundColor: "#1A1B2E",
+    backgroundColor: DARK_MAP,
   },
   webViewHeader: {
     flexDirection: "row",
@@ -299,12 +300,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.08)",
+    borderBottomColor: WHITE_A08,
   },
   webViewTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#fff",
+    color: WHITE,
     fontFamily: "Archivo_700Bold",
   },
   webViewClose: {
@@ -322,6 +323,6 @@ const styles = StyleSheet.create({
   },
   webView: {
     flex: 1,
-    backgroundColor: "#1A1B2E",
+    backgroundColor: DARK_MAP,
   },
 });

@@ -14,8 +14,8 @@ import * as Haptics from "expo-haptics";
 import { getApiUrl } from "@/lib/query-client";
 import { setPickedLocation } from "@/lib/mapPickerStore";
 import NativeMapPickerView from "@/components/NativeMapPickerView";
+import { BLACK, BLACK_A55, BLACK_A60, DARK_MAP, GRAY_110, GRAY_170, GRAY_450, GRAY_600, GRAY_750, GRAY_90, GRAY_900, PURPLE, WHITE } from "@/constants/colors.js";
 
-const PURPLE = "#7C3AED";
 const PIN_SIZE = 48;
 
 const COMPASS_DIRS = [
@@ -42,7 +42,7 @@ function CenterPin() {
         size={PIN_SIZE}
         color={PURPLE}
         style={{
-          shadowColor: "#000",
+          shadowColor: BLACK,
           shadowOpacity: 0.35,
           shadowRadius: 6,
           shadowOffset: { width: 0, height: 3 },
@@ -149,7 +149,7 @@ export default function MapPickerScreen() {
       {step === "pick" && (
         <View style={[styles.buttonRow, { bottom: insets.bottom + 24 }]}>
           <Pressable style={styles.cancelPill} onPress={() => router.back()}>
-            <Ionicons name="close" size={18} color="#fff" />
+            <Ionicons name="close" size={18} color={WHITE} />
             <Text style={styles.cancelPillText}>Cancel</Text>
           </Pressable>
           <Pressable
@@ -158,10 +158,10 @@ export default function MapPickerScreen() {
             disabled={confirming}
           >
             {confirming ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color={WHITE} size="small" />
             ) : (
               <>
-                <Ionicons name="checkmark" size={18} color="#fff" />
+                <Ionicons name="checkmark" size={18} color={WHITE} />
                 <Text style={styles.confirmPillText}>Set Location</Text>
               </>
             )}
@@ -180,7 +180,7 @@ export default function MapPickerScreen() {
 
           <View style={styles.sheetHeader}>
             <Pressable onPress={() => setStep("pick")} hitSlop={12}>
-              <Ionicons name="chevron-back" size={22} color="#6B7280" />
+              <Ionicons name="chevron-back" size={22} color={GRAY_600} />
             </Pressable>
             <View style={styles.sheetTitleWrap}>
               <Text style={styles.sheetTitle}>Which direction?</Text>
@@ -254,12 +254,12 @@ export default function MapPickerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1A1B2E" },
+  container: { flex: 1, backgroundColor: DARK_MAP },
   overlay: { justifyContent: "center", alignItems: "center", zIndex: 10 },
   hintText: {
-    marginTop: 14, fontSize: 12, color: "#fff",
+    marginTop: 14, fontSize: 12, color: WHITE,
     fontFamily: "Archivo_500Medium",
-    backgroundColor: "rgba(0,0,0,0.55)",
+    backgroundColor: BLACK_A55,
     paddingHorizontal: 14, paddingVertical: 5,
     borderRadius: 20, overflow: "hidden",
   },
@@ -270,44 +270,44 @@ const styles = StyleSheet.create({
   cancelPill: {
     flex: 1, flexDirection: "row", alignItems: "center",
     justifyContent: "center", gap: 6, height: 50,
-    borderRadius: 25, backgroundColor: "rgba(0,0,0,0.60)",
+    borderRadius: 25, backgroundColor: BLACK_A60,
   },
-  cancelPillText: { color: "#fff", fontSize: 15, fontFamily: "Archivo_500Medium" },
+  cancelPillText: { color: WHITE, fontSize: 15, fontFamily: "Archivo_500Medium" },
   confirmPill: {
     flex: 2, flexDirection: "row", alignItems: "center",
     justifyContent: "center", gap: 6, height: 50,
     borderRadius: 25, backgroundColor: PURPLE,
   },
-  confirmPillText: { color: "#fff", fontSize: 15, fontFamily: "Archivo_600SemiBold" },
+  confirmPillText: { color: WHITE, fontSize: 15, fontFamily: "Archivo_600SemiBold" },
 
   directionSheet: {
     position: "absolute", left: 0, right: 0, bottom: 0,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderTopLeftRadius: 26, borderTopRightRadius: 26,
     paddingHorizontal: 20, paddingTop: 10,
     zIndex: 30,
-    shadowColor: "#000", shadowOpacity: 0.18,
+    shadowColor: BLACK, shadowOpacity: 0.18,
     shadowRadius: 24, elevation: 20,
   },
   sheetHandle: {
     width: 36, height: 4, borderRadius: 2,
-    backgroundColor: "#E5E7EB", alignSelf: "center", marginBottom: 12,
+    backgroundColor: GRAY_170, alignSelf: "center", marginBottom: 12,
   },
   sheetHeader: {
     flexDirection: "row", alignItems: "center", marginBottom: 12,
   },
   sheetTitleWrap: { flex: 1, alignItems: "center" },
-  sheetTitle: { fontSize: 16, fontFamily: "Archivo_600SemiBold", color: "#111827" },
-  sheetSub: { fontSize: 12, color: "#9CA3AF", fontFamily: "Archivo_400Regular", marginTop: 2 },
-  skipText: { fontSize: 14, color: "#9CA3AF", fontFamily: "Archivo_500Medium" },
+  sheetTitle: { fontSize: 16, fontFamily: "Archivo_600SemiBold", color: GRAY_900 },
+  sheetSub: { fontSize: 12, color: GRAY_450, fontFamily: "Archivo_400Regular", marginTop: 2 },
+  skipText: { fontSize: 14, color: GRAY_450, fontFamily: "Archivo_500Medium" },
 
   grid: { gap: 6, marginBottom: 10 },
   gridRow: { flexDirection: "row", gap: 6 },
   dirCell: {
     flex: 1, height: 52, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
-    backgroundColor: "#F9FAFB",
-    borderWidth: 1.5, borderColor: "#E5E7EB",
+    backgroundColor: GRAY_90,
+    borderWidth: 1.5, borderColor: GRAY_170,
     gap: 2,
   },
   dirCellActive: {
@@ -319,24 +319,24 @@ const styles = StyleSheet.create({
   centerCell: {
     flex: 1, height: 52, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
-    backgroundColor: "#F3F4F6", borderWidth: 1.5, borderColor: "#E5E7EB",
+    backgroundColor: GRAY_110, borderWidth: 1.5, borderColor: GRAY_170,
   },
   centerEmoji: { fontSize: 22 },
-  dirArrow: { fontSize: 17, color: "#9CA3AF", lineHeight: 20 },
-  dirArrowActive: { color: "#fff" },
-  dirLabel: { fontSize: 11, fontFamily: "Archivo_600SemiBold", color: "#374151" },
-  dirLabelActive: { color: "#fff" },
+  dirArrow: { fontSize: 17, color: GRAY_450, lineHeight: 20 },
+  dirArrowActive: { color: WHITE },
+  dirLabel: { fontSize: 11, fontFamily: "Archivo_600SemiBold", color: GRAY_750 },
+  dirLabelActive: { color: WHITE },
 
   resultRow: {
     flexDirection: "row", alignItems: "center",
     justifyContent: "center", gap: 6, marginBottom: 10,
   },
-  resultText: { fontSize: 13, color: "#6B7280", fontFamily: "Archivo_400Regular" },
-  resultDir: { fontFamily: "Archivo_600SemiBold", color: "#111827" },
+  resultText: { fontSize: 13, color: GRAY_600, fontFamily: "Archivo_400Regular" },
+  resultDir: { fontFamily: "Archivo_600SemiBold", color: GRAY_900 },
 
   confirmDirBtn: {
     backgroundColor: PURPLE, borderRadius: 14,
     paddingVertical: 15, alignItems: "center",
   },
-  confirmDirText: { color: "#fff", fontSize: 15, fontFamily: "Archivo_600SemiBold" },
+  confirmDirText: { color: WHITE, fontSize: 15, fontFamily: "Archivo_600SemiBold" },
 });

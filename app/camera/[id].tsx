@@ -27,6 +27,7 @@ import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { uploadFileToStorage } from "@/client/utils/objectStorageExpo";
 import { getApiUrl } from "@/lib/query-client";
+import { BLACK, BLACK_A40, BLACK_A50, BLACK_A55, BLACK_A60, BLACK_A65, DARK_MAP, GREEN_600_A88, PURPLE_A15, PURPLE_A30, WHITE, WHITE_A07, WHITE_A10, WHITE_A12, WHITE_A20, WHITE_A35, WHITE_A45, WHITE_A50, WHITE_A75, WHITE_A85 } from "@/constants/colors.js";
 
 function toRad(deg: number) {
   return (deg * Math.PI) / 180;
@@ -466,7 +467,7 @@ export default function CameraScreen() {
         {/* Face scan loading badge */}
         {isProcessingFaces && (
           <View style={styles.faceScanBadge}>
-            <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="small" color={WHITE} />
             <Text style={styles.faceScanText}>Scanning for faces…</Text>
           </View>
         )}
@@ -474,7 +475,7 @@ export default function CameraScreen() {
         {/* Face blurred confirmation badge */}
         {!isProcessingFaces && faceCount > 0 && (
           <View style={styles.faceBlurBadge}>
-            <Ionicons name="eye-off-outline" size={14} color="#fff" />
+            <Ionicons name="eye-off-outline" size={14} color={WHITE} />
             <Text style={styles.faceBlurText}>
               {faceCount === 1 ? "1 face auto-blurred" : `${faceCount} faces auto-blurred`}
             </Text>
@@ -514,7 +515,7 @@ export default function CameraScreen() {
               ]}
               onPress={handleRetake}
             >
-              <Ionicons name="refresh" size={20} color="#fff" />
+              <Ionicons name="refresh" size={20} color={WHITE} />
               <Text style={styles.retakeBtnText}>Retake</Text>
             </Pressable>
             <Pressable
@@ -528,17 +529,17 @@ export default function CameraScreen() {
             >
               {isUploading ? (
                 <>
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color={WHITE} />
                   <Text style={styles.submitPhotoBtnText}>Uploading…</Text>
                 </>
               ) : isProcessingFaces ? (
                 <>
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color={WHITE} />
                   <Text style={styles.submitPhotoBtnText}>Processing…</Text>
                 </>
               ) : (
                 <>
-                  <Ionicons name="send" size={20} color="#fff" />
+                  <Ionicons name="send" size={20} color={WHITE} />
                   <Text style={styles.submitPhotoBtnText}>Send</Text>
                 </>
               )}
@@ -572,7 +573,7 @@ export default function CameraScreen() {
       >
         <View style={styles.cameraTopBar}>
           <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Ionicons name="close" size={30} color="#fff" />
+            <Ionicons name="close" size={30} color={WHITE} />
           </Pressable>
           {request && (
             <View style={styles.requestHint}>
@@ -589,7 +590,7 @@ export default function CameraScreen() {
             hitSlop={12}
             style={styles.infoBtn}
           >
-            <Ionicons name="information-circle" size={28} color="#fff" />
+            <Ionicons name="information-circle" size={28} color={WHITE} />
           </Pressable>
         </View>
       </View>
@@ -628,7 +629,7 @@ export default function CameraScreen() {
               <Ionicons
                 name="arrow-up"
                 size={40}
-                color="rgba(255,255,255,0.35)"
+                color={WHITE_A35}
               />
               <Text style={styles.guideText}>Point camera upward</Text>
             </View>
@@ -638,7 +639,7 @@ export default function CameraScreen() {
               <Ionicons
                 name="arrow-down"
                 size={40}
-                color="rgba(255,255,255,0.35)"
+                color={WHITE_A35}
               />
               <Text style={styles.guideText}>Point camera downward</Text>
             </View>
@@ -648,7 +649,7 @@ export default function CameraScreen() {
               <Ionicons
                 name="remove"
                 size={40}
-                color="rgba(255,255,255,0.35)"
+                color={WHITE_A35}
               />
               <Text style={styles.guideText}>Keep camera at eye level</Text>
             </View>
@@ -671,7 +672,7 @@ export default function CameraScreen() {
           <Ionicons
             name="document-text-outline"
             size={13}
-            color="rgba(255,255,255,0.75)"
+            color={WHITE_A75}
           />
           <Text style={styles.notesText} numberOfLines={2}>
             {request.note}
@@ -772,7 +773,7 @@ export default function CameraScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: BLACK,
   },
   centered: {
     alignItems: "center",
@@ -801,7 +802,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   permBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 16,
     fontWeight: "600" as const,
     fontFamily: "Archivo_500Medium",
@@ -814,7 +815,7 @@ const styles = StyleSheet.create({
   // Grid
   gridLine: {
     position: "absolute",
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: WHITE_A12,
   },
   gridLineV: {
     width: 1,
@@ -842,13 +843,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   requestHint: {
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: BLACK_A50,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 16,
   },
   hintText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 13,
     fontWeight: "600" as const,
     textTransform: "capitalize" as const,
@@ -865,20 +866,20 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "rgba(0,0,0,0.55)",
+    backgroundColor: BLACK_A55,
     borderWidth: 1.5,
     borderColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
   },
   arDistText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 12,
     fontFamily: "Archivo_600SemiBold",
     marginTop: 5,
   },
   arLabel: {
-    color: "rgba(255,255,255,0.5)",
+    color: WHITE_A50,
     fontSize: 9,
     fontFamily: "Archivo_500Medium",
     letterSpacing: 0.8,
@@ -899,7 +900,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   guideText: {
-    color: "rgba(255,255,255,0.45)",
+    color: WHITE_A45,
     fontSize: 14,
     fontFamily: "Archivo_400Regular",
   },
@@ -911,16 +912,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 8,
-    backgroundColor: "rgba(0,0,0,0.55)",
+    backgroundColor: BLACK_A55,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: WHITE_A10,
   },
   notesText: {
     flex: 1,
-    color: "rgba(255,255,255,0.85)",
+    color: WHITE_A85,
     fontSize: 13,
     fontFamily: "Archivo_400Regular",
     lineHeight: 18,
@@ -943,7 +944,7 @@ const styles = StyleSheet.create({
     height: 76,
     borderRadius: 38,
     borderWidth: 4,
-    borderColor: "#fff",
+    borderColor: WHITE,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -951,7 +952,7 @@ const styles = StyleSheet.create({
     width: 62,
     height: 62,
     borderRadius: 31,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
   },
   // Preview
   previewOverlay: {
@@ -973,7 +974,7 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 20,
     paddingTop: 16,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: BLACK_A40,
   },
   previewActionRow: {
     flexDirection: "row",
@@ -988,10 +989,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.5)",
+    borderColor: WHITE_A50,
   },
   retakeBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 15,
     fontFamily: "Archivo_500Medium",
   },
@@ -1006,7 +1007,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   submitPhotoBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -1019,12 +1020,12 @@ const styles = StyleSheet.create({
   // Instructions overlay
   instructionsBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: BLACK_A60,
     justifyContent: "flex-end",
     zIndex: 100,
   },
   instructionsSheet: {
-    backgroundColor: "#1A1B2E",
+    backgroundColor: DARK_MAP,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 12,
@@ -1035,14 +1036,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: WHITE_A20,
     alignSelf: "center",
     marginBottom: 4,
   },
   instructionsTitle: {
     fontSize: 18,
     fontFamily: "Archivo_700Bold",
-    color: "#fff",
+    color: WHITE,
     textAlign: "center",
   },
   instructionsGrid: {
@@ -1053,7 +1054,7 @@ const styles = StyleSheet.create({
   instructionsCell: {
     flex: 1,
     minWidth: "40%",
-    backgroundColor: "rgba(255,255,255,0.07)",
+    backgroundColor: WHITE_A07,
     borderRadius: 14,
     padding: 14,
     gap: 6,
@@ -1062,31 +1063,31 @@ const styles = StyleSheet.create({
   instructionsCellLabel: {
     fontSize: 11,
     fontFamily: "Archivo_500Medium",
-    color: "rgba(255,255,255,0.45)",
+    color: WHITE_A45,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   instructionsCellValue: {
     fontSize: 14,
     fontFamily: "Archivo_600SemiBold",
-    color: "#fff",
+    color: WHITE,
     textTransform: "capitalize",
   },
   instructionsNotes: {
     flexDirection: "row",
     gap: 10,
     alignItems: "flex-start",
-    backgroundColor: "rgba(124,58,237,0.15)",
+    backgroundColor: PURPLE_A15,
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: "rgba(124,58,237,0.3)",
+    borderColor: PURPLE_A30,
   },
   instructionsNotesText: {
     flex: 1,
     fontSize: 14,
     fontFamily: "Archivo_400Regular",
-    color: "rgba(255,255,255,0.85)",
+    color: WHITE_A85,
     lineHeight: 20,
   },
   instructionsDoneBtn: {
@@ -1096,7 +1097,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   instructionsDoneBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
   },
@@ -1107,14 +1108,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(0,0,0,0.65)",
+    backgroundColor: BLACK_A65,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     zIndex: 20,
   },
   faceScanText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 13,
     fontFamily: "Archivo_500Medium",
   },
@@ -1125,14 +1126,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "rgba(22,163,74,0.88)",
+    backgroundColor: GREEN_600_A88,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
     zIndex: 20,
   },
   faceBlurText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 13,
     fontFamily: "Archivo_500Medium",
   },

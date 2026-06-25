@@ -16,6 +16,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
+import { BLACK, GRAY_100, GRAY_105, GRAY_125, GRAY_150, GRAY_380, GREEN_25, GREEN_500, PURPLE_50, RED, RED_50, WHITE } from "@/constants/colors.js";
 
 export default function ChangePasswordScreen() {
   const insets = useSafeAreaInsets();
@@ -97,7 +98,7 @@ export default function ChangePasswordScreen() {
               <TextInput
                 style={styles.passwordInput}
                 placeholder="Enter current password"
-                placeholderTextColor="#B0B0B0"
+                placeholderTextColor={GRAY_380}
                 value={currentPwd}
                 onChangeText={setCurrentPwd}
                 secureTextEntry={!showCurrent}
@@ -105,7 +106,7 @@ export default function ChangePasswordScreen() {
                 autoCorrect={false}
               />
               <Pressable onPress={() => setShowCurrent(!showCurrent)} hitSlop={8}>
-                <Ionicons name={showCurrent ? "eye-off" : "eye"} size={20} color="#B0B0B0" />
+                <Ionicons name={showCurrent ? "eye-off" : "eye"} size={20} color={GRAY_380} />
               </Pressable>
             </View>
           </View>
@@ -118,7 +119,7 @@ export default function ChangePasswordScreen() {
               <TextInput
                 style={styles.passwordInput}
                 placeholder="At least 6 characters"
-                placeholderTextColor="#B0B0B0"
+                placeholderTextColor={GRAY_380}
                 value={newPwd}
                 onChangeText={setNewPwd}
                 secureTextEntry={!showNew}
@@ -126,7 +127,7 @@ export default function ChangePasswordScreen() {
                 autoCorrect={false}
               />
               <Pressable onPress={() => setShowNew(!showNew)} hitSlop={8}>
-                <Ionicons name={showNew ? "eye-off" : "eye"} size={20} color="#B0B0B0" />
+                <Ionicons name={showNew ? "eye-off" : "eye"} size={20} color={GRAY_380} />
               </Pressable>
             </View>
           </View>
@@ -136,7 +137,7 @@ export default function ChangePasswordScreen() {
             <TextInput
               style={styles.input}
               placeholder="Re-enter new password"
-              placeholderTextColor="#B0B0B0"
+              placeholderTextColor={GRAY_380}
               value={confirmPwd}
               onChangeText={setConfirmPwd}
               secureTextEntry={!showNew}
@@ -148,14 +149,14 @@ export default function ChangePasswordScreen() {
 
         {error ? (
           <View style={styles.errorRow}>
-            <Ionicons name="alert-circle" size={16} color="#EF4444" />
+            <Ionicons name="alert-circle" size={16} color={RED} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
 
         {success ? (
           <View style={styles.successRow}>
-            <Ionicons name="checkmark-circle" size={16} color="#22C55E" />
+            <Ionicons name="checkmark-circle" size={16} color={GREEN_500} />
             <Text style={styles.successText}>Password changed successfully</Text>
           </View>
         ) : null}
@@ -170,7 +171,7 @@ export default function ChangePasswordScreen() {
           disabled={!canSubmit || loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size="small" />
+            <ActivityIndicator color={WHITE} size="small" />
           ) : (
             <Text style={styles.saveBtnText}>Update Password</Text>
           )}
@@ -181,35 +182,35 @@ export default function ChangePasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5F7" },
+  container: { flex: 1, backgroundColor: GRAY_105 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F2",
+    borderBottomColor: GRAY_125,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: "#F5F5F7", alignItems: "center", justifyContent: "center",
+    backgroundColor: GRAY_105, alignItems: "center", justifyContent: "center",
   },
   headerTitle: { fontSize: 17, color: Colors.light.text, fontFamily: "Archivo_600SemiBold" },
   scrollContent: { paddingHorizontal: 20, paddingTop: 24 },
   iconSection: { alignItems: "center", marginBottom: 28, gap: 12 },
   lockCircle: {
     width: 64, height: 64, borderRadius: 32,
-    backgroundColor: "#F3EEFF", alignItems: "center", justifyContent: "center",
+    backgroundColor: PURPLE_50, alignItems: "center", justifyContent: "center",
   },
   description: {
     fontSize: 14, color: Colors.light.textSecondary, textAlign: "center",
     fontFamily: "Archivo_400Regular", maxWidth: 260,
   },
   formSection: {
-    backgroundColor: "#fff", borderRadius: 18, padding: 20, gap: 18,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 2 },
+    backgroundColor: WHITE, borderRadius: 18, padding: 20, gap: 18,
+    shadowColor: BLACK, shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
   },
   inputGroup: { gap: 6 },
@@ -217,35 +218,35 @@ const styles = StyleSheet.create({
     fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_500Medium", marginLeft: 2,
   },
   input: {
-    backgroundColor: "#F8F8FA", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 14,
-    fontSize: 15, color: Colors.light.text, borderWidth: 1, borderColor: "#EBEBEB",
+    backgroundColor: GRAY_100, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 14,
+    fontSize: 15, color: Colors.light.text, borderWidth: 1, borderColor: GRAY_150,
     fontFamily: "Archivo_400Regular",
   },
   passwordRow: {
     flexDirection: "row", alignItems: "center",
-    backgroundColor: "#F8F8FA", borderRadius: 12, borderWidth: 1, borderColor: "#EBEBEB",
+    backgroundColor: GRAY_100, borderRadius: 12, borderWidth: 1, borderColor: GRAY_150,
     paddingRight: 12,
   },
   passwordInput: {
     flex: 1, paddingHorizontal: 14, paddingVertical: 14, fontSize: 15,
     color: Colors.light.text, fontFamily: "Archivo_400Regular",
   },
-  divider: { height: 1, backgroundColor: "#F0F0F2" },
+  divider: { height: 1, backgroundColor: GRAY_125 },
   errorRow: {
     flexDirection: "row", alignItems: "center", gap: 6, marginTop: 16,
-    backgroundColor: "#FEF2F2", paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10,
+    backgroundColor: RED_50, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10,
   },
-  errorText: { fontSize: 13, color: "#EF4444", flex: 1, fontFamily: "Archivo_400Regular" },
+  errorText: { fontSize: 13, color: RED, flex: 1, fontFamily: "Archivo_400Regular" },
   successRow: {
     flexDirection: "row", alignItems: "center", gap: 6, marginTop: 16,
-    backgroundColor: "#F0FDF4", paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10,
+    backgroundColor: GREEN_25, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10,
   },
-  successText: { fontSize: 13, color: "#22C55E", flex: 1, fontFamily: "Archivo_400Regular" },
+  successText: { fontSize: 13, color: GREEN_500, flex: 1, fontFamily: "Archivo_400Regular" },
   saveBtn: {
     backgroundColor: Colors.light.tint, paddingVertical: 16, borderRadius: 12,
     alignItems: "center", justifyContent: "center", marginTop: 24,
     shadowColor: Colors.light.tint, shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2, shadowRadius: 8, elevation: 4,
   },
-  saveBtnText: { color: "#fff", fontSize: 16, fontFamily: "Archivo_600SemiBold" },
+  saveBtnText: { color: WHITE, fontSize: 16, fontFamily: "Archivo_600SemiBold" },
 });

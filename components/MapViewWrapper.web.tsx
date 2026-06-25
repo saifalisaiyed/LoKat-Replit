@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { View, StyleSheet } from "react-native";
 import Colors from "@/constants/colors";
+import { DARK_MAP } from "@/constants/colors.js";
 
 interface MapWrapperProps {
   selectedPin: { latitude: number; longitude: number } | null;
@@ -184,7 +185,7 @@ export default function MapViewWrapper(props: MapWrapperProps) {
 const styles = StyleSheet.create({
   webMap: {
     flex: 1,
-    backgroundColor: "#1A1B2E",
+    backgroundColor: DARK_MAP,
     position: "relative",
     overflow: "hidden",
   },

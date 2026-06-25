@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
+import { BLUE, BLUE_A08, EMERALD, EMERALD_A08, GRAY_100, GRAY_105, GRAY_125, GRAY_175, GRAY_250, PURPLE_A08, RED, RED_25, RED_A08, WHITE } from "@/constants/colors.js";
 
 export default function PrivacySecurityScreen() {
   const insets = useSafeAreaInsets();
@@ -50,17 +51,17 @@ export default function PrivacySecurityScreen() {
           <Text style={styles.sectionLabel}>Security</Text>
           <View style={styles.menuGroup}>
             <Pressable
-              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: "#F8F8FA" }]}
+              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: GRAY_100 }]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push("/change-password");
               }}
             >
-              <View style={[styles.iconWrap, { backgroundColor: "rgba(124,58,237,0.08)" }]}>
+              <View style={[styles.iconWrap, { backgroundColor: PURPLE_A08 }]}>
                 <Feather name="lock" size={18} color={Colors.light.tint} />
               </View>
               <Text style={styles.menuText}>Change Password</Text>
-              <Feather name="chevron-right" size={16} color="#D0D0D0" />
+              <Feather name="chevron-right" size={16} color={GRAY_250} />
             </Pressable>
           </View>
         </View>
@@ -69,8 +70,8 @@ export default function PrivacySecurityScreen() {
           <Text style={styles.sectionLabel}>Privacy</Text>
           <View style={styles.menuGroup}>
             <View style={styles.menuItem}>
-              <View style={[styles.iconWrap, { backgroundColor: "rgba(16,185,129,0.08)" }]}>
-                <Ionicons name="location-outline" size={18} color="#10B981" />
+              <View style={[styles.iconWrap, { backgroundColor: EMERALD_A08 }]}>
+                <Ionicons name="location-outline" size={18} color={EMERALD} />
               </View>
               <View style={styles.menuTextBlock}>
                 <Text style={styles.menuText}>Location Sharing</Text>
@@ -82,13 +83,13 @@ export default function PrivacySecurityScreen() {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   setLocationSharing(v);
                 }}
-                trackColor={{ false: "#E5E5EA", true: Colors.light.tint }}
-                thumbColor="#fff"
+                trackColor={{ false: GRAY_175, true: Colors.light.tint }}
+                thumbColor={WHITE}
               />
             </View>
             <View style={styles.menuDivider} />
             <Pressable
-              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: "#F8F8FA" }]}
+              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: GRAY_100 }]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 Alert.alert(
@@ -97,11 +98,11 @@ export default function PrivacySecurityScreen() {
                 );
               }}
             >
-              <View style={[styles.iconWrap, { backgroundColor: "rgba(59,130,246,0.08)" }]}>
-                <Feather name="eye" size={18} color="#3B82F6" />
+              <View style={[styles.iconWrap, { backgroundColor: BLUE_A08 }]}>
+                <Feather name="eye" size={18} color={BLUE} />
               </View>
               <Text style={styles.menuText}>Data & Privacy Info</Text>
-              <Feather name="chevron-right" size={16} color="#D0D0D0" />
+              <Feather name="chevron-right" size={16} color={GRAY_250} />
             </Pressable>
           </View>
         </View>
@@ -110,14 +111,14 @@ export default function PrivacySecurityScreen() {
           <Text style={styles.sectionLabel}>Account</Text>
           <View style={styles.menuGroup}>
             <Pressable
-              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: "#FFF5F5" }]}
+              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: RED_25 }]}
               onPress={handleDeleteAccount}
             >
-              <View style={[styles.iconWrap, { backgroundColor: "rgba(239,68,68,0.08)" }]}>
-                <Feather name="trash-2" size={18} color="#EF4444" />
+              <View style={[styles.iconWrap, { backgroundColor: RED_A08 }]}>
+                <Feather name="trash-2" size={18} color={RED} />
               </View>
-              <Text style={[styles.menuText, { color: "#EF4444" }]}>Delete Account</Text>
-              <Feather name="chevron-right" size={16} color="#D0D0D0" />
+              <Text style={[styles.menuText, { color: RED }]}>Delete Account</Text>
+              <Feather name="chevron-right" size={16} color={GRAY_250} />
             </Pressable>
           </View>
         </View>
@@ -133,7 +134,7 @@ export default function PrivacySecurityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
   },
   header: {
     flexDirection: "row",
@@ -141,15 +142,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F2",
+    borderBottomColor: GRAY_125,
   },
   backBtn: {
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   menuGroup: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 12,
     overflow: "hidden",
   },
@@ -211,7 +212,7 @@ const styles = StyleSheet.create({
   },
   menuDivider: {
     height: 1,
-    backgroundColor: "#F0F0F2",
+    backgroundColor: GRAY_125,
     marginLeft: 60,
   },
   footerNote: {

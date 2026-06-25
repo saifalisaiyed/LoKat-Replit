@@ -15,6 +15,7 @@ import { useApp } from "@/lib/store";
 import { apiRequest } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import type { PhotoRequest } from "@/lib/types";
+import { EMERALD, EMERALD_A08, GRAY_105, GRAY_125, GRAY_290, PURPLE_A08, WHITE } from "@/constants/colors.js";
 
 const CATEGORY_LABELS: Record<string, string> = {
   landmarks: "Landmarks",
@@ -66,11 +67,11 @@ export default function TransactionHistoryScreen() {
 
     return (
       <View style={styles.item}>
-        <View style={[styles.itemIcon, { backgroundColor: isEarned ? "rgba(16,185,129,0.08)" : "rgba(124,58,237,0.08)" }]}>
+        <View style={[styles.itemIcon, { backgroundColor: isEarned ? EMERALD_A08 : PURPLE_A08 }]}>
           <Ionicons
             name={isEarned ? "arrow-down-outline" : "arrow-up-outline"}
             size={18}
-            color={isEarned ? "#10B981" : Colors.light.tint}
+            color={isEarned ? EMERALD : Colors.light.tint}
           />
         </View>
         <View style={styles.itemInfo}>
@@ -83,7 +84,7 @@ export default function TransactionHistoryScreen() {
           )}
         </View>
         <View style={styles.itemRight}>
-          <Text style={[styles.itemAmount, { color: isEarned ? "#10B981" : Colors.light.text }]}>
+          <Text style={[styles.itemAmount, { color: isEarned ? EMERALD : Colors.light.text }]}>
             {isEarned ? "+" : "-"}${item.reward.toFixed(2)}
           </Text>
           <Text style={styles.itemType}>{isEarned ? "Earned" : "Paid"}</Text>
@@ -105,7 +106,7 @@ export default function TransactionHistoryScreen() {
       {!loading && requests.length > 0 && (
         <View style={styles.summaryRow}>
           <View style={styles.summaryItem}>
-            <Text style={[styles.summaryAmount, { color: "#10B981" }]}>+${totalEarned.toFixed(2)}</Text>
+            <Text style={[styles.summaryAmount, { color: EMERALD }]}>+${totalEarned.toFixed(2)}</Text>
             <Text style={styles.summaryLabel}>Total Earned</Text>
           </View>
           <View style={styles.summaryDivider} />
@@ -122,7 +123,7 @@ export default function TransactionHistoryScreen() {
         </View>
       ) : requests.length === 0 ? (
         <View style={styles.center}>
-          <Ionicons name="receipt-outline" size={48} color="#C8C8D0" />
+          <Ionicons name="receipt-outline" size={48} color={GRAY_290} />
           <Text style={styles.emptyTitle}>No transactions yet</Text>
           <Text style={styles.emptyText}>Completed requests will appear here</Text>
         </View>
@@ -146,7 +147,7 @@ export default function TransactionHistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
   },
   header: {
     flexDirection: "row",
@@ -154,15 +155,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F2",
+    borderBottomColor: GRAY_125,
   },
   backBtn: {
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
   },
   summaryRow: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     marginTop: 12,
     marginHorizontal: 20,
     borderRadius: 12,
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
   },
   summaryDivider: {
     width: 1,
-    backgroundColor: "#F0F0F2",
+    backgroundColor: GRAY_125,
   },
   summaryAmount: {
     fontSize: 20,
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 12,
     padding: 14,
     gap: 12,

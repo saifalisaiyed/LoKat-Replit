@@ -6,6 +6,7 @@ import { Platform, StyleSheet, useColorScheme, View } from "react-native";
 import React from "react";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
+import { BLACK, WHITE } from "@/constants/colors.js";
 
 function NativeTabLayout() {
   return (
@@ -42,12 +43,12 @@ function ClassicTabLayout() {
         tabBarShowLabel: false,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: "#fff",
+          backgroundColor: WHITE,
           borderTopWidth: 0,
           borderTopLeftRadius: 7,
           borderTopRightRadius: 7,
           elevation: 8,
-          shadowColor: "#000",
+          shadowColor: BLACK,
           shadowOffset: { width: 0, height: -3 },
           shadowOpacity: 0.08,
           shadowRadius: 10,
@@ -59,7 +60,7 @@ function ClassicTabLayout() {
             style={[
               StyleSheet.absoluteFill,
               {
-                backgroundColor: "#fff",
+                backgroundColor: WHITE,
                 borderTopLeftRadius: 7,
                 borderTopRightRadius: 7,
               },
@@ -77,7 +78,7 @@ function ClassicTabLayout() {
               <Ionicons
                 name={focused ? "map" : "map-outline"}
                 size={22}
-                color={focused ? "#fff" : color}
+                color={focused ? WHITE : color}
               />
             </View>
           ),
@@ -92,7 +93,7 @@ function ClassicTabLayout() {
               <Ionicons
                 name={focused ? "images" : "images-outline"}
                 size={22}
-                color={focused ? "#fff" : color}
+                color={focused ? WHITE : color}
               />
             </View>
           ),
@@ -113,7 +114,7 @@ function ClassicTabLayout() {
               <Ionicons
                 name={focused ? "person" : "person-outline"}
                 size={22}
-                color={focused ? "#fff" : color}
+                color={focused ? WHITE : color}
               />
             </View>
           ),
@@ -145,7 +146,7 @@ const tabStyles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: Colors.light.danger,
     borderWidth: 1.5,
-    borderColor: "#fff",
+    borderColor: WHITE,
   },
 });
 

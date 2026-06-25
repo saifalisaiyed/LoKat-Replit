@@ -2,6 +2,7 @@ import React, { useRef, useEffect, forwardRef, useImperativeHandle } from "react
 import { StyleSheet, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import Colors from "@/constants/colors";
+import { BLACK, GOOGLE_BLUE, WHITE, WHITE_A60 } from "@/constants/colors.js";
 
 export interface NavigationMapHandle {
   recenter: () => void;
@@ -86,12 +87,12 @@ const NavigationMap = forwardRef<NavigationMapHandle, NavigationMapProps>(
           <>
             <Polyline
               coordinates={routePolyline}
-              strokeColor="rgba(255,255,255,0.6)"
+              strokeColor={WHITE_A60}
               strokeWidth={10}
             />
             <Polyline
               coordinates={routePolyline}
-              strokeColor="#4285F4"
+              strokeColor={GOOGLE_BLUE}
               strokeWidth={6}
             />
           </>
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.tint,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -127,6 +128,6 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
   },
 });

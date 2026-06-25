@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
+import { GRAY_180 } from "@/constants/colors.js";
 
 interface MiniMapProps {
   latitude: number;
@@ -64,6 +65,6 @@ const styles = StyleSheet.create({
     height: 130,
     borderRadius: 10,
     overflow: "hidden",
-    backgroundColor: "#e5e5e5",
+    backgroundColor: GRAY_180,
   },
 });

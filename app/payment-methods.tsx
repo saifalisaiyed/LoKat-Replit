@@ -15,6 +15,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
+import { BLACK, BLACK_A45, EMERALD, EMERALD_A10, GRAY_100, GRAY_105, GRAY_125, GRAY_250, ORANGE, PURPLE_A08, WHITE } from "@/constants/colors.js";
 
 export default function PaymentMethodsScreen() {
   const insets = useSafeAreaInsets();
@@ -70,7 +71,7 @@ export default function PaymentMethodsScreen() {
             onPress={handleWithdraw}
             disabled={profile.earnings <= 0}
           >
-            <Feather name="download" size={16} color="#fff" />
+            <Feather name="download" size={16} color={WHITE} />
             <Text style={styles.withdrawBtnText}>Withdraw Funds</Text>
           </Pressable>
         </View>
@@ -79,10 +80,10 @@ export default function PaymentMethodsScreen() {
           <Text style={styles.sectionLabel}>How Payouts Work</Text>
           <View style={styles.infoCard}>
             {[
-              { icon: "check-circle", color: "#10B981", text: "Earnings are credited instantly when a request is completed" },
-              { icon: "clock", color: "#F97316", text: "Withdrawal requests are processed within 2–3 business days" },
+              { icon: "check-circle", color: EMERALD, text: "Earnings are credited instantly when a request is completed" },
+              { icon: "clock", color: ORANGE, text: "Withdrawal requests are processed within 2–3 business days" },
               { icon: "shield", color: Colors.light.tint, text: "Payments are secured and processed via Stripe" },
-              { icon: "dollar-sign", color: "#10B981", text: "No fees for withdrawals over $10" },
+              { icon: "dollar-sign", color: EMERALD, text: "No fees for withdrawals over $10" },
             ].map((item, index) => (
               <View key={index} style={[styles.infoRow, index > 0 && styles.infoRowBorder]}>
                 <Feather name={item.icon as any} size={16} color={item.color} />
@@ -95,17 +96,17 @@ export default function PaymentMethodsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Transaction History</Text>
           <Pressable
-            style={({ pressed }) => [styles.historyLink, pressed && { backgroundColor: "#F8F8FA" }]}
+            style={({ pressed }) => [styles.historyLink, pressed && { backgroundColor: GRAY_100 }]}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               router.push("/transaction-history");
             }}
           >
-            <View style={[styles.iconWrap, { backgroundColor: "rgba(124,58,237,0.08)" }]}>
+            <View style={[styles.iconWrap, { backgroundColor: PURPLE_A08 }]}>
               <Feather name="clock" size={18} color={Colors.light.tint} />
             </View>
             <Text style={styles.historyText}>View All Transactions</Text>
-            <Feather name="chevron-right" size={16} color="#D0D0D0" />
+            <Feather name="chevron-right" size={16} color={GRAY_250} />
           </Pressable>
         </View>
       </View>
@@ -121,7 +122,7 @@ export default function PaymentMethodsScreen() {
             {withdrawn ? (
               <>
                 <View style={styles.successIcon}>
-                  <Feather name="check" size={28} color="#10B981" />
+                  <Feather name="check" size={28} color={EMERALD} />
                 </View>
                 <Text style={styles.modalTitle}>Request Submitted!</Text>
                 <Text style={styles.modalBody}>
@@ -161,7 +162,7 @@ export default function PaymentMethodsScreen() {
                     disabled={withdrawing}
                   >
                     {withdrawing ? (
-                      <ActivityIndicator size="small" color="#fff" />
+                      <ActivityIndicator size="small" color={WHITE} />
                     ) : (
                       <Text style={styles.modalConfirmText}>Confirm</Text>
                     )}
@@ -177,31 +178,31 @@ export default function PaymentMethodsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5F7" },
+  container: { flex: 1, backgroundColor: GRAY_105 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F2",
+    borderBottomColor: GRAY_125,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 12,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center", justifyContent: "center",
   },
   title: { fontSize: 17, fontFamily: "Archivo_600SemiBold", color: Colors.light.text },
   content: { flex: 1 },
   balanceCard: {
     margin: 20,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 16,
     padding: 20,
     gap: 16,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
   balanceTop: { flexDirection: "row", alignItems: "center", gap: 14 },
   walletIconWrap: {
     width: 48, height: 48, borderRadius: 14,
-    backgroundColor: "rgba(124,58,237,0.08)",
+    backgroundColor: PURPLE_A08,
     alignItems: "center", justifyContent: "center",
   },
   balanceLabel: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     borderRadius: 12, paddingVertical: 14,
   },
   withdrawBtnDisabled: { opacity: 0.45 },
-  withdrawBtnText: { color: "#fff", fontSize: 15, fontFamily: "Archivo_600SemiBold" },
+  withdrawBtnText: { color: WHITE, fontSize: 15, fontFamily: "Archivo_600SemiBold" },
   section: { paddingHorizontal: 20, marginBottom: 20 },
   sectionLabel: {
     fontSize: 12, color: Colors.light.textSecondary,
@@ -229,19 +230,19 @@ const styles = StyleSheet.create({
     textTransform: "uppercase", letterSpacing: 0.6,
     marginBottom: 10, marginLeft: 4,
   },
-  infoCard: { backgroundColor: "#fff", borderRadius: 12, overflow: "hidden" },
+  infoCard: { backgroundColor: WHITE, borderRadius: 12, overflow: "hidden" },
   infoRow: {
     flexDirection: "row", alignItems: "flex-start",
     gap: 12, paddingVertical: 12, paddingHorizontal: 14,
   },
-  infoRowBorder: { borderTopWidth: 1, borderTopColor: "#F0F0F2" },
+  infoRowBorder: { borderTopWidth: 1, borderTopColor: GRAY_125 },
   infoText: {
     flex: 1, fontSize: 13, color: Colors.light.text,
     fontFamily: "Archivo_400Regular", lineHeight: 18,
   },
   historyLink: {
     flexDirection: "row", alignItems: "center",
-    backgroundColor: "#fff", borderRadius: 12,
+    backgroundColor: WHITE, borderRadius: 12,
     paddingVertical: 14, paddingHorizontal: 14, gap: 12,
   },
   iconWrap: {
@@ -250,16 +251,16 @@ const styles = StyleSheet.create({
   },
   historyText: { flex: 1, fontSize: 15, fontFamily: "Archivo_400Regular", color: Colors.light.text },
   modalOverlay: {
-    flex: 1, backgroundColor: "rgba(0,0,0,0.45)",
+    flex: 1, backgroundColor: BLACK_A45,
     alignItems: "center", justifyContent: "center", padding: 24,
   },
   modalCard: {
-    backgroundColor: "#fff", borderRadius: 20,
+    backgroundColor: WHITE, borderRadius: 20,
     padding: 24, width: "100%", maxWidth: 360, alignItems: "center", gap: 8,
   },
   successIcon: {
     width: 60, height: 60, borderRadius: 30,
-    backgroundColor: "rgba(16,185,129,0.1)",
+    backgroundColor: EMERALD_A10,
     alignItems: "center", justifyContent: "center", marginBottom: 8,
   },
   modalTitle: { fontSize: 18, fontFamily: "Archivo_700Bold", color: Colors.light.text, marginBottom: 4 },
@@ -272,17 +273,17 @@ const styles = StyleSheet.create({
   modalActions: { flexDirection: "row", gap: 12, marginTop: 8, width: "100%" },
   modalCancelBtn: {
     flex: 1, paddingVertical: 14, borderRadius: 12,
-    backgroundColor: "#F5F5F7", alignItems: "center",
+    backgroundColor: GRAY_105, alignItems: "center",
   },
   modalCancelText: { fontSize: 15, fontFamily: "Archivo_500Medium", color: Colors.light.textSecondary },
   modalConfirmBtn: {
     flex: 1, paddingVertical: 14, borderRadius: 12,
     backgroundColor: Colors.light.tint, alignItems: "center",
   },
-  modalConfirmText: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: "#fff" },
+  modalConfirmText: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: WHITE },
   modalDoneBtn: {
     marginTop: 8, paddingVertical: 14, paddingHorizontal: 32,
     borderRadius: 12, backgroundColor: Colors.light.tint, alignItems: "center",
   },
-  modalDoneText: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: "#fff" },
+  modalDoneText: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: WHITE },
 });

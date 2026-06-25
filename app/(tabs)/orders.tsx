@@ -15,6 +15,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { CATEGORIES, type Category, type RequestStatus } from "@/lib/types";
+import { AMBER, AMBER_A10, BLACK_A04, BLUE, BLUE_A10, EMERALD, EMERALD_A10, GRAY_105, GRAY_175, ORANGE, ORANGE_A08, PURPLE_A08, PURPLE_A10, WHITE } from "@/constants/colors.js";
 
 type Tab = "active" | "history";
 type ActiveFilter = "all" | "requested";
@@ -23,26 +24,26 @@ type HistoryFilter = "all" | "requested" | "fulfilled";
 function getStatusConfig(status: RequestStatus) {
   switch (status) {
     case "open":
-      return { color: Colors.light.tint, bg: "rgba(124,58,237,0.10)", label: "Waiting", icon: "radio-button-on" };
+      return { color: Colors.light.tint, bg: PURPLE_A10, label: "Waiting", icon: "radio-button-on" };
     case "accepted":
-      return { color: "#F59E0B", bg: "rgba(245,158,11,0.10)", label: "In Progress", icon: "time-outline" };
+      return { color: AMBER, bg: AMBER_A10, label: "In Progress", icon: "time-outline" };
     case "submitted":
-      return { color: "#3B82F6", bg: "rgba(59,130,246,0.10)", label: "Photo Sent", icon: "cloud-upload-outline" };
+      return { color: BLUE, bg: BLUE_A10, label: "Photo Sent", icon: "cloud-upload-outline" };
     case "completed":
-      return { color: "#10B981", bg: "rgba(16,185,129,0.10)", label: "Completed", icon: "checkmark-circle" };
+      return { color: EMERALD, bg: EMERALD_A10, label: "Completed", icon: "checkmark-circle" };
     default:
-      return { color: Colors.light.textSecondary, bg: "#F5F5F7", label: status, icon: "ellipse" };
+      return { color: Colors.light.textSecondary, bg: GRAY_105, label: status, icon: "ellipse" };
   }
 }
 
 function getRoleConfig(isRequested: boolean, isActive: boolean) {
   if (isRequested) {
-    return { label: "Requested", color: Colors.light.tint, bg: "rgba(124,58,237,0.08)", icon: "arrow-up-outline" };
+    return { label: "Requested", color: Colors.light.tint, bg: PURPLE_A08, icon: "arrow-up-outline" };
   }
   return {
     label: isActive ? "Fulfilling" : "Fulfilled",
-    color: "#F97316",
-    bg: "rgba(249,115,22,0.08)",
+    color: ORANGE,
+    bg: ORANGE_A08,
     icon: isActive ? "walk-outline" : "checkmark-done-outline",
   };
 }
@@ -314,7 +315,7 @@ export default function OrdersScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.light.background },
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     paddingHorizontal: 20,
     paddingBottom: 0,
     borderBottomWidth: 1,
@@ -355,11 +356,11 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: {
     fontSize: 11,
-    color: "#fff",
+    color: WHITE,
     fontFamily: "Archivo_600SemiBold",
   },
   filterBar: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
   },
@@ -376,12 +377,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     borderWidth: 1.5,
     borderColor: "transparent",
   },
   filterChipActive: {
-    backgroundColor: "rgba(124,58,237,0.08)",
+    backgroundColor: PURPLE_A08,
     borderColor: Colors.light.tint,
   },
   filterChipText: {
@@ -394,7 +395,7 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_600SemiBold",
   },
   filterChipCount: {
-    backgroundColor: "#E5E5EA",
+    backgroundColor: GRAY_175,
     borderRadius: 8,
     paddingHorizontal: 5,
     paddingVertical: 1,
@@ -410,16 +411,16 @@ const styles = StyleSheet.create({
     fontFamily: "Archivo_600SemiBold",
   },
   filterChipCountTextActive: {
-    color: "#fff",
+    color: WHITE,
   },
   orderCard: {
     marginHorizontal: 16,
     marginBottom: 10,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.04)",
+    borderColor: BLACK_A04,
   },
   orderTop: {
     flexDirection: "row",
@@ -458,7 +459,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.04)",
+    borderTopColor: BLACK_A04,
   },
   orderMeta: {
     flexDirection: "row",

@@ -14,6 +14,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
+import { BLACK, EMERALD, EMERALD_50, GRAY_105, GRAY_125, INDIGO_50, WHITE } from "@/constants/colors.js";
 
 export default function ReceiptScreen() {
   const insets = useSafeAreaInsets();
@@ -74,7 +75,7 @@ export default function ReceiptScreen() {
         <View style={styles.successSection}>
           <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             <View style={styles.checkCircle}>
-              <Ionicons name="checkmark" size={44} color="#fff" />
+              <Ionicons name="checkmark" size={44} color={WHITE} />
             </View>
           </Animated.View>
           <Text style={styles.successTitle}>Photo Delivered!</Text>
@@ -186,7 +187,7 @@ export default function ReceiptScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
   },
   scroll: {
     paddingHorizontal: 20,
@@ -226,10 +227,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   receiptCard: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 16,
     padding: 20,
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    backgroundColor: "#ECFDF5",
+    backgroundColor: EMERALD_50,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 20,
@@ -261,11 +262,11 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#10B981",
+    backgroundColor: EMERALD,
   },
   receiptBadgeText: {
     fontSize: 12,
-    color: "#10B981",
+    color: EMERALD,
     fontFamily: "Archivo_600SemiBold",
   },
   amountRow: {
@@ -286,7 +287,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: "#F0F0F2",
+    backgroundColor: GRAY_125,
   },
   receiptRow: {
     flexDirection: "row",
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 10,
-    backgroundColor: "#EEF2FF",
+    backgroundColor: INDIGO_50,
     borderRadius: 12,
     padding: 14,
   },
@@ -358,7 +359,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: Colors.light.tint,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
   },
   viewOrdersBtnText: {
     fontSize: 15,
@@ -377,7 +378,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   doneBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
   },

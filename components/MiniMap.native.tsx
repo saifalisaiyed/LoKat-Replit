@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { GRAY_180, PURPLE } from "@/constants/colors.js";
 
 interface MiniMapProps {
   latitude: number;
@@ -25,7 +26,7 @@ export default function MiniMap({ latitude, longitude, style }: MiniMapProps) {
         showsPointsOfInterest={false}
         pointerEvents="none"
       >
-        <Marker coordinate={{ latitude, longitude }} pinColor="#7C3AED" />
+        <Marker coordinate={{ latitude, longitude }} pinColor={PURPLE} />
       </MapView>
     </View>
   );
@@ -36,6 +37,6 @@ const styles = StyleSheet.create({
     height: 130,
     borderRadius: 10,
     overflow: "hidden",
-    backgroundColor: "#e5e5e5",
+    backgroundColor: GRAY_180,
   },
 });

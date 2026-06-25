@@ -16,6 +16,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import AuthPromptModal from "@/components/AuthPromptModal";
+import { GRAY_100, GRAY_105, GRAY_125, GRAY_145, GRAY_150, GRAY_250, PURPLE_A06, PURPLE_A08, PURPLE_A19, RED, RED_100, WHITE } from "@/constants/colors.js";
 
 function formatMemberSince(iso?: string) {
   if (!iso) return null;
@@ -152,7 +153,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.earningsActions}>
             <Pressable
-              style={({ pressed }) => [styles.earningsActionBtn, pressed && { backgroundColor: "#F8F8FA" }]}
+              style={({ pressed }) => [styles.earningsActionBtn, pressed && { backgroundColor: GRAY_100 }]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push("/payment-methods");
@@ -163,7 +164,7 @@ export default function ProfileScreen() {
             </Pressable>
             <View style={styles.earningsActionDivider} />
             <Pressable
-              style={({ pressed }) => [styles.earningsActionBtn, pressed && { backgroundColor: "#F8F8FA" }]}
+              style={({ pressed }) => [styles.earningsActionBtn, pressed && { backgroundColor: GRAY_100 }]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push("/transaction-history");
@@ -235,25 +236,25 @@ export default function ProfileScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.menuItem,
-                pressed && { backgroundColor: "#F8F8FA" },
+                pressed && { backgroundColor: GRAY_100 },
               ]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push("/admin");
               }}
             >
-              <View style={[styles.menuIconWrap, { backgroundColor: "rgba(124, 58, 237, 0.08)" }]}>
+              <View style={[styles.menuIconWrap, { backgroundColor: PURPLE_A08 }]}>
                 <Feather name="shield" size={18} color={Colors.light.tint} />
               </View>
               <Text style={styles.menuItemText}>Admin Panel</Text>
-              <Feather name="chevron-right" size={16} color="#D0D0D0" />
+              <Feather name="chevron-right" size={16} color={GRAY_250} />
             </Pressable>
           </View>
         </View>
       )}
 
       <Pressable style={styles.logoutBtn} onPress={handleLogout}>
-        <Feather name="log-out" size={16} color="#EF4444" />
+        <Feather name="log-out" size={16} color={RED} />
         <Text style={styles.logoutText}>Sign Out</Text>
       </Pressable>
     </ScrollView>
@@ -273,7 +274,7 @@ function MenuItem({
     <Pressable
       style={({ pressed }) => [
         styles.menuItem,
-        pressed && { backgroundColor: "#F8F8FA" },
+        pressed && { backgroundColor: GRAY_100 },
       ]}
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -284,7 +285,7 @@ function MenuItem({
         <Feather name={icon as any} size={18} color={Colors.light.textSecondary} />
       </View>
       <Text style={styles.menuItemText}>{label}</Text>
-      <Feather name="chevron-right" size={16} color="#D0D0D0" />
+      <Feather name="chevron-right" size={16} color={GRAY_250} />
     </Pressable>
   );
 }
@@ -292,7 +293,7 @@ function MenuItem({
 const styles = StyleSheet.create({
   guestContainer: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
   },
   guestContent: {
     flex: 1,
@@ -305,7 +306,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: "#ECECEE",
+    backgroundColor: GRAY_145,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -336,18 +337,18 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   guestSignInText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 15,
     fontFamily: "Archivo_600SemiBold",
   },
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
   },
   header: {
     paddingHorizontal: 20,
     paddingBottom: 24,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
   },
   headerTop: {
     flexDirection: "row",
@@ -364,7 +365,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 20,
-    color: "#fff",
+    color: WHITE,
     fontFamily: "Archivo_700Bold",
   },
   profileInfo: {
@@ -412,13 +413,13 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(124, 58, 237, 0.19)",
+    borderColor: PURPLE_A19,
     alignItems: "center",
     justifyContent: "center",
   },
   statsRow: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     marginTop: 1,
     paddingVertical: 18,
     paddingHorizontal: 20,
@@ -441,7 +442,7 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     height: 32,
-    backgroundColor: "#EBEBEB",
+    backgroundColor: GRAY_150,
     alignSelf: "center",
   },
   section: {
@@ -458,7 +459,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   earningsCard: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 12,
     overflow: "hidden",
   },
@@ -472,7 +473,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: "rgba(124, 58, 237, 0.06)",
+    backgroundColor: PURPLE_A06,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -498,7 +499,7 @@ const styles = StyleSheet.create({
   earningsActions: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F2",
+    borderTopColor: GRAY_125,
   },
   earningsActionBtn: {
     flex: 1,
@@ -515,10 +516,10 @@ const styles = StyleSheet.create({
   },
   earningsActionDivider: {
     width: 1,
-    backgroundColor: "#F0F0F2",
+    backgroundColor: GRAY_125,
   },
   menuGroup: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderRadius: 10,
     overflow: "hidden",
   },
@@ -533,7 +534,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: GRAY_105,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -545,7 +546,7 @@ const styles = StyleSheet.create({
   },
   menuDivider: {
     height: 1,
-    backgroundColor: "#F0F0F2",
+    backgroundColor: GRAY_125,
     marginLeft: 58,
   },
   logoutBtn: {
@@ -557,13 +558,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 10,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderWidth: 1,
-    borderColor: "#FEE2E2",
+    borderColor: RED_100,
   },
   logoutText: {
     fontSize: 14,
-    color: "#EF4444",
+    color: RED,
     fontFamily: "Archivo_500Medium",
   },
 });

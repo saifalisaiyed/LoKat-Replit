@@ -20,6 +20,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import Colors from "@/constants/colors";
+import { BLACK, BLACK_A50, GRAY_100, GRAY_200, WHITE } from "@/constants/colors.js";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -130,7 +131,7 @@ export default function AuthPromptModal({
           <View style={styles.handle} />
 
           <View style={styles.iconCircle}>
-            <Ionicons name={config.icon as any} size={28} color="#fff" />
+            <Ionicons name={config.icon as any} size={28} color={WHITE} />
           </View>
 
           <Text style={styles.title}>{config.title}</Text>
@@ -155,7 +156,7 @@ export default function AuthPromptModal({
             onPress={handleSignUp}
           >
             <Text style={styles.signUpBtnText}>Create Free Account</Text>
-            <Ionicons name="arrow-forward" size={18} color="#fff" />
+            <Ionicons name="arrow-forward" size={18} color={WHITE} />
           </Pressable>
 
           <Pressable
@@ -186,10 +187,10 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: BLACK_A50,
   },
   sheet: {
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 24,
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: GRAY_200,
     marginBottom: 24,
   },
   iconCircle: {
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
   },
   featuresContainer: {
     width: "100%",
-    backgroundColor: "#F8F8FA",
+    backgroundColor: GRAY_100,
     borderRadius: 12,
     padding: 16,
     gap: 14,
@@ -253,10 +254,10 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: "#fff",
+    backgroundColor: WHITE,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: BLACK,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 3,
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   signUpBtnText: {
-    color: "#fff",
+    color: WHITE,
     fontSize: 16,
     fontFamily: "Archivo_600SemiBold",
   },

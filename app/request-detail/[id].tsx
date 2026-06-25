@@ -25,19 +25,20 @@ import Colors from "@/constants/colors";
 import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 import AuthPromptModal from "@/components/AuthPromptModal";
+import { BLACK_A03, BLACK_A04, BLACK_A40, BLUE, GOLD, GRASS_A06, GRASS_A07, GRASS_A10, GRASS_A12, GRASS_A25, GRAY_170, GREEN_500, ORANGE, PINK, PURPLE_A06, PURPLE_A07, PURPLE_A08, PURPLE_A12, PURPLE_A18, PURPLE_A20, PURPLE_LIGHT, RED, RED_100, SKY_100, SKY_A08, TEAL, WHITE, WHITE_A90 } from "@/constants/colors.js";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;
 
 const CATEGORY_COLORS: Record<string, string> = {
-  landmarks: "#D4A017",
-  nature: "#22C55E",
-  markets: "#EC4899",
-  beaches: "#F97316",
-  cityscapes: "#3B82F6",
-  food: "#EF4444",
-  "hidden-gems": "#8B5CF6",
-  events: "#14B8A6",
+  landmarks: GOLD,
+  nature: GREEN_500,
+  markets: PINK,
+  beaches: ORANGE,
+  cityscapes: BLUE,
+  food: RED,
+  "hidden-gems": PURPLE_LIGHT,
+  events: TEAL,
 };
 
 function getCatColor(key: string): string {
@@ -269,8 +270,8 @@ export default function RequestDetailScreen() {
               ) : null}
               {request.facingDirection ? (
                 <View style={styles.specificSpotRow}>
-                  <Ionicons name="compass-outline" size={13} color="#F97316" />
-                  <Text style={[styles.specificSpotText, { color: "#F97316" }]}>
+                  <Ionicons name="compass-outline" size={13} color={ORANGE} />
+                  <Text style={[styles.specificSpotText, { color: ORANGE }]}>
                     Facing {FACING_FULL[request.facingDirection] ?? request.facingDirection}
                   </Text>
                 </View>
@@ -312,7 +313,7 @@ export default function RequestDetailScreen() {
           {/* Submitted status card — shown to seeker when photo has been sent */}
           {isMyRequest && request.status === "submitted" && (
             <View style={[styles.acceptedCard, styles.submittedCard]}>
-              <View style={[styles.acceptedIconWrap, { backgroundColor: "rgba(123,192,67,0.12)" }]}>
+              <View style={[styles.acceptedIconWrap, { backgroundColor: GRASS_A12 }]}>
                 <Ionicons name="checkmark-circle" size={22} color={Colors.light.accent} />
               </View>
               <View style={styles.acceptedInfo}>
@@ -396,7 +397,7 @@ export default function RequestDetailScreen() {
                       }}
                     >
                       {isSavingNote
-                        ? <ActivityIndicator size="small" color="#fff" />
+                        ? <ActivityIndicator size="small" color={WHITE} />
                         : <Text style={styles.noteSaveText}>Save</Text>
                       }
                     </Pressable>
@@ -446,9 +447,9 @@ export default function RequestDetailScreen() {
             disabled={isAccepting}
           >
             {isAccepting ? (
-              <ActivityIndicator size="small" color="#fff" />
+              <ActivityIndicator size="small" color={WHITE} />
             ) : (
-              <Feather name="check" size={20} color="#fff" />
+              <Feather name="check" size={20} color={WHITE} />
             )}
             <Text style={styles.acceptBtnText}>{isAccepting ? "Accepting..." : "Accept"}</Text>
           </Pressable>
@@ -467,7 +468,7 @@ export default function RequestDetailScreen() {
             style={({ pressed }) => [styles.acceptBtn, { flex: 1 }, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={handleNavigate}
           >
-            <Ionicons name="navigate" size={20} color="#fff" />
+            <Ionicons name="navigate" size={20} color={WHITE} />
             <Text style={styles.acceptBtnText}>Enter LoKater Mode</Text>
           </Pressable>
         </View>
@@ -479,7 +480,7 @@ export default function RequestDetailScreen() {
             style={({ pressed }) => [styles.chatFullBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={() => router.push({ pathname: "/chat/[id]", params: { id: request.id } })}
           >
-            <Ionicons name="chatbubble-ellipses" size={20} color="#fff" />
+            <Ionicons name="chatbubble-ellipses" size={20} color={WHITE} />
             <Text style={styles.chatFullBtnText}>Message LoKater</Text>
           </Pressable>
         </View>
@@ -517,11 +518,11 @@ export default function RequestDetailScreen() {
             <View style={styles.menuHandle} />
             <Text style={styles.menuTitle}>Options</Text>
             <Pressable
-              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: "#FEE2E2" }]}
+              style={({ pressed }) => [styles.menuItem, pressed && { backgroundColor: RED_100 }]}
               onPress={handleAbandon}
             >
               <View style={styles.menuItemIcon}>
-                <Ionicons name="close-circle-outline" size={20} color="#EF4444" />
+                <Ionicons name="close-circle-outline" size={20} color={RED} />
               </View>
               <View style={styles.menuItemInfo}>
                 <Text style={styles.menuItemText}>Abandon Request</Text>
@@ -552,14 +553,14 @@ const styles = StyleSheet.create({
   centered: { alignItems: "center", justifyContent: "center" },
   notFoundText: { fontSize: 16, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
   backLink: { fontSize: 15, color: Colors.light.tint, marginTop: 12, fontFamily: "Archivo_500Medium" },
-  mapSection: { backgroundColor: "#D6EEF7", overflow: "hidden", borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
+  mapSection: { backgroundColor: SKY_100, overflow: "hidden", borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   backBtn: {
     position: "absolute", left: 16, width: 42, height: 42, borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.9)", alignItems: "center", justifyContent: "center",
+    backgroundColor: WHITE_A90, alignItems: "center", justifyContent: "center",
   },
   deleteBtn: {
     position: "absolute", right: 16, width: 42, height: 42, borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.9)", alignItems: "center", justifyContent: "center",
+    backgroundColor: WHITE_A90, alignItems: "center", justifyContent: "center",
   },
   detailsScroll: { flex: 1 },
   detailsContent: { padding: 16, gap: 16 },
@@ -570,31 +571,31 @@ const styles = StyleSheet.create({
   specificSpotRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
   specificSpotText: { fontSize: 12, color: Colors.light.tint, fontFamily: "Archivo_500Medium", flex: 1 },
   rewardBadge: { backgroundColor: Colors.light.accent, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
-  rewardText: { fontSize: 18, color: "#fff", fontFamily: "Archivo_600SemiBold" },
+  rewardText: { fontSize: 18, color: WHITE, fontFamily: "Archivo_600SemiBold" },
   chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   categoryPill: {
     flexDirection: "row", alignItems: "center", gap: 7,
     paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, borderWidth: 1,
   },
   categoryPillText: { fontSize: 13, fontFamily: "Archivo_500Medium" },
-  chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#fff", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: "#E5E7EB" },
+  chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: WHITE, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: GRAY_170 },
   chipText: { fontSize: 13, color: Colors.light.tint, fontFamily: "Archivo_500Medium" },
   chipTextMuted: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
-  detailsCard: { backgroundColor: "#fff", borderRadius: 12, padding: 4, borderWidth: 1, borderColor: "rgba(0,0,0,0.03)" },
+  detailsCard: { backgroundColor: WHITE, borderRadius: 12, padding: 4, borderWidth: 1, borderColor: BLACK_A03 },
   detailRow: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14 },
-  detailIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: "rgba(0,174,239,0.08)", alignItems: "center", justifyContent: "center" },
+  detailIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: SKY_A08, alignItems: "center", justifyContent: "center" },
   detailInfo: { flex: 1 },
   detailLabel: { fontSize: 12, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
   detailValue: { fontSize: 15, color: Colors.light.text, marginTop: 1, fontFamily: "Archivo_500Medium" },
-  detailDivider: { height: 1, backgroundColor: "rgba(0,0,0,0.04)", marginHorizontal: 14 },
-  instructionsCard: { backgroundColor: "rgba(123,192,67,0.06)", borderRadius: 12, padding: 16, borderLeftWidth: 3, borderLeftColor: Colors.light.accent, gap: 10 },
+  detailDivider: { height: 1, backgroundColor: BLACK_A04, marginHorizontal: 14 },
+  instructionsCard: { backgroundColor: GRASS_A06, borderRadius: 12, padding: 16, borderLeftWidth: 3, borderLeftColor: Colors.light.accent, gap: 10 },
   instructionsHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   instructionsTitle: { fontSize: 14, color: Colors.light.text, fontFamily: "Archivo_600SemiBold" },
   instructionsText: { fontSize: 14, color: Colors.light.text, lineHeight: 20, fontFamily: "Archivo_400Regular" },
-  editNoteBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: "rgba(124,58,237,0.08)", borderRadius: 8, borderWidth: 1, borderColor: "rgba(124,58,237,0.2)" },
+  editNoteBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: PURPLE_A08, borderRadius: 8, borderWidth: 1, borderColor: PURPLE_A20 },
   editNoteBtnText: { fontSize: 13, color: Colors.light.tint, fontFamily: "Archivo_500Medium" },
   noteInput: {
-    backgroundColor: "#fff", borderRadius: 10, borderWidth: 1.5, borderColor: Colors.light.tint,
+    backgroundColor: WHITE, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.light.tint,
     padding: 12, fontSize: 14, fontFamily: "Archivo_400Regular", color: Colors.light.text,
     minHeight: 90, textAlignVertical: "top",
   },
@@ -602,14 +603,14 @@ const styles = StyleSheet.create({
   noteCancelBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.light.border, alignItems: "center" },
   noteCancelText: { fontSize: 14, color: Colors.light.textSecondary, fontFamily: "Archivo_500Medium" },
   noteSaveBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: Colors.light.tint, alignItems: "center" },
-  noteSaveText: { fontSize: 14, color: "#fff", fontFamily: "Archivo_600SemiBold" },
+  noteSaveText: { fontSize: 14, color: WHITE, fontFamily: "Archivo_600SemiBold" },
   noteEmptyText: { fontSize: 13, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular", fontStyle: "italic" },
   photoSection: { gap: 8 },
   photoContainer: { borderRadius: 12, overflow: "hidden", backgroundColor: Colors.light.border },
   photo: { width: "100%", height: 300 },
   actionBar: {
     flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingTop: 12,
-    backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: Colors.light.border,
+    backgroundColor: WHITE, borderTopWidth: 1, borderTopColor: Colors.light.border,
   },
   ignoreBtn: {
     flex: 0.4, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6,
@@ -620,29 +621,29 @@ const styles = StyleSheet.create({
     flex: 0.6, backgroundColor: Colors.light.tint, flexDirection: "row", alignItems: "center",
     justifyContent: "center", gap: 8, paddingVertical: 16, borderRadius: 12,
   },
-  acceptBtnText: { color: "#fff", fontSize: 16, fontFamily: "Archivo_600SemiBold" },
+  acceptBtnText: { color: WHITE, fontSize: 16, fontFamily: "Archivo_600SemiBold" },
   completedBanner: {
     flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-    paddingVertical: 14, backgroundColor: "rgba(123,192,67,0.1)", borderRadius: 12,
+    paddingVertical: 14, backgroundColor: GRASS_A10, borderRadius: 12,
   },
   completedText: { fontSize: 15, color: Colors.light.accent, fontFamily: "Archivo_600SemiBold" },
-  menuOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" as const },
+  menuOverlay: { flex: 1, backgroundColor: BLACK_A40, justifyContent: "flex-end" as const },
   menuSheet: {
-    backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    backgroundColor: WHITE, borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingHorizontal: 20, paddingTop: 12, gap: 12,
   },
-  menuHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: "#E5E7EB", alignSelf: "center" as const, marginBottom: 4 },
+  menuHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: GRAY_170, alignSelf: "center" as const, marginBottom: 4 },
   menuTitle: { fontSize: 18, color: Colors.light.text, fontFamily: "Archivo_600SemiBold", marginBottom: 4 },
   menuItem: {
     flexDirection: "row" as const, alignItems: "center" as const, gap: 14,
     paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10,
   },
   menuItemIcon: {
-    width: 40, height: 40, borderRadius: 10, backgroundColor: "#FEE2E2",
+    width: 40, height: 40, borderRadius: 10, backgroundColor: RED_100,
     alignItems: "center" as const, justifyContent: "center" as const,
   },
   menuItemInfo: { flex: 1, gap: 2 },
-  menuItemText: { fontSize: 15, color: "#EF4444", fontFamily: "Archivo_600SemiBold" },
+  menuItemText: { fontSize: 15, color: RED, fontFamily: "Archivo_600SemiBold" },
   menuItemSub: { fontSize: 12, color: Colors.light.textSecondary, fontFamily: "Archivo_400Regular" },
   menuCancelBtn: {
     alignItems: "center" as const, paddingVertical: 16, borderRadius: 10,
@@ -651,28 +652,28 @@ const styles = StyleSheet.create({
   menuCancelText: { fontSize: 15, color: Colors.light.text, fontFamily: "Archivo_500Medium" },
   chatBtn: {
     width: 52, height: 52, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.light.tint,
-    alignItems: "center" as const, justifyContent: "center" as const, backgroundColor: "rgba(124,58,237,0.06)",
+    alignItems: "center" as const, justifyContent: "center" as const, backgroundColor: PURPLE_A06,
   },
   chatFullBtn: {
     flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const,
     gap: 10, paddingVertical: 16, borderRadius: 12, backgroundColor: Colors.light.tint,
   },
-  chatFullBtnText: { fontSize: 16, color: "#fff", fontFamily: "Archivo_600SemiBold" },
+  chatFullBtnText: { fontSize: 16, color: WHITE, fontFamily: "Archivo_600SemiBold" },
   activeBanner: {
     flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const, gap: 8,
-    paddingVertical: 14, backgroundColor: "rgba(124,58,237,0.08)", borderRadius: 12,
+    paddingVertical: 14, backgroundColor: PURPLE_A08, borderRadius: 12,
   },
   activeText: { fontSize: 15, color: Colors.light.tint, fontFamily: "Archivo_600SemiBold" },
   acceptedCard: {
     flexDirection: "row" as const, alignItems: "flex-start" as const, gap: 14,
-    backgroundColor: "rgba(124,58,237,0.07)", borderRadius: 14, padding: 14,
-    borderWidth: 1, borderColor: "rgba(124,58,237,0.18)",
+    backgroundColor: PURPLE_A07, borderRadius: 14, padding: 14,
+    borderWidth: 1, borderColor: PURPLE_A18,
   },
   submittedCard: {
-    backgroundColor: "rgba(123,192,67,0.07)", borderColor: "rgba(123,192,67,0.25)",
+    backgroundColor: GRASS_A07, borderColor: GRASS_A25,
   },
   acceptedIconWrap: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(124,58,237,0.12)",
+    width: 44, height: 44, borderRadius: 22, backgroundColor: PURPLE_A12,
     alignItems: "center" as const, justifyContent: "center" as const, flexShrink: 0,
   },
   acceptedInfo: { flex: 1, gap: 4 },
