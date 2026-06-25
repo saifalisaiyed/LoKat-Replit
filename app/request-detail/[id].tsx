@@ -45,10 +45,10 @@ function getCatColor(key: string): string {
 }
 
 function hexToRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  const red = parseInt(hex.slice(1, 3), 16);
+  const green = parseInt(hex.slice(3, 5), 16);
+  const blue = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
 function getCategoryLabel(key: Category): string {
@@ -95,14 +95,14 @@ export default function RequestDetailScreen() {
       setLoadingFresh(true);
       const url = new URL(`/api/requests/${id}`, getApiUrl());
       fetch(url.toString(), { credentials: "include" })
-        .then((r) => r.ok ? r.json() : null)
+        .then((res) => res.ok ? res.json() : null)
         .then((data) => { if (data) setFreshRequest(data); })
         .catch(() => {})
         .finally(() => setLoadingFresh(false));
     }, [id])
   );
 
-  const request = freshRequest || requests.find((r) => r.id === id);
+  const request = freshRequest || requests.find((req) => req.id === id);
   const userId = user?.id;
   const isMyRequest = request?.creatorId === userId;
   const isActiveLoKater = request?.status === "accepted" && request?.acceptedBy === userId;
@@ -164,9 +164,9 @@ export default function RequestDetailScreen() {
       } else {
         Alert.alert("Could not accept", result.message || "Failed to accept request");
       }
-    } catch (e: any) {
+    } catch (error: any) {
       setIsAccepting(false);
-      console.error("Accept request error:", e);
+      console.error("Accept request error:", error);
       Alert.alert("Error", "Network error. Please try again.");
     }
   };

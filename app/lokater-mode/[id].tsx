@@ -70,13 +70,13 @@ function getBearing(
   lon2: number
 ): number {
   const toRad = (d: number) => (d * Math.PI) / 180;
-  const toDeg = (r: number) => (r * 180) / Math.PI;
+  const toDeg = (radians: number) => (radians * 180) / Math.PI;
   const dLon = toRad(lon2 - lon1);
-  const y = Math.sin(dLon) * Math.cos(toRad(lat2));
-  const x =
+  const bearingY = Math.sin(dLon) * Math.cos(toRad(lat2));
+  const bearingX =
     Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
     Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
-  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+  return (toDeg(Math.atan2(bearingY, bearingX)) + 360) % 360;
 }
 
 function getDirectionLabel(bearing: number): string {
@@ -93,9 +93,9 @@ function getNextRouteWaypoint(
   if (route.length < 2) return null;
   let closestIdx = 0;
   let closestDist = Infinity;
-  for (let i = 0; i < route.length; i++) {
-    const d = haversineDistance(userLat, userLng, route[i].latitude, route[i].longitude);
-    if (d < closestDist) { closestDist = d; closestIdx = i; }
+  for (let routeIndex = 0; routeIndex < route.length; routeIndex++) {
+    const dist = haversineDistance(userLat, userLng, route[routeIndex].latitude, route[routeIndex].longitude);
+    if (dist < closestDist) { closestDist = dist; closestIdx = routeIndex; }
   }
   const lookAhead = Math.min(closestIdx + 5, route.length - 1);
   return route[lookAhead];
@@ -209,13 +209,13 @@ export default function LoKaterModeScreen() {
       if (!id) return;
       const url = new URL(`/api/requests/${id}`, getApiUrl());
       fetch(url.toString(), { credentials: "include" })
-        .then((r) => r.ok ? r.json() : null)
+        .then((res) => res.ok ? res.json() : null)
         .then((data) => { if (data) setFreshRequest(data); })
         .catch(() => {});
     }, [id])
   );
 
-  const request = freshRequest || requests.find((r) => r.id === id);
+  const request = freshRequest || requests.find((req) => req.id === id);
 
   useEffect(() => {
     startTracking();
@@ -291,8 +291,8 @@ export default function LoKaterModeScreen() {
         );
         watchRef.current = sub;
       }
-    } catch (e) {
-      console.log("Tracking error:", e);
+    } catch (error) {
+      console.log("Tracking error:", error);
       setUserLocation({ latitude: 40.748, longitude: -73.986 });
       setIsTracking(true);
     }
@@ -329,8 +329,8 @@ export default function LoKaterModeScreen() {
       if (data.polyline && data.polyline.length > 1) {
         setRoutePolyline(data.polyline);
       }
-    } catch (e) {
-      console.log("Route fetch error:", e);
+    } catch (error) {
+      console.log("Route fetch error:", error);
     }
   }, []);
 

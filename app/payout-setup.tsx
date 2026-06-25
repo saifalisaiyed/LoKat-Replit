@@ -55,7 +55,7 @@ export default function PayoutSetupScreen() {
       if (!res.ok) throw new Error("Failed to save");
       await refreshProfile();
       router.back();
-    } catch (e) {
+    } catch (_saveError) {
       setError("Something went wrong. Please try again.");
     } finally {
       setIsSaving(false);

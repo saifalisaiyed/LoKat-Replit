@@ -40,7 +40,7 @@ export default function PaymentSetupScreen() {
       const url = `${baseUrl}card-setup?pk=${encodeURIComponent(publishableKey)}&secret=${encodeURIComponent(clientSecret)}`;
       setWebViewUrl(url);
       setShowWebView(true);
-    } catch (e) {
+    } catch (error) {
       setStatus("error");
     } finally {
       setIsLoading(false);

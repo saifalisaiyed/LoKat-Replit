@@ -246,8 +246,8 @@ export default function HomeScreen() {
         const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
         setMyCoords({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
       }
-    } catch (e) {
-      console.log("Location error:", e);
+    } catch (error) {
+      console.log("Location error:", error);
     }
   };
 
@@ -258,14 +258,14 @@ export default function HomeScreen() {
     
     // For admins, show everything. For users, show only open.
     if (user && !user.isAdmin) {
-      filtered = filtered.filter((r) => r.status === "open");
+      filtered = filtered.filter((req) => req.status === "open");
     }
 
     if (locationFilter === "anywhere") return filtered;
     if (locationFilter === "near-me") {
       if (!myCoords) return filtered;
-      return filtered.filter((r) =>
-        getDistanceKm(myCoords.latitude, myCoords.longitude, r.latitude, r.longitude) <= 25
+      return filtered.filter((req) =>
+        getDistanceKm(myCoords.latitude, myCoords.longitude, req.latitude, req.longitude) <= 25
       );
     }
     return filtered;
@@ -286,10 +286,10 @@ export default function HomeScreen() {
     setSelectedCategory(selectedCategory === cat ? null : cat);
   };
 
-  const handleMapPress = useCallback((e: any) => {
-    if (!e?.nativeEvent?.coordinate) return;
+  const handleMapPress = useCallback((event: any) => {
+    if (!event?.nativeEvent?.coordinate) return;
     if (!isAuthenticated) { setAuthPromptContext("create-request"); setAuthPromptVisible(true); return; }
-    const { latitude, longitude } = e.nativeEvent.coordinate;
+    const { latitude, longitude } = event.nativeEvent.coordinate;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const closest = POPULAR_LOCATIONS.reduce((best, loc) => {
       const d = Math.sqrt((loc.lat - latitude) ** 2 + (loc.lng - longitude) ** 2);
@@ -318,8 +318,8 @@ export default function HomeScreen() {
     }
   }, []);
 
-  const handlePoiClick = useCallback((e: any) => {
-    const poi = e?.nativeEvent;
+  const handlePoiClick = useCallback((event: any) => {
+    const poi = event?.nativeEvent;
     if (!poi?.coordinate) return;
     if (!isAuthenticated) { setAuthPromptContext("create-request"); setAuthPromptVisible(true); return; }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -392,8 +392,8 @@ export default function HomeScreen() {
           setMyCoords({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
         }
       }
-    } catch (e) {
-      console.log("Location center error:", e);
+    } catch (error) {
+      console.log("Location center error:", error);
     }
   }, [animateMapToCoords]);
 
@@ -448,8 +448,8 @@ export default function HomeScreen() {
           };
         });
         setRemoteResults(mapped);
-      } catch (e) {
-        console.log("Search error:", e);
+      } catch (error) {
+        console.log("Search error:", error);
         setRemoteResults([]);
       } finally {
         setIsSearching(false);
@@ -464,7 +464,7 @@ export default function HomeScreen() {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return POPULAR_LOCATIONS.slice(0, 15);
     const localNames = new Set(localResults.map(l => l.name.toLowerCase()));
-    const dedupedRemote = remoteResults.filter(r => !localNames.has(r.name.toLowerCase()));
+    const dedupedRemote = remoteResults.filter(result => !localNames.has(result.name.toLowerCase()));
     return [...localResults, ...dedupedRemote];
   }, [searchQuery, localResults, remoteResults]);
 

@@ -35,7 +35,7 @@ export default function PaymentMethodsScreen() {
 
   const confirmWithdraw = async () => {
     setWithdrawing(true);
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setWithdrawing(false);
     setWithdrawn(true);
   };
@@ -83,8 +83,8 @@ export default function PaymentMethodsScreen() {
               { icon: "clock", color: "#F97316", text: "Withdrawal requests are processed within 2–3 business days" },
               { icon: "shield", color: Colors.light.tint, text: "Payments are secured and processed via Stripe" },
               { icon: "dollar-sign", color: "#10B981", text: "No fees for withdrawals over $10" },
-            ].map((item, i) => (
-              <View key={i} style={[styles.infoRow, i > 0 && styles.infoRowBorder]}>
+            ].map((item, index) => (
+              <View key={index} style={[styles.infoRow, index > 0 && styles.infoRowBorder]}>
                 <Feather name={item.icon as any} size={16} color={item.color} />
                 <Text style={styles.infoText}>{item.text}</Text>
               </View>

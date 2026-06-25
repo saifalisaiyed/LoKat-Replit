@@ -64,8 +64,8 @@ export default function AdminScreen() {
       ]);
       setRequests(await reqRes.json());
       setStats(await statsRes.json());
-    } catch (e) {
-      console.error("Admin fetch error:", e);
+    } catch (error) {
+      console.error("Admin fetch error:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -98,7 +98,7 @@ export default function AdminScreen() {
               setRequests([]);
               setStats((s) => s ? { ...s, totalRequests: 0, openRequests: 0, acceptedRequests: 0, completedRequests: 0 } : s);
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            } catch (e) {
+            } catch (_deleteError) {
               Alert.alert("Error", "Failed to delete requests.");
             }
           },

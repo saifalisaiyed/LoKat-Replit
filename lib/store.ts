@@ -67,17 +67,17 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-function normalizeRequest(r: any): PhotoRequest {
+function normalizeRequest(rawRequest: any): PhotoRequest {
   return {
-    ...r,
-    createdAt: typeof r.createdAt === "string" ? r.createdAt : new Date(r.createdAt).toISOString(),
+    ...rawRequest,
+    createdAt: typeof rawRequest.createdAt === "string" ? rawRequest.createdAt : new Date(rawRequest.createdAt).toISOString(),
   };
 }
 
-function normalizeNotification(n: any): Notification {
+function normalizeNotification(notif: any): Notification {
   return {
-    ...n,
-    createdAt: typeof n.createdAt === "string" ? n.createdAt : new Date(n.createdAt).toISOString(),
+    ...notif,
+    createdAt: typeof notif.createdAt === "string" ? notif.createdAt : new Date(notif.createdAt).toISOString(),
   };
 }
 
@@ -113,7 +113,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const data = await res.json();
         return data.user;
       }
-    } catch (e) {}
+    } catch (_fetchError) {}
     return null;
   };
 
@@ -125,8 +125,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const data = await res.json();
         setRequests(data.map(normalizeRequest));
       }
-    } catch (e) {
-      console.error("Failed to fetch requests:", e);
+    } catch (error) {
+      console.error("Failed to fetch requests:", error);
     }
   };
 
@@ -139,8 +139,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const data = await res.json();
         setNotifications(data.map(normalizeNotification));
       }
-    } catch (e) {
-      console.error("Failed to fetch notifications:", e);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
     }
   };
 
@@ -157,8 +157,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setUser(me);
         }
         await fetchRequests();
-      } catch (e) {
-        console.error("Init error:", e);
+      } catch (error) {
+        console.error("Init error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -169,7 +169,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (user) {
       fetchNotifications();
       const found = requests.find(
-        (r) => r.status === "accepted" && r.acceptedBy === user.id
+        (req) => req.status === "accepted" && req.acceptedBy === user.id
       );
       setActiveRequestId(found?.id || null);
     }
@@ -182,8 +182,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       await fetchRequests();
       return { ok: true };
-    } catch (e: any) {
-      const msg = e.message || "Login failed";
+    } catch (error: any) {
+      const msg = error.message || "Login failed";
       const errorText = msg.includes(":") ? msg.split(": ").slice(1).join(": ") : msg;
       try {
         const parsed = JSON.parse(errorText);
@@ -201,8 +201,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       await fetchRequests();
       return { ok: true };
-    } catch (e: any) {
-      const msg = e.message || "Registration failed";
+    } catch (error: any) {
+      const msg = error.message || "Registration failed";
       const errorText = msg.includes(":") ? msg.split(": ").slice(1).join(": ") : msg;
       try {
         const parsed = JSON.parse(errorText);
@@ -219,8 +219,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const result = await res.json();
       setUser(result.user);
       return { ok: true };
-    } catch (e: any) {
-      const msg = e.message || "Update failed";
+    } catch (error: any) {
+      const msg = error.message || "Update failed";
       const errorText = msg.includes(":") ? msg.split(": ").slice(1).join(": ") : msg;
       try {
         const parsed = JSON.parse(errorText);
@@ -244,7 +244,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const result = await res.json();
       if (!res.ok) return { ok: false, error: result.message || "Failed to change password" };
       return { ok: true };
-    } catch (e: any) {
+    } catch (_networkError: any) {
       return { ok: false, error: "Network error. Please try again." };
     }
   };
@@ -252,7 +252,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await apiRequest("POST", "/api/auth/logout");
-    } catch (e) {}
+    } catch (_logoutError) {}
     setUser(null);
     setRequests([]);
     setNotifications([]);
@@ -265,8 +265,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await apiRequest("POST", "/api/requests", req);
         await fetchRequests();
         await refreshProfile();
-      } catch (e) {
-        console.error("Create request error:", e);
+      } catch (error) {
+        console.error("Create request error:", error);
       }
     },
     [],
@@ -279,8 +279,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await fetchRequests();
         await fetchNotifications();
         return true;
-      } catch (e) {
-        console.error("Accept request error:", e);
+      } catch (error) {
+        console.error("Accept request error:", error);
         return false;
       }
     },
@@ -294,8 +294,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await apiRequest("PATCH", `/api/requests/${id}/abandon`);
         await fetchRequests();
         await fetchNotifications();
-      } catch (e) {
-        console.error("Abandon request error:", e);
+      } catch (error) {
+        console.error("Abandon request error:", error);
       }
     },
     [setActiveRequestId],
@@ -307,8 +307,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await apiRequest("PATCH", `/api/requests/${id}/submit`, { photoUri });
         await fetchRequests();
         await fetchNotifications();
-      } catch (e) {
-        console.error("Submit photo error:", e);
+      } catch (error) {
+        console.error("Submit photo error:", error);
       }
     },
     [],
@@ -320,8 +320,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await apiRequest("PUT", `/api/photos/submit`, { requestId, uploadURL });
         await fetchRequests();
         await fetchNotifications();
-      } catch (e) {
-        console.error("Upload and submit photo error:", e);
+      } catch (error) {
+        console.error("Upload and submit photo error:", error);
       }
     },
     [],
@@ -334,8 +334,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await fetchRequests();
         await refreshProfile();
         await fetchNotifications();
-      } catch (e) {
-        console.error("Complete request error:", e);
+      } catch (error) {
+        console.error("Complete request error:", error);
       }
     },
     [],
@@ -346,8 +346,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         await apiRequest("DELETE", `/api/requests/${id}`);
         await fetchRequests();
-      } catch (e) {
-        console.error("Delete request error:", e);
+      } catch (error) {
+        console.error("Delete request error:", error);
       }
     },
     [],
@@ -363,8 +363,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         await fetchRequests();
         return { ok: true };
-      } catch (e: any) {
-        return { ok: false, error: e.message || "Network error" };
+      } catch (error: any) {
+        return { ok: false, error: error.message || "Network error" };
       }
     },
     [],
@@ -374,9 +374,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     async (id: string) => {
       try {
         await apiRequest("PATCH", `/api/notifications/${id}/read`);
-        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-      } catch (e) {
-        console.error("Mark read error:", e);
+        setNotifications((prev) => prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)));
+      } catch (error) {
+        console.error("Mark read error:", error);
       }
     },
     [],
@@ -385,14 +385,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const markAllNotificationsRead = useCallback(async () => {
     try {
       await apiRequest("PATCH", "/api/notifications/read-all");
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    } catch (e) {
-      console.error("Mark all read error:", e);
+      setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+    } catch (error) {
+      console.error("Mark all read error:", error);
     }
   }, []);
 
   const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.read).length,
+    () => notifications.filter((notif) => !notif.read).length,
     [notifications],
   );
 
@@ -402,9 +402,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const isAdmin = user?.isAdmin === true;
       const filtered = isAdmin
         ? requests
-        : requests.filter((r) => r.status === "open" && r.creatorId !== userId);
+        : requests.filter((req) => req.status === "open" && req.creatorId !== userId);
       if (!category) return filtered;
-      return filtered.filter((r) => r.category === category);
+      return filtered.filter((req) => req.category === category);
     },
     [requests, user],
   );
@@ -419,8 +419,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (res.ok) {
           return await res.json();
         }
-      } catch (e) {
-        console.error("Failed to fetch messages:", e);
+      } catch (error) {
+        console.error("Failed to fetch messages:", error);
       }
       return [];
     },
@@ -432,8 +432,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const res = await apiRequest("POST", `/api/messages/${requestId}`, { text });
         return await res.json();
-      } catch (e) {
-        console.error("Failed to send message:", e);
+      } catch (error) {
+        console.error("Failed to send message:", error);
         return null;
       }
     },

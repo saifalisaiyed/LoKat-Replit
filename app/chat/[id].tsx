@@ -36,7 +36,7 @@ export default function ChatScreen() {
     const { getApiUrl } = require("@/lib/query-client");
     const url = new URL(`/api/requests/${id}`, getApiUrl());
     fetch(url.toString(), { credentials: "include" })
-      .then((r) => r.ok ? r.json() : null)
+      .then((res) => res.ok ? res.json() : null)
       .then((data) => {
         if (data) {
           setRequestName(data.locationName || "Chat");

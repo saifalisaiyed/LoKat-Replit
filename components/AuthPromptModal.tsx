@@ -137,8 +137,8 @@ export default function AuthPromptModal({
           <Text style={styles.subtitle}>{config.subtitle}</Text>
 
           <View style={styles.featuresContainer}>
-            {config.features.map((feature, i) => (
-              <View key={i} style={styles.featureRow}>
+            {config.features.map((feature, featureIndex) => (
+              <View key={featureIndex} style={styles.featureRow}>
                 <View style={styles.featureIconWrap}>
                   <Ionicons name={feature.icon as any} size={18} color={Colors.light.tint} />
                 </View>

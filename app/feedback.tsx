@@ -43,7 +43,7 @@ export default function FeedbackScreen() {
       const res = await apiRequest("POST", "/api/feedback", { type, message: message.trim() });
       setSent(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch (e: any) {
+    } catch (_sendError: any) {
       Alert.alert("Error", "Could not send your message. Please try again.");
     } finally {
       setLoading(false);

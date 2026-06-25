@@ -44,7 +44,7 @@ export default function TransactionHistoryScreen() {
       try {
         const res = await apiRequest("GET", "/api/requests/mine");
         const data = await res.json();
-        const completed = (data as PhotoRequest[]).filter((r) => r.status === "completed");
+        const completed = (data as PhotoRequest[]).filter((req) => req.status === "completed");
         completed.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setRequests(completed);
       } catch (_) {}
@@ -53,12 +53,12 @@ export default function TransactionHistoryScreen() {
   }, []);
 
   const totalEarned = requests
-    .filter((r) => r.acceptedBy === user?.id)
-    .reduce((sum, r) => sum + r.reward, 0);
+    .filter((req) => req.acceptedBy === user?.id)
+    .reduce((sum, req) => sum + req.reward, 0);
 
   const totalSpent = requests
-    .filter((r) => r.creatorId === user?.id && r.acceptedBy !== user?.id)
-    .reduce((sum, r) => sum + r.reward, 0);
+    .filter((req) => req.creatorId === user?.id && req.acceptedBy !== user?.id)
+    .reduce((sum, req) => sum + req.reward, 0);
 
   function renderItem({ item }: { item: PhotoRequest }) {
     const isEarned = item.acceptedBy === user?.id;

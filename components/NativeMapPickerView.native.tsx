@@ -43,8 +43,8 @@ function coneSector(
   steps: number
 ) {
   const pts: { latitude: number; longitude: number }[] = [{ latitude: lat, longitude: lng }];
-  for (let i = 0; i <= steps; i++) {
-    const angle = bearing - halfAngle + (i * 2 * halfAngle) / steps;
+  for (let stepIndex = 0; stepIndex <= steps; stepIndex++) {
+    const angle = bearing - halfAngle + (stepIndex * 2 * halfAngle) / steps;
     pts.push(destPoint(lat, lng, angle, radiusM));
   }
   return pts;

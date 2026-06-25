@@ -141,30 +141,30 @@ export default function OrdersScreen() {
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const myOrders = useMemo(
-    () => requests.filter((r) => r.creatorId === userId || r.acceptedBy === userId),
+    () => requests.filter((req) => req.creatorId === userId || req.acceptedBy === userId),
     [requests, userId]
   );
 
   const activeOrders = useMemo(
-    () => myOrders.filter((r) => ["open", "accepted", "submitted"].includes(r.status)),
+    () => myOrders.filter((req) => ["open", "accepted", "submitted"].includes(req.status)),
     [myOrders]
   );
 
   const historyOrders = useMemo(
-    () => myOrders.filter((r) => r.status === "completed"),
+    () => myOrders.filter((req) => req.status === "completed"),
     [myOrders]
   );
 
   const requestedActive = useMemo(
-    () => activeOrders.filter((r) => r.creatorId === userId),
+    () => activeOrders.filter((req) => req.creatorId === userId),
     [activeOrders, userId]
   );
   const requestedHistory = useMemo(
-    () => historyOrders.filter((r) => r.creatorId === userId),
+    () => historyOrders.filter((req) => req.creatorId === userId),
     [historyOrders, userId]
   );
   const fulfilledHistory = useMemo(
-    () => historyOrders.filter((r) => r.acceptedBy === userId && r.creatorId !== userId),
+    () => historyOrders.filter((req) => req.acceptedBy === userId && req.creatorId !== userId),
     [historyOrders, userId]
   );
 

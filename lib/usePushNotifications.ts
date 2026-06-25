@@ -35,8 +35,8 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
     if (finalStatus !== "granted") return null;
     const tokenData = await Notifications.getExpoPushTokenAsync();
     return tokenData.data;
-  } catch (e) {
-    console.warn("Push notification setup skipped:", e);
+  } catch (error) {
+    console.warn("Push notification setup skipped:", error);
     return null;
   }
 }
@@ -50,8 +50,8 @@ async function savePushToken(token: string): Promise<void> {
       credentials: "include",
       body: JSON.stringify({ token }),
     });
-  } catch (e) {
-    console.warn("Failed to save push token:", e);
+  } catch (error) {
+    console.warn("Failed to save push token:", error);
   }
 }
 

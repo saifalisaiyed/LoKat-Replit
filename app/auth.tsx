@@ -203,7 +203,7 @@ export default function AuthScreen() {
       } else {
         setError(result.error || "Something went wrong");
       }
-    } catch (e) {
+    } catch (error) {
       setError("Something went wrong");
     } finally {
       setLoading(false);

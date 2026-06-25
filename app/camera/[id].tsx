@@ -39,11 +39,11 @@ function calcBearing(
   toLng: number
 ): number {
   const dLon = toRad(toLng - fromLng);
-  const y = Math.sin(dLon) * Math.cos(toRad(toLat));
-  const x =
+  const bearingY = Math.sin(dLon) * Math.cos(toRad(toLat));
+  const bearingX =
     Math.cos(toRad(fromLat)) * Math.sin(toRad(toLat)) -
     Math.sin(toRad(fromLat)) * Math.cos(toRad(toLat)) * Math.cos(dLon);
-  return (Math.atan2(y, x) * (180 / Math.PI) + 360) % 360;
+  return (Math.atan2(bearingY, bearingX) * (180 / Math.PI) + 360) % 360;
 }
 
 function calcDistance(
@@ -115,7 +115,7 @@ export default function CameraScreen() {
   // Reanimated shared value drives the arrow directly on the UI thread
   const arrowRotationSV = useSharedValue(0);
 
-  const request = requests.find((r) => r.id === id);
+  const request = requests.find((req) => req.id === id);
 
   // AR sensors — native only
   useEffect(() => {
@@ -269,7 +269,7 @@ export default function CameraScreen() {
                 try {
                   const { Linking } = require("react-native");
                   Linking.openSettings();
-                } catch (e) {}
+                } catch (_settingsError) {}
               }}
             >
               <Text style={styles.permBtnText}>Open Settings</Text>
@@ -309,8 +309,8 @@ export default function CameraScreen() {
         setProcessedUri(`data:image/jpeg;base64,${data.blurredImageBase64}`);
         setFaceCount(data.faceCount);
       }
-    } catch (e) {
-      console.log("[face-blur] client error:", e);
+    } catch (error) {
+      console.log("[face-blur] client error:", error);
     } finally {
       setIsProcessingFaces(false);
     }
@@ -354,8 +354,8 @@ export default function CameraScreen() {
           processFacesAsync(photo.uri);
         }
       }
-    } catch (e) {
-      console.log("Capture error:", e);
+    } catch (error) {
+      console.log("Capture error:", error);
     } finally {
       setIsCapturing(false);
     }
@@ -446,8 +446,8 @@ export default function CameraScreen() {
           reward: String(request?.reward ?? earned),
         },
       });
-    } catch (e) {
-      console.error("Photo upload error:", e);
+    } catch (error) {
+      console.error("Photo upload error:", error);
       setIsUploading(false);
       Alert.alert("Upload Failed", "Could not upload photo. Please try again.");
     }
@@ -713,7 +713,7 @@ export default function CameraScreen() {
         >
           <Pressable
             style={[styles.instructionsSheet, { paddingBottom: insets.bottom + 24 }]}
-            onPress={(e) => e.stopPropagation()}
+            onPress={(event) => event.stopPropagation()}
           >
             <View style={styles.instructionsDragger} />
             <Text style={styles.instructionsTitle}>Shot Instructions</Text>

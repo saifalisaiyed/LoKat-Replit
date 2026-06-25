@@ -97,7 +97,7 @@ export default function ProfileScreen() {
         <View style={styles.profileRow}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
-              {profile.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+              {profile.name.split(" ").map((word) => word[0]).join("").toUpperCase().slice(0, 2)}
             </Text>
           </View>
           <View style={styles.profileInfo}>

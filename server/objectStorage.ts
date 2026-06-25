@@ -137,7 +137,7 @@ export class ObjectStorageService {
         return { valid: false, error: `File is too large (${mb} MB). Maximum allowed size is 10 MB.` };
       }
       return { valid: true };
-    } catch (e) {
+    } catch (error) {
       console.error("validateUploadedImage error:", e);
       return { valid: false, error: "Could not verify the uploaded file." };
     }
@@ -152,7 +152,7 @@ export class ObjectStorageService {
       if (!normalizedPath.startsWith("/objects/")) return;
       const objectFile = await this.getObjectEntityFile(normalizedPath);
       await objectFile.delete();
-    } catch (e) {
+    } catch (error) {
       console.error("deleteObjectFile failed for path:", rawPath, e);
     }
   }
