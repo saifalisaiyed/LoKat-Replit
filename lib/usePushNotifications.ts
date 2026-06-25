@@ -3,27 +3,36 @@ import { Platform } from "react-native";
 import { router } from "expo-router";
 import { getApiUrl } from "./query-client";
 import Constants from "expo-constants";
-import * as Notifications from "expo-notifications";
 
 const isExpoGo = Constants.appOwnership === "expo";
+const notificationsSupported = !isExpoGo && Platform.OS !== "web";
 
-if (!isExpoGo && Platform.OS !== "web") {
+let Notifications: any = null;
+if (notificationsSupported) {
   try {
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-        shouldShowBanner: true,
-        shouldShowList: true,
-      }),
-    });
+    Notifications = require("expo-notifications");
   } catch (_e) {
+    Notifications = null;
+  }
+  if (Notifications) {
+    try {
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+          shouldShowBanner: true,
+          shouldShowList: true,
+        }),
+      });
+    } catch (_e) {
+      // Handler setup failing must not disable notifications entirely.
+    }
   }
 }
 
 async function registerForPushNotificationsAsync(): Promise<string | null> {
-  if (Platform.OS === "web" || isExpoGo) return null;
+  if (!Notifications || Platform.OS === "web" || isExpoGo) return null;
   try {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -60,7 +69,7 @@ export function usePushNotifications(isAuthenticated: boolean): void {
   const registeredRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated || registeredRef.current || Platform.OS === "web" || isExpoGo) return;
+    if (!Notifications || !isAuthenticated || registeredRef.current || Platform.OS === "web" || isExpoGo) return;
 
     registeredRef.current = true;
 

@@ -1,3 +1,4 @@
 - [Face blur pipeline](face-blur-pipeline.md) — on-device detection (expo-face-detector) + server-side sharp blur; fails silently so upload always proceeds
 - [Password hashing](password-hashing.md) — bcrypt (12 rounds) with SHA-256 hex fallback for existing accounts; do not remove the fallback
 - [Security hardening](security-hardening.md) — rate limiting, UUID validation, input validation, body size limits all in server/routes.ts top; see file for helpers
+- [Expo Router app/ pitfalls](expo-router-app-dir-pitfalls.md) — platform-tagged style files in app/ crash route resolution; expo-notifications must be lazy-required (throws on import in Expo Go SDK 53+)

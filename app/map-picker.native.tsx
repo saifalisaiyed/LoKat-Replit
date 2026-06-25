@@ -17,7 +17,7 @@ import { setPickedLocation } from "@/lib/mapPickerStore";
 import NativeMapPickerView from "@/components/NativeMapPickerView";
 import { BLACK, BLACK_A55, BLACK_A60, DARK_MAP, GRAY_110, GRAY_170, GRAY_450, GRAY_600, GRAY_750, GRAY_90, GRAY_900, PURPLE, WHITE } from "@/constants/colors";
 
-import styles from "./map-picker.native.styles";
+import styles from "./map-picker.styles";
 
 const PIN_SIZE = 48;
 
