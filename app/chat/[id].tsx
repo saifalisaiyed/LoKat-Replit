@@ -1,15 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  TextInput,
-  FlatList,
-  Platform,
-  KeyboardAvoidingView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, Pressable, TextInput, FlatList, Platform, KeyboardAvoidingView, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -25,6 +15,8 @@ import {
   WHITE,
   WHITE_A70,
 } from "@/constants/colors";
+
+import styles from "./[id].styles";
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
@@ -161,85 +153,3 @@ export default function ChatScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: GRAY_105 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    backgroundColor: WHITE,
-    borderBottomWidth: 1,
-    borderBottomColor: GRAY_170,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: GRAY_105,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerInfo: { flex: 1, gap: 1 },
-  headerTitle: { fontSize: 16, color: GRAY_850, fontFamily: "Archivo_600SemiBold" },
-  headerSub: { fontSize: 12, color: GRAY_600, fontFamily: "Archivo_400Regular" },
-  loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center" },
-  emptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", gap: 8, paddingBottom: 60 },
-  emptyText: { fontSize: 16, color: GRAY_600, fontFamily: "Archivo_500Medium" },
-  emptySubtext: { fontSize: 13, color: GRAY_600, fontFamily: "Archivo_400Regular" },
-  messagesList: { padding: 16, gap: 8 },
-  msgRow: { flexDirection: "row", marginBottom: 4 },
-  msgRowMe: { justifyContent: "flex-end" },
-  msgBubble: {
-    maxWidth: "78%",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 18,
-  },
-  msgBubbleMe: {
-    backgroundColor: PURPLE,
-    borderBottomRightRadius: 4,
-  },
-  msgBubbleOther: {
-    backgroundColor: WHITE,
-    borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: GRAY_170,
-  },
-  msgText: { fontSize: 15, color: GRAY_850, fontFamily: "Archivo_400Regular", lineHeight: 20 },
-  msgTextMe: { color: WHITE },
-  msgTime: { fontSize: 10, color: GRAY_600, fontFamily: "Archivo_400Regular", marginTop: 4, alignSelf: "flex-end" },
-  msgTimeMe: { color: WHITE_A70 },
-  inputBar: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    backgroundColor: WHITE,
-    borderTopWidth: 1,
-    borderTopColor: GRAY_170,
-  },
-  input: {
-    flex: 1,
-    fontSize: 15,
-    color: GRAY_850,
-    fontFamily: "Archivo_400Regular",
-    backgroundColor: GRAY_105,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    maxHeight: 100,
-  },
-  sendBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: PURPLE,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sendBtnDisabled: { opacity: 0.5 },
-});

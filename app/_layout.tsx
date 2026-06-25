@@ -2,7 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState, useCallback } from "react";
-import { View, ImageBackground, StyleSheet } from "react-native";
+import { View, ImageBackground } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -25,6 +25,8 @@ import {
   Archivo_700Bold,
 } from "@expo-google-fonts/archivo";
 import { DARK_MAP, WHITE_A70 } from "@/constants/colors";
+
+import splashStyles from "./_layout.styles";
 
 const splashBg = require("@/assets/images/splash.png");
 const lokatFullLogo = require("@/assets/images/lokat-full-logo.png");
@@ -77,34 +79,6 @@ function BrandedSplash({ onFinish }: { onFinish: () => void }) {
     </Animated.View>
   );
 }
-
-const splashStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  bg: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  content: {
-    alignItems: "center",
-    paddingHorizontal: 40,
-  },
-  fullLogo: {
-    width: 260,
-    height: 66,
-    marginBottom: 20,
-  },
-  tagline: {
-    fontSize: 15,
-    color: WHITE_A70,
-    fontFamily: "Archivo_400Regular",
-    textAlign: "center",
-    letterSpacing: 0.2,
-  },
-});
-
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerBackTitle: "Back" }}>

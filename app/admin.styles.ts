@@ -1,0 +1,218 @@
+import { StyleSheet } from "react-native";
+import { GRAY_105, GRAY_125, GRAY_600, GRAY_80, GRAY_850, PURPLE, RED, WHITE } from "@/constants/colors";
+
+export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: GRAY_105,
+  },
+  centerContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
+  accessDenied: {
+    fontSize: 16,
+    color: GRAY_600,
+    fontFamily: "Archivo_500Medium",
+  },
+  backBtn: {
+    marginTop: 8,
+    backgroundColor: PURPLE,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+  },
+  backBtnText: {
+    color: WHITE,
+    fontSize: 14,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: WHITE,
+    gap: 10,
+  },
+  headerBackBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: GRAY_105,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: 20,
+    fontFamily: "Archivo_600SemiBold",
+    color: GRAY_850,
+  },
+  adminBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: PURPLE,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  clearBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: RED,
+  },
+  clearBtnText: {
+    color: RED,
+    fontSize: 13,
+    fontFamily: "Archivo_600SemiBold",
+  },
+  statsGrid: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    gap: 10,
+    backgroundColor: WHITE,
+    borderBottomWidth: 1,
+    borderBottomColor: GRAY_125,
+  },
+  statCard: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: GRAY_80,
+    borderRadius: 12,
+    paddingVertical: 12,
+    gap: 4,
+  },
+  statIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 2,
+  },
+  statValue: {
+    fontSize: 20,
+    fontFamily: "Archivo_700Bold",
+    color: GRAY_850,
+  },
+  statLabel: {
+    fontSize: 11,
+    fontFamily: "Archivo_400Regular",
+    color: GRAY_600,
+  },
+  filterRow: {
+    backgroundColor: WHITE,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: GRAY_125,
+  },
+  filterList: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  filterChip: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: GRAY_125,
+  },
+  filterChipActive: {
+    backgroundColor: PURPLE,
+  },
+  filterText: {
+    fontSize: 13,
+    fontFamily: "Archivo_500Medium",
+    color: GRAY_600,
+  },
+  filterTextActive: {
+    color: WHITE,
+  },
+  list: {
+    padding: 16,
+    gap: 10,
+  },
+  requestCard: {
+    backgroundColor: WHITE,
+    borderRadius: 14,
+    padding: 14,
+    gap: 6,
+  },
+  requestHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  requestStatus: {
+    fontSize: 11,
+    fontFamily: "Archivo_700Bold",
+    letterSpacing: 0.6,
+  },
+  requestDate: {
+    fontSize: 11,
+    fontFamily: "Archivo_400Regular",
+    color: GRAY_600,
+    marginLeft: "auto",
+  },
+  requestLocation: {
+    fontSize: 16,
+    fontFamily: "Archivo_600SemiBold",
+    color: GRAY_850,
+  },
+  requestAddress: {
+    fontSize: 12,
+    fontFamily: "Archivo_400Regular",
+    color: GRAY_600,
+  },
+  requestMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 4,
+  },
+  metaItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  metaText: {
+    fontSize: 12,
+    fontFamily: "Archivo_400Regular",
+    color: GRAY_600,
+  },
+  requestReward: {
+    fontSize: 14,
+    fontFamily: "Archivo_700Bold",
+    color: PURPLE,
+    marginLeft: "auto",
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    gap: 10,
+  },
+  emptyText: {
+    fontSize: 14,
+    fontFamily: "Archivo_400Regular",
+    color: GRAY_600,
+  },
+});

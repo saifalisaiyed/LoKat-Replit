@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ActivityIndicator,
-  Modal,
-  Platform,
-} from "react-native";
+import { View, Text, Pressable, ActivityIndicator, Modal, Platform } from "react-native";
 import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -29,6 +21,8 @@ import {
   WHITE_A05,
   WHITE_A08,
 } from "@/constants/colors";
+
+import styles from "./payment-setup.styles";
 
 export default function PaymentSetupScreen() {
   const insets = useSafeAreaInsets();
@@ -184,158 +178,3 @@ export default function PaymentSetupScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: DARK_MAP,
-  },
-  backBtn: {
-    position: "absolute",
-    left: 16,
-    zIndex: 10,
-    padding: 4,
-  },
-  content: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 32,
-    paddingBottom: 60,
-  },
-  iconCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: PURPLE_A12,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 28,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: WHITE,
-    textAlign: "center",
-    marginBottom: 12,
-    fontFamily: "Archivo_700Bold",
-  },
-  subtitle: {
-    fontSize: 15,
-    color: GRAY_400,
-    textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 32,
-  },
-  bullets: {
-    alignSelf: "stretch",
-    gap: 14,
-    marginBottom: 36,
-  },
-  bullet: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: WHITE_A05,
-    borderRadius: 12,
-    padding: 14,
-  },
-  bulletText: {
-    fontSize: 14,
-    color: GRAY_190,
-    flex: 1,
-  },
-  btn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: PURPLE,
-    paddingVertical: 16,
-    paddingHorizontal: 36,
-    borderRadius: 16,
-    width: "100%",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  btnDisabled: {
-    opacity: 0.6,
-  },
-  btnText: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: WHITE,
-    fontFamily: "Archivo_700Bold",
-  },
-  successBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: GREEN_500_A12,
-    borderRadius: 12,
-    padding: 14,
-    width: "100%",
-    marginBottom: 16,
-  },
-  successText: {
-    color: GREEN_500,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  errorBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: RED_LIGHT_A12,
-    borderRadius: 12,
-    padding: 14,
-    width: "100%",
-    marginBottom: 16,
-  },
-  errorText: {
-    color: RED_LIGHT,
-    fontSize: 14,
-  },
-  skipBtn: {
-    padding: 12,
-  },
-  skipText: {
-    color: GRAY_580,
-    fontSize: 15,
-  },
-  webViewContainer: {
-    flex: 1,
-    backgroundColor: DARK_MAP,
-  },
-  webViewHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: WHITE_A08,
-  },
-  webViewTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: WHITE,
-    fontFamily: "Archivo_700Bold",
-  },
-  webViewClose: {
-    position: "absolute",
-    right: 16,
-    padding: 4,
-  },
-  webViewSpinner: {
-    position: "absolute",
-    top: "50%",
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    zIndex: 10,
-  },
-  webView: {
-    flex: 1,
-    backgroundColor: DARK_MAP,
-  },
-});

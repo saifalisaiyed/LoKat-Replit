@@ -1,18 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  Platform,
-  Dimensions,
-  Modal,
-  Alert,
-  ActivityIndicator,
-  TextInput,
-  BackHandler,
-} from "react-native";
+import { View, Text, Pressable, ScrollView, Platform, Dimensions, Modal, Alert, ActivityIndicator, TextInput, BackHandler } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -59,6 +46,8 @@ import {
   WHITE_A90,
 } from "@/constants/colors";
 
+import styles from "./[id].styles";
+
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;
 
@@ -83,7 +72,6 @@ function hexToRgba(hex: string, alpha: number): string {
   const blue = parseInt(hex.slice(5, 7), 16);
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
-
 
 const FACING_FULL: Record<string, string> = {
   N: "North", NE: "Northeast", E: "East", SE: "Southeast",
@@ -576,136 +564,3 @@ export default function RequestDetailScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: GRAY_105 },
-  centered: { alignItems: "center", justifyContent: "center" },
-  notFoundText: { fontSize: 16, color: GRAY_600, fontFamily: "Archivo_400Regular" },
-  backLink: { fontSize: 15, color: PURPLE, marginTop: 12, fontFamily: "Archivo_500Medium" },
-  mapSection: { backgroundColor: SKY_100, overflow: "hidden", borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
-  backBtn: {
-    position: "absolute", left: 16, width: 42, height: 42, borderRadius: 21,
-    backgroundColor: WHITE_A90, alignItems: "center", justifyContent: "center",
-  },
-  deleteBtn: {
-    position: "absolute", right: 16, width: 42, height: 42, borderRadius: 21,
-    backgroundColor: WHITE_A90, alignItems: "center", justifyContent: "center",
-  },
-  detailsScroll: { flex: 1 },
-  detailsContent: { padding: 16, gap: 16 },
-  titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-  titleInfo: { flex: 1, marginRight: 12 },
-  locationName: { fontSize: 20, color: GRAY_850, fontFamily: "Archivo_600SemiBold" },
-  address: { fontSize: 14, color: GRAY_600, marginTop: 4, fontFamily: "Archivo_400Regular" },
-  specificSpotRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
-  specificSpotText: { fontSize: 12, color: PURPLE, fontFamily: "Archivo_500Medium", flex: 1 },
-  rewardBadge: { backgroundColor: GRASS, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
-  rewardText: { fontSize: 18, color: WHITE, fontFamily: "Archivo_600SemiBold" },
-  chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
-  categoryPill: {
-    flexDirection: "row", alignItems: "center", gap: 7,
-    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, borderWidth: 1,
-  },
-  categoryPillText: { fontSize: 13, fontFamily: "Archivo_500Medium" },
-  chip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: WHITE, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: GRAY_170 },
-  chipText: { fontSize: 13, color: PURPLE, fontFamily: "Archivo_500Medium" },
-  chipTextMuted: { fontSize: 13, color: GRAY_600, fontFamily: "Archivo_400Regular" },
-  detailsCard: { backgroundColor: WHITE, borderRadius: 12, padding: 4, borderWidth: 1, borderColor: BLACK_A03 },
-  detailRow: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14 },
-  detailIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: SKY_A08, alignItems: "center", justifyContent: "center" },
-  detailInfo: { flex: 1 },
-  detailLabel: { fontSize: 12, color: GRAY_600, fontFamily: "Archivo_400Regular" },
-  detailValue: { fontSize: 15, color: GRAY_850, marginTop: 1, fontFamily: "Archivo_500Medium" },
-  detailDivider: { height: 1, backgroundColor: BLACK_A04, marginHorizontal: 14 },
-  instructionsCard: { backgroundColor: GRASS_A06, borderRadius: 12, padding: 16, borderLeftWidth: 3, borderLeftColor: GRASS, gap: 10 },
-  instructionsHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  instructionsTitle: { fontSize: 14, color: GRAY_850, fontFamily: "Archivo_600SemiBold" },
-  instructionsText: { fontSize: 14, color: GRAY_850, lineHeight: 20, fontFamily: "Archivo_400Regular" },
-  editNoteBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: PURPLE_A08, borderRadius: 8, borderWidth: 1, borderColor: PURPLE_A20 },
-  editNoteBtnText: { fontSize: 13, color: PURPLE, fontFamily: "Archivo_500Medium" },
-  noteInput: {
-    backgroundColor: WHITE, borderRadius: 10, borderWidth: 1.5, borderColor: PURPLE,
-    padding: 12, fontSize: 14, fontFamily: "Archivo_400Regular", color: GRAY_850,
-    minHeight: 90, textAlignVertical: "top",
-  },
-  noteActions: { flexDirection: "row", gap: 10 },
-  noteCancelBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: GRAY_170, alignItems: "center" },
-  noteCancelText: { fontSize: 14, color: GRAY_600, fontFamily: "Archivo_500Medium" },
-  noteSaveBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: PURPLE, alignItems: "center" },
-  noteSaveText: { fontSize: 14, color: WHITE, fontFamily: "Archivo_600SemiBold" },
-  noteEmptyText: { fontSize: 13, color: GRAY_600, fontFamily: "Archivo_400Regular", fontStyle: "italic" },
-  photoSection: { gap: 8 },
-  photoContainer: { borderRadius: 12, overflow: "hidden", backgroundColor: GRAY_170 },
-  photo: { width: "100%", height: 300 },
-  actionBar: {
-    flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingTop: 12,
-    backgroundColor: WHITE, borderTopWidth: 1, borderTopColor: GRAY_170,
-  },
-  ignoreBtn: {
-    flex: 0.4, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6,
-    paddingVertical: 16, borderRadius: 12, borderWidth: 1.5, borderColor: GRAY_170,
-  },
-  ignoreBtnText: { fontSize: 15, color: GRAY_600, fontFamily: "Archivo_500Medium" },
-  acceptBtn: {
-    flex: 0.6, backgroundColor: PURPLE, flexDirection: "row", alignItems: "center",
-    justifyContent: "center", gap: 8, paddingVertical: 16, borderRadius: 12,
-  },
-  acceptBtnText: { color: WHITE, fontSize: 16, fontFamily: "Archivo_600SemiBold" },
-  completedBanner: {
-    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-    paddingVertical: 14, backgroundColor: GRASS_A10, borderRadius: 12,
-  },
-  completedText: { fontSize: 15, color: GRASS, fontFamily: "Archivo_600SemiBold" },
-  menuOverlay: { flex: 1, backgroundColor: BLACK_A40, justifyContent: "flex-end" as const },
-  menuSheet: {
-    backgroundColor: WHITE, borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    paddingHorizontal: 20, paddingTop: 12, gap: 12,
-  },
-  menuHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: GRAY_170, alignSelf: "center" as const, marginBottom: 4 },
-  menuTitle: { fontSize: 18, color: GRAY_850, fontFamily: "Archivo_600SemiBold", marginBottom: 4 },
-  menuItem: {
-    flexDirection: "row" as const, alignItems: "center" as const, gap: 14,
-    paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10,
-  },
-  menuItemIcon: {
-    width: 40, height: 40, borderRadius: 10, backgroundColor: RED_100,
-    alignItems: "center" as const, justifyContent: "center" as const,
-  },
-  menuItemInfo: { flex: 1, gap: 2 },
-  menuItemText: { fontSize: 15, color: RED, fontFamily: "Archivo_600SemiBold" },
-  menuItemSub: { fontSize: 12, color: GRAY_600, fontFamily: "Archivo_400Regular" },
-  menuCancelBtn: {
-    alignItems: "center" as const, paddingVertical: 16, borderRadius: 10,
-    backgroundColor: GRAY_105, marginTop: 4,
-  },
-  menuCancelText: { fontSize: 15, color: GRAY_850, fontFamily: "Archivo_500Medium" },
-  chatBtn: {
-    width: 52, height: 52, borderRadius: 12, borderWidth: 1.5, borderColor: PURPLE,
-    alignItems: "center" as const, justifyContent: "center" as const, backgroundColor: PURPLE_A06,
-  },
-  chatFullBtn: {
-    flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const,
-    gap: 10, paddingVertical: 16, borderRadius: 12, backgroundColor: PURPLE,
-  },
-  chatFullBtnText: { fontSize: 16, color: WHITE, fontFamily: "Archivo_600SemiBold" },
-  activeBanner: {
-    flex: 1, flexDirection: "row" as const, alignItems: "center" as const, justifyContent: "center" as const, gap: 8,
-    paddingVertical: 14, backgroundColor: PURPLE_A08, borderRadius: 12,
-  },
-  activeText: { fontSize: 15, color: PURPLE, fontFamily: "Archivo_600SemiBold" },
-  acceptedCard: {
-    flexDirection: "row" as const, alignItems: "flex-start" as const, gap: 14,
-    backgroundColor: PURPLE_A07, borderRadius: 14, padding: 14,
-    borderWidth: 1, borderColor: PURPLE_A18,
-  },
-  submittedCard: {
-    backgroundColor: GRASS_A07, borderColor: GRASS_A25,
-  },
-  acceptedIconWrap: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: PURPLE_A12,
-    alignItems: "center" as const, justifyContent: "center" as const, flexShrink: 0,
-  },
-  acceptedInfo: { flex: 1, gap: 4 },
-  acceptedTitle: { fontSize: 15, fontFamily: "Archivo_600SemiBold", color: PURPLE },
-  acceptedSub: { fontSize: 13, fontFamily: "Archivo_400Regular", color: GRAY_600, lineHeight: 18 },
-});

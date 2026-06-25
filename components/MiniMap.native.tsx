@@ -3,6 +3,8 @@ import { View, StyleSheet, ViewStyle } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { GRAY_180, PURPLE } from "@/constants/colors";
 
+import styles from "./MiniMap.native.styles";
+
 interface MiniMapProps {
   latitude: number;
   longitude: number;
@@ -31,12 +33,3 @@ export default function MiniMap({ latitude, longitude, style }: MiniMapProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: 130,
-    borderRadius: 10,
-    overflow: "hidden",
-    backgroundColor: GRAY_180,
-  },
-});
