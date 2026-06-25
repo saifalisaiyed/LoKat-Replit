@@ -22,14 +22,12 @@ import NavigationMap from "@/components/NavigationMap";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withRepeat,
   withTiming,
-  withSequence,
   Easing,
 } from "react-native-reanimated";
-import { BLACK, BLACK_A40, BLACK_A55, BLUE, BLUE_A30, DARK_MAP, GRASS_A10, GRAY_170, GRAY_800, GREEN_500, ORANGE, PURPLE_A06, PURPLE_A07, PURPLE_A12, PURPLE_A18, PURPLE_A25, PURPLE_A30, RED, RED_100, WHITE, WHITE_A50, WHITE_A92, WHITE_A95 } from "@/constants/colors";
+import { BLACK, BLACK_A40, BLACK_A55, DARK_MAP, GRASS_A10, GRAY_170, GRAY_800, GREEN_500, ORANGE, PURPLE_A06, PURPLE_A07, PURPLE_A12, PURPLE_A18, PURPLE_A25, PURPLE_A30, RED, RED_100, WHITE, WHITE_A50, WHITE_A92, WHITE_A95 } from "@/constants/colors";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: _SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get("window");
 
 function haversineDistance(
   lat1: number,
@@ -134,44 +132,10 @@ const ANGLE_CONFIG = {
   },
 };
 
-function PulsingDot() {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(0.5);
-
-  useEffect(() => {
-    scale.value = withRepeat(
-      withSequence(
-        withTiming(1.8, { duration: 1200, easing: Easing.out(Easing.ease) }),
-        withTiming(1, { duration: 0 })
-      ),
-      -1
-    );
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0, { duration: 1200, easing: Easing.out(Easing.ease) }),
-        withTiming(0.5, { duration: 0 })
-      ),
-      -1
-    );
-  }, []);
-
-  const pulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
-
-  return (
-    <View style={navStyles.pulseContainer}>
-      <Animated.View style={[navStyles.pulseRing, pulseStyle]} />
-      <View style={navStyles.userDot} />
-    </View>
-  );
-}
-
 export default function LoKaterModeScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, abandonRequest, activeRequestId } = useApp();
+  const { requests, abandonRequest } = useApp();
   const navigation = useNavigation();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
@@ -192,8 +156,8 @@ export default function LoKaterModeScreen() {
     latitude: number;
     longitude: number;
   } | null>(null);
-  const [locationError, setLocationError] = useState(false);
-  const [isTracking, setIsTracking] = useState(false);
+  const [_locationError, setLocationError] = useState(false);
+  const [_isTracking, setIsTracking] = useState(false);
   const [deviceHeading, setDeviceHeading] = useState<number | null>(null);
   const [routePolyline, setRoutePolyline] = useState<{ latitude: number; longitude: number }[]>([]);
   const magnetometerSubRef = useRef<any>(null);
@@ -816,30 +780,6 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
     </View>
   );
 }
-
-const navStyles = StyleSheet.create({
-  pulseContainer: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pulseRing: {
-    position: "absolute",
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: BLUE_A30,
-  },
-  userDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: BLUE,
-    borderWidth: 3,
-    borderColor: WHITE,
-  },
-});
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: DARK_MAP },

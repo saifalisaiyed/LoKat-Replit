@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -41,7 +41,7 @@ export default function PaymentSetupScreen() {
       const url = `${baseUrl}card-setup?pk=${encodeURIComponent(publishableKey)}&secret=${encodeURIComponent(clientSecret)}`;
       setWebViewUrl(url);
       setShowWebView(true);
-    } catch (error) {
+    } catch {
       setStatus("error");
     } finally {
       setIsLoading(false);

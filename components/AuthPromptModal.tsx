@@ -6,7 +6,6 @@ import {
   Pressable,
   Modal,
   Platform,
-  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -16,13 +15,10 @@ import Animated, {
   withTiming,
   withSpring,
   useSharedValue,
-  runOnJS,
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import Colors from "@/constants/colors";
 import { BLACK, BLACK_A50, GRAY_100, GRAY_200, WHITE } from "@/constants/colors";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export type AuthPromptContext =
   | "create-request"

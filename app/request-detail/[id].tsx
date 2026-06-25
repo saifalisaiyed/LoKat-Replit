@@ -11,7 +11,6 @@ import {
   Alert,
   ActivityIndicator,
   TextInput,
-  KeyboardAvoidingView,
   BackHandler,
 } from "react-native";
 import { Image } from "expo-image";
@@ -22,7 +21,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
-import { CATEGORIES, type Category } from "@/lib/types";
+import { CATEGORIES } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 import AuthPromptModal from "@/components/AuthPromptModal";
 import { BLACK_A03, BLACK_A04, BLACK_A40, BLUE, GOLD, GRASS_A06, GRASS_A07, GRASS_A10, GRASS_A12, GRASS_A25, GRAY_170, GREEN_500, ORANGE, PINK, PURPLE_A06, PURPLE_A07, PURPLE_A08, PURPLE_A12, PURPLE_A18, PURPLE_A20, PURPLE_LIGHT, RED, RED_100, SKY_100, SKY_A08, TEAL, WHITE, WHITE_A90 } from "@/constants/colors";
@@ -52,9 +51,6 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
-function getCategoryLabel(key: Category): string {
-  return CATEGORIES.find((c) => c.key === key)?.label ?? key;
-}
 
 const FACING_FULL: Record<string, string> = {
   N: "North", NE: "Northeast", E: "East", SE: "Southeast",
@@ -78,7 +74,7 @@ function DetailRow({ icon, label, value }: { icon: string; label: string; value:
 export default function RequestDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, abandonRequest, deleteRequest, updateRequestNote, refreshRequests, user, isAuthenticated } = useApp();
+  const { requests, abandonRequest, deleteRequest, updateRequestNote, user, isAuthenticated } = useApp();
   const mapRef = useRef<any>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);

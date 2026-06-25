@@ -29,10 +29,9 @@ function NativeTabLayout() {
 }
 
 function ClassicTabLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  useColorScheme();
   const isWeb = Platform.OS === "web";
-  const { unreadCount } = useApp();
+  useApp();
 
   return (
     <Tabs

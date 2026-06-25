@@ -13,7 +13,6 @@ import { usePushNotifications } from "./usePushNotifications";
 import type {
   PhotoRequest,
   UserProfile,
-  RequestStatus,
   Notification,
   Category,
   ChatMessage,

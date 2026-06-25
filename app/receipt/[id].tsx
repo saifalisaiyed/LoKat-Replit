@@ -18,7 +18,7 @@ import { BLACK, EMERALD, EMERALD_50, GRAY_105, GRAY_125, INDIGO_50, WHITE } from
 
 export default function ReceiptScreen() {
   const insets = useSafeAreaInsets();
-  const { id, earned, newBalance, intentId, locationName, reward } = useLocalSearchParams<{
+  const { earned, newBalance, intentId, locationName, reward } = useLocalSearchParams<{
     id: string;
     earned: string;
     newBalance: string;
