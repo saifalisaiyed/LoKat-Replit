@@ -216,6 +216,7 @@ export default function HomeScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [activeRequestPrompt, setActiveRequestPrompt] = useState(true);
   const toastOpacity = useRef(new Animated.Value(0)).current;
 
   const showToast = useCallback((message: string) => {
@@ -233,8 +234,6 @@ export default function HomeScreen() {
       showToast("Request abandoned");
     }
   }, [params.abandoned]);
-
-  const [activeRequestPrompt, setActiveRequestPrompt] = useState(true);
 
   useEffect(() => {
     setActiveRequestPrompt(true);

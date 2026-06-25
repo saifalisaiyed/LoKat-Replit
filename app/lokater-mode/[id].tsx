@@ -160,6 +160,23 @@ export default function LoKaterModeScreen() {
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
   const [instructionsVisible, setInstructionsVisible] = useState(false);
+  const {
+    userLocation, setUserLocation,
+    locationError: _locationError, setLocationError,
+    isTracking: _isTracking, setIsTracking,
+    deviceHeading, setDeviceHeading,
+    routePolyline, setRoutePolyline,
+  } = useNavigationState();
+  const [freshRequest, setFreshRequest] = useState<any | null>(null);
+
+  const lokaterIframeRef = useRef<HTMLIFrameElement>(null);
+  const navMapRef = useRef<any>(null);
+  const magnetometerSubRef = useRef<any>(null);
+
+  const arrowRotation = useSharedValue(0);
+  const arrowOpacity = useSharedValue(0);
+  const watchRef = useRef<any>(null);
+  const lastFetchOriginRef = useRef<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
     navigation.setOptions({ gestureEnabled: false });
@@ -169,24 +186,6 @@ export default function LoKaterModeScreen() {
     });
     return () => sub.remove();
   }, [navigation, id]);
-  const lokaterIframeRef = useRef<HTMLIFrameElement>(null);
-  const navMapRef = useRef<any>(null);
-
-  const {
-    userLocation, setUserLocation,
-    locationError: _locationError, setLocationError,
-    isTracking: _isTracking, setIsTracking,
-    deviceHeading, setDeviceHeading,
-    routePolyline, setRoutePolyline,
-  } = useNavigationState();
-  const magnetometerSubRef = useRef<any>(null);
-
-  const arrowRotation = useSharedValue(0);
-  const arrowOpacity = useSharedValue(0);
-  const watchRef = useRef<any>(null);
-  const lastFetchOriginRef = useRef<{ latitude: number; longitude: number } | null>(null);
-
-  const [freshRequest, setFreshRequest] = useState<any | null>(null);
 
   useFocusEffect(
     useCallback(() => {
