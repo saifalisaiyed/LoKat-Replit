@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
+import { useMapPickerState } from "@/hooks/useMapPickerState";
 import {
   View,
   Text,
@@ -64,11 +65,13 @@ export default function MapPickerScreen() {
   const initialLat = parseFloat(paramLat || "40.7580");
   const initialLng = parseFloat(paramLng || "-73.9855");
 
-  const [centerCoord, setCenterCoord] = useState({ lat: initialLat, lng: initialLng });
-  const [confirming, setConfirming] = useState(false);
-  const [step, setStep] = useState<"pick" | "direction">("pick");
-  const [selectedDir, setSelectedDir] = useState("N");
-  const [geocodedLocation, setGeocodedLocation] = useState<{ name: string; address: string } | null>(null);
+  const {
+    centerCoord, setCenterCoord,
+    confirming, setConfirming,
+    step, setStep,
+    selectedDir, setSelectedDir,
+    geocodedLocation, setGeocodedLocation,
+  } = useMapPickerState(initialLat, initialLng);
   const slideAnim = useRef(new Animated.Value(500)).current;
 
   useEffect(() => {

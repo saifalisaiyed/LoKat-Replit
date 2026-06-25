@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
+import { usePhotoCapture } from "@/hooks/usePhotoCapture";
 import {
   View,
   Text,
@@ -105,12 +106,14 @@ export default function CameraScreen() {
   const { requests, submitPhoto, uploadAndSubmitPhoto } = useApp();
   const [permission, requestPermission] = useCameraPermissions();
   const facing: CameraType = "back";
-  const [capturedUri, setCapturedUri] = useState<string | null>(null);
-  const [processedUri, setProcessedUri] = useState<string | null>(null);
-  const [isCapturing, setIsCapturing] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isProcessingFaces, setIsProcessingFaces] = useState(false);
-  const [faceCount, setFaceCount] = useState(0);
+  const {
+    capturedUri, setCapturedUri,
+    processedUri, setProcessedUri,
+    isCapturing, setIsCapturing,
+    isUploading, setIsUploading,
+    isProcessingFaces, setIsProcessingFaces,
+    faceCount, setFaceCount,
+  } = usePhotoCapture();
   const cameraRef = useRef<CameraView>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 

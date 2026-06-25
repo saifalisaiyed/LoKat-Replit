@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useChangePasswordForm } from "@/hooks/useChangePasswordForm";
 import { View, Text, Pressable, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,14 +29,16 @@ import styles from "./change-password.styles";
 export default function ChangePasswordScreen() {
   const insets = useSafeAreaInsets();
   const { changePassword } = useApp();
-  const [currentPwd, setCurrentPwd] = useState("");
-  const [newPwd, setNewPwd] = useState("");
-  const [confirmPwd, setConfirmPwd] = useState("");
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const {
+    currentPwd, setCurrentPwd,
+    newPwd, setNewPwd,
+    confirmPwd, setConfirmPwd,
+    showCurrent, setShowCurrent,
+    showNew, setShowNew,
+    loading, setLoading,
+    error, setError,
+    success, setSuccess,
+  } = useChangePasswordForm();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const canSubmit = currentPwd.length >= 6 && newPwd.length >= 6 && confirmPwd.length >= 6;

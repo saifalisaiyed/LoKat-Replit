@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
+import { useAdminData, type AdminStats } from "@/hooks/useAdminData";
 import { View, Text, Pressable, FlatList, ActivityIndicator, Platform, RefreshControl, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -41,25 +42,19 @@ const STATUS_COLORS: Record<string, string> = {
   abandoned: RED,
 };
 
-interface AdminStats {
-  totalUsers: number;
-  totalRequests: number;
-  openRequests: number;
-  acceptedRequests: number;
-  completedRequests: number;
-  totalEarnings: number;
-}
 
 export default function AdminScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
-  const [requests, setRequests] = useState<PhotoRequest[]>([]);
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const {
+    requests, setRequests,
+    stats, setStats,
+    statusFilter, setStatusFilter,
+    loading, setLoading,
+    refreshing, setRefreshing,
+  } = useAdminData();
 
   const fetchData = useCallback(async () => {
     try {

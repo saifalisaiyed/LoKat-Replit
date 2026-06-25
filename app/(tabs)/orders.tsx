@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
+import { useOrdersFilters, type Tab, type ActiveFilter, type HistoryFilter } from "@/hooks/useOrdersFilters";
 import { View, Text, Pressable, FlatList, Platform, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -29,9 +30,6 @@ import {
 
 import styles from "./orders.styles";
 
-type Tab = "active" | "history";
-type ActiveFilter = "all" | "requested";
-type HistoryFilter = "all" | "requested" | "fulfilled";
 
 function getStatusConfig(status: RequestStatus) {
   switch (status) {
@@ -148,9 +146,11 @@ export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const { requests, user } = useApp();
   const userId = user?.id;
-  const [activeTab, setActiveTab] = useState<Tab>("active");
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
-  const [historyFilter, setHistoryFilter] = useState<HistoryFilter>("all");
+  const {
+    activeTab, setActiveTab,
+    activeFilter, setActiveFilter,
+    historyFilter, setHistoryFilter,
+  } = useOrdersFilters();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const myOrders = useMemo(

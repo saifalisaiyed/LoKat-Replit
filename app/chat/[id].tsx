@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
+import { useChatMessages } from "@/hooks/useChatMessages";
 import { View, Text, Pressable, TextInput, FlatList, Platform, KeyboardAvoidingView, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,12 +24,14 @@ export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user, getMessages, sendMessage } = useApp();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [text, setText] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
-  const [requestName, setRequestName] = useState("Chat");
-  const [otherName, setOtherName] = useState("User");
+  const {
+    messages, setMessages,
+    text, setText,
+    loading, setLoading,
+    sending, setSending,
+    requestName, setRequestName,
+    otherName, setOtherName,
+  } = useChatMessages();
   const flatListRef = useRef<FlatList>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 

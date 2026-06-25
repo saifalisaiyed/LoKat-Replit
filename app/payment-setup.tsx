@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { usePaymentWebView } from "@/hooks/usePaymentWebView";
 import { View, Text, Pressable, ActivityIndicator, Modal, Platform } from "react-native";
 import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,11 +28,13 @@ import styles from "./payment-setup.styles";
 export default function PaymentSetupScreen() {
   const insets = useSafeAreaInsets();
   const { refreshProfile } = useApp();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showWebView, setShowWebView] = useState(false);
-  const [webViewUrl, setWebViewUrl] = useState("");
-  const [webViewLoading, setWebViewLoading] = useState(true);
-  const [status, setStatus] = useState<"idle" | "done" | "error">("idle");
+  const {
+    isLoading, setIsLoading,
+    showWebView, setShowWebView,
+    webViewUrl, setWebViewUrl,
+    webViewLoading, setWebViewLoading,
+    status, setStatus,
+  } = usePaymentWebView();
 
   const handleAddCard = async () => {
     setIsLoading(true);

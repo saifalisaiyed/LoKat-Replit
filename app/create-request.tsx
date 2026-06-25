@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
+import { useRequestLocation } from "@/hooks/useRequestLocation";
+import { useRequestForm } from "@/hooks/useRequestForm";
 import { View, Text, Pressable, TextInput, Platform, Animated, Modal, ActivityIndicator, Keyboard } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -131,13 +133,21 @@ export default function CreateRequestScreen() {
   const restrictionReason = getRestrictionReason(parsedTypes);
 
   const needsGeocode = !paramAddr || paramAddr === "New York, NY" || !paramName || paramName === "Custom Location";
-  const [resolvedName, setResolvedName] = useState(paramName && paramName !== "Custom Location" ? paramName : "Selected Location");
-  const [resolvedAddress, setResolvedAddress] = useState(paramAddr && paramAddr !== "New York, NY" ? paramAddr : "");
-  const [geocoding, setGeocoding] = useState(needsGeocode);
-  const [currentLat, setCurrentLat] = useState(parseFloat(lat || "40.7580"));
-  const [currentLng, setCurrentLng] = useState(parseFloat(lng || "-73.9855"));
-  const [isCustomPinned, setIsCustomPinned] = useState(false);
-  const [facingDirection, setFacingDirection] = useState<string | null>(null);
+  const {
+    resolvedName, setResolvedName,
+    resolvedAddress, setResolvedAddress,
+    geocoding, setGeocoding,
+    currentLat, setCurrentLat,
+    currentLng, setCurrentLng,
+    isCustomPinned, setIsCustomPinned,
+    facingDirection, setFacingDirection,
+  } = useRequestLocation({
+    initialName: paramName && paramName !== "Custom Location" ? paramName : "Selected Location",
+    initialAddress: paramAddr && paramAddr !== "New York, NY" ? paramAddr : "",
+    initialGeocoding: needsGeocode,
+    initialLat: parseFloat(lat || "40.7580"),
+    initialLng: parseFloat(lng || "-73.9855"),
+  });
   const beforePickRef = useRef<{ name: string; address: string; lat: number; lng: number } | null>(null);
 
   useEffect(() => {
@@ -183,22 +193,23 @@ export default function CreateRequestScreen() {
   const address = resolvedAddress;
   const category = (paramCat as Category) || "landmarks";
 
-  const [orientation, setOrientation] = useState<Orientation>("portrait");
-  const [angle, setAngle] = useState<Angle>("eye-level");
-  const [timing, setTiming] = useState<Timing>("now");
-  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
-  const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [reward, setReward] = useState(5);
-  const [note, setNote] = useState("");
-  const [savedNote, setSavedNote] = useState("");
-  const [notesFocused, setNotesFocused] = useState(false);
+  const {
+    orientation, setOrientation,
+    angle, setAngle,
+    timing, setTiming,
+    scheduledDate, setScheduledDate,
+    scheduledTime, setScheduledTime,
+    showDatePicker, setShowDatePicker,
+    showTimePicker, setShowTimePicker,
+    reward, setReward,
+    note, setNote,
+    savedNote, setSavedNote,
+    notesFocused, setNotesFocused,
+    showConfirmation, setShowConfirmation,
+    isSubmitting, setIsSubmitting,
+  } = useRequestForm();
 
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
-
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const confirmAnim = useRef(new Animated.Value(0)).current;
 
   const handleSubmit = async () => {

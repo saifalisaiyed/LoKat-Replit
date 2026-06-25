@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { usePayoutForm, type PayoutType } from "@/hooks/usePayoutForm";
 import { View, Text, Pressable, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,18 +23,18 @@ import {
 
 import styles from "./payout-setup.styles";
 
-type PayoutType = "paypal" | "bank";
-
 export default function PayoutSetupScreen() {
   const insets = useSafeAreaInsets();
   const { refreshProfile } = useApp();
-  const [payoutType, setPayoutType] = useState<PayoutType>("paypal");
-  const [paypalEmail, setPaypalEmail] = useState("");
-  const [bankName, setBankName] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [routingNumber, setRoutingNumber] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
+  const {
+    payoutType, setPayoutType,
+    paypalEmail, setPaypalEmail,
+    bankName, setBankName,
+    accountNumber, setAccountNumber,
+    routingNumber, setRoutingNumber,
+    isSaving, setIsSaving,
+    error, setError,
+  } = usePayoutForm();
 
   const isValid =
     payoutType === "paypal"

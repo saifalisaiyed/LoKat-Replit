@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useFeedbackForm, type FeedbackType } from "@/hooks/useFeedbackForm";
 import { View, Text, Pressable, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, ScrollView, Alert } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,8 +24,6 @@ import {
 
 import styles from "./feedback.styles";
 
-type FeedbackType = "feedback" | "bug";
-
 const TYPES: { key: FeedbackType; label: string; icon: string; color: string; bg: string }[] = [
   { key: "feedback", label: "General Feedback", icon: "message-square", color: PURPLE, bg: PURPLE_A08 },
   { key: "bug", label: "Bug Report", icon: "alert-triangle", color: ORANGE, bg: ORANGE_A08 },
@@ -32,10 +31,12 @@ const TYPES: { key: FeedbackType; label: string; icon: string; color: string; bg
 
 export default function FeedbackScreen() {
   const insets = useSafeAreaInsets();
-  const [type, setType] = useState<FeedbackType>("feedback");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const {
+    type, setType,
+    message, setMessage,
+    loading, setLoading,
+    sent, setSent,
+  } = useFeedbackForm();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const canSubmit = message.trim().length >= 10;

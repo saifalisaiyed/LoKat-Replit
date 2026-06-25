@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useMapFilters } from "@/hooks/useMapFilters";
+import { useHomeSearch } from "@/hooks/useHomeSearch";
 import { View, Pressable, Text, ScrollView, FlatList, Platform, Dimensions, TextInput, Modal, ActivityIndicator, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -192,18 +194,24 @@ export default function HomeScreen() {
   const params = useLocalSearchParams<{ abandoned?: string }>();
   const { getRequestsByCategory, activeRequestId, isAuthenticated, user, abandonRequest } = useApp();
   const mapRef = useRef<any>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
-  const [searchVisible, setSearchVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    selectedCategory, setSelectedCategory,
+    permissionStatus, setPermissionStatus,
+    locationFilter, setLocationFilter,
+    locationFilterVisible, setLocationFilterVisible,
+    myCoords, setMyCoords,
+    heatmapEnabled, setHeatmapEnabled,
+  } = useMapFilters();
+  const {
+    searchVisible, setSearchVisible,
+    searchQuery, setSearchQuery,
+    remoteResults, setRemoteResults,
+    isSearching, setIsSearching,
+  } = useHomeSearch();
   const searchInputRef = useRef<TextInput>(null);
   const [authPromptVisible, setAuthPromptVisible] = useState(false);
   const [authPromptContext, setAuthPromptContext] = useState<AuthPromptContext>("create-request");
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
-  const [locationFilter, setLocationFilter] = useState<string>("anywhere");
-  const [locationFilterVisible, setLocationFilterVisible] = useState(false);
-  const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [heatmapEnabled, setHeatmapEnabled] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -412,8 +420,6 @@ export default function HomeScreen() {
     }
   }, [animateMapToCoords]);
 
-  const [remoteResults, setRemoteResults] = useState<typeof POPULAR_LOCATIONS>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const localResults = useMemo(() => {

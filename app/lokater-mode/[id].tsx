@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigationState } from "@/hooks/useNavigationState";
 import { View, Text, Pressable, Platform, Dimensions, ActivityIndicator, Alert, Modal, BackHandler } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -169,14 +170,13 @@ export default function LoKaterModeScreen() {
   const lokaterIframeRef = useRef<HTMLIFrameElement>(null);
   const navMapRef = useRef<any>(null);
 
-  const [userLocation, setUserLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [_locationError, setLocationError] = useState(false);
-  const [_isTracking, setIsTracking] = useState(false);
-  const [deviceHeading, setDeviceHeading] = useState<number | null>(null);
-  const [routePolyline, setRoutePolyline] = useState<{ latitude: number; longitude: number }[]>([]);
+  const {
+    userLocation, setUserLocation,
+    locationError: _locationError, setLocationError,
+    isTracking: _isTracking, setIsTracking,
+    deviceHeading, setDeviceHeading,
+    routePolyline, setRoutePolyline,
+  } = useNavigationState();
   const magnetometerSubRef = useRef<any>(null);
 
   const arrowRotation = useSharedValue(0);

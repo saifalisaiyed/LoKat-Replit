@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
+import { useNoteEditor } from "@/hooks/useNoteEditor";
 import { View, Text, Pressable, ScrollView, Platform, Dimensions, Modal, Alert, ActivityIndicator, TextInput, BackHandler } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -100,9 +101,11 @@ export default function RequestDetailScreen() {
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
   const [menuVisible, setMenuVisible] = useState(false);
   const [authPromptVisible, setAuthPromptVisible] = useState(false);
-  const [editingNote, setEditingNote] = useState(false);
-  const [noteText, setNoteText] = useState("");
-  const [isSavingNote, setIsSavingNote] = useState(false);
+  const {
+    editingNote, setEditingNote,
+    noteText, setNoteText,
+    isSavingNote, setIsSavingNote,
+  } = useNoteEditor();
   const [freshRequest, setFreshRequest] = useState<any | null>(null);
   const [loadingFresh, setLoadingFresh] = useState(true);
   const [isAccepting, setIsAccepting] = useState(false);

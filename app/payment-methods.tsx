@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useWithdrawState } from "@/hooks/useWithdrawState";
 import { View, Text, Pressable, Platform, Alert, Modal, ActivityIndicator } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -27,9 +28,11 @@ import styles from "./payment-methods.styles";
 export default function PaymentMethodsScreen() {
   const insets = useSafeAreaInsets();
   const { profile } = useApp();
-  const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
-  const [withdrawing, setWithdrawing] = useState(false);
-  const [withdrawn, setWithdrawn] = useState(false);
+  const {
+    withdrawModalVisible, setWithdrawModalVisible,
+    withdrawing, setWithdrawing,
+    withdrawn, setWithdrawn,
+  } = useWithdrawState();
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
 
   const handleWithdraw = async () => {

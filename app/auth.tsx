@@ -1,4 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
+import { useAuthForm } from "@/hooks/useAuthForm";
+import { useForgotPassword } from "@/hooks/useForgotPassword";
 import { View, Text, Pressable, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, ScrollView, Image, Modal, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -92,28 +94,31 @@ function GoogleLogo() {
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
   const { login, register } = useApp();
-  const [mode, setMode] = useState<"login" | "register">("register");
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
-  const [countrySearch, setCountrySearch] = useState("");
+  const {
+    mode, setMode,
+    selectedCountry, setSelectedCountry,
+    phone, setPhone,
+    email, setEmail,
+    password, setPassword,
+    error, setError,
+    loading, setLoading,
+    showCountryPicker, setShowCountryPicker,
+    countrySearch, setCountrySearch,
+    showPassword, setShowPassword,
+  } = useAuthForm(COUNTRY_CODES[0]);
+  const {
+    showForgot, setShowForgot,
+    fpStep, setFpStep,
+    fpEmail, setFpEmail,
+    fpOTP, setFpOTP,
+    fpNewPassword, setFpNewPassword,
+    fpLoading, setFpLoading,
+    fpError, setFpError,
+    fpSuccess, setFpSuccess,
+    showFpPassword, setShowFpPassword,
+  } = useForgotPassword();
   const phoneInputRef = useRef<TextInput>(null);
   const webInsetTop = Platform.OS === "web" ? 67 : 0;
-
-  const [showForgot, setShowForgot] = useState(false);
-  const [fpStep, setFpStep] = useState<"email" | "code">("email");
-  const [fpEmail, setFpEmail] = useState("");
-  const [fpOTP, setFpOTP] = useState("");
-  const [fpNewPassword, setFpNewPassword] = useState("");
-  const [fpLoading, setFpLoading] = useState(false);
-  const [fpError, setFpError] = useState("");
-  const [fpSuccess, setFpSuccess] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showFpPassword, setShowFpPassword] = useState(false);
 
   const openForgot = () => {
     setFpStep("email");

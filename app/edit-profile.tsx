@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { useEditProfileForm } from "@/hooks/useEditProfileForm";
 import { View, Text, Pressable, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,12 +29,18 @@ import styles from "./edit-profile.styles";
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
   const { profile, updateProfile } = useApp();
-  const [name, setName] = useState(profile.name === "Guest" ? "" : profile.name);
-  const [email, setEmail] = useState(profile.email);
-  const [phone, setPhone] = useState(profile.phone);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const {
+    name, setName,
+    email, setEmail,
+    phone, setPhone,
+    loading, setLoading,
+    error, setError,
+    success, setSuccess,
+  } = useEditProfileForm({
+    initialName: profile.name === "Guest" ? "" : profile.name,
+    initialEmail: profile.email,
+    initialPhone: profile.phone,
+  });
   const initialized = useRef(false);
 
   // Sync profile into fields once the real user data loads (useState initializer
