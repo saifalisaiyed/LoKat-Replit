@@ -1,0 +1,26 @@
+diff --git a/server/objectStorage.ts b/server/objectStorage.ts
+index 92d3f43..6615098 100644
+--- a/server/objectStorage.ts
++++ b/server/objectStorage.ts
+@@ -137,8 +137,8 @@ export class ObjectStorageService {
+         return { valid: false, error: `File is too large (${mb} MB). Maximum allowed size is 10 MB.` };
+       }
+       return { valid: true };
+-    } catch (e) {
+-      console.error("validateUploadedImage error:", e);
++    } catch (error) {
++      console.error("validateUploadedImage error:", error);
+       return { valid: false, error: "Could not verify the uploaded file." };
+     }
+   }
+@@ -152,8 +152,8 @@ export class ObjectStorageService {
+       if (!normalizedPath.startsWith("/objects/")) return;
+       const objectFile = await this.getObjectEntityFile(normalizedPath);
+       await objectFile.delete();
+-    } catch (e) {
+-      console.error("deleteObjectFile failed for path:", rawPath, e);
++    } catch (error) {
++      console.error("deleteObjectFile failed for path:", rawPath, error);
+     }
+   }
+ 

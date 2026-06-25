@@ -1,0 +1,101 @@
+diff --git a/lib/usePushNotifications.ts b/lib/usePushNotifications.ts
+index 0946dbe..f6c1404 100644
+--- a/lib/usePushNotifications.ts
++++ b/lib/usePushNotifications.ts
+@@ -5,27 +5,35 @@ import { getApiUrl } from "./query-client";
+ import Constants from "expo-constants";
+ 
+ const isExpoGo = Constants.appOwnership === "expo";
++const notificationsSupported = !isExpoGo && Platform.OS !== "web";
+ 
+-if (!isExpoGo && Platform.OS !== "web") {
++let Notifications: any = null;
++if (notificationsSupported) {
+   try {
+-    const Notifications = require("expo-notifications");
+-    Notifications.setNotificationHandler({
+-      handleNotification: async () => ({
+-        shouldShowAlert: true,
+-        shouldPlaySound: true,
+-        shouldSetBadge: true,
+-        shouldShowBanner: true,
+-        shouldShowList: true,
+-      }),
+-    });
++    Notifications = require("expo-notifications");
+   } catch (_e) {
++    Notifications = null;
++  }
++  if (Notifications) {
++    try {
++      Notifications.setNotificationHandler({
++        handleNotification: async () => ({
++          shouldShowAlert: true,
++          shouldPlaySound: true,
++          shouldSetBadge: true,
++          shouldShowBanner: true,
++          shouldShowList: true,
++        }),
++      });
++    } catch (_e) {
++      // Handler setup failing must not disable notifications entirely.
++    }
+   }
+ }
+ 
+ async function registerForPushNotificationsAsync(): Promise<string | null> {
+-  if (Platform.OS === "web" || isExpoGo) return null;
++  if (!Notifications || Platform.OS === "web" || isExpoGo) return null;
+   try {
+-    const Notifications = require("expo-notifications");
+     const { status: existingStatus } = await Notifications.getPermissionsAsync();
+     let finalStatus = existingStatus;
+     if (existingStatus !== "granted") {
+@@ -35,8 +43,8 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
+     if (finalStatus !== "granted") return null;
+     const tokenData = await Notifications.getExpoPushTokenAsync();
+     return tokenData.data;
+-  } catch (e) {
+-    console.warn("Push notification setup skipped:", e);
++  } catch (error) {
++    console.warn("Push notification setup skipped:", error);
+     return null;
+   }
+ }
+@@ -50,8 +58,8 @@ async function savePushToken(token: string): Promise<void> {
+       credentials: "include",
+       body: JSON.stringify({ token }),
+     });
+-  } catch (e) {
+-    console.warn("Failed to save push token:", e);
++  } catch (error) {
++    console.warn("Failed to save push token:", error);
+   }
+ }
+ 
+@@ -61,7 +69,7 @@ export function usePushNotifications(isAuthenticated: boolean): void {
+   const registeredRef = useRef(false);
+ 
+   useEffect(() => {
+-    if (!isAuthenticated || registeredRef.current || Platform.OS === "web" || isExpoGo) return;
++    if (!Notifications || !isAuthenticated || registeredRef.current || Platform.OS === "web" || isExpoGo) return;
+ 
+     registeredRef.current = true;
+ 
+@@ -70,8 +78,6 @@ export function usePushNotifications(isAuthenticated: boolean): void {
+     });
+ 
+     try {
+-      const Notifications = require("expo-notifications");
+-
+       foregroundListenerRef.current = Notifications.addNotificationReceivedListener(() => {});
+ 
+       responseListenerRef.current = Notifications.addNotificationResponseReceivedListener(
+@@ -98,7 +104,6 @@ export function usePushNotifications(isAuthenticated: boolean): void {
+ 
+     return () => {
+       try {
+-        const Notifications = require("expo-notifications");
+         if (foregroundListenerRef.current) {
+           Notifications.removeNotificationSubscription(foregroundListenerRef.current);
+         }

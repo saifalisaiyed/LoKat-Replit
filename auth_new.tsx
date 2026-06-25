@@ -1,0 +1,615 @@
+import React, { useRef } from "react";
+import { useAuthForm } from "@/hooks/useAuthForm";
+import { useForgotPassword } from "@/hooks/useForgotPassword";
+import { View, Text, Pressable, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, ScrollView, Image, Modal, FlatList } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { useApp } from "@/lib/store";
+import { getApiUrl } from "@/lib/query-client";
+import {
+  BLACK,
+  BLACK_A03,
+  BLACK_A40,
+  GOOGLE_BLUE,
+  GRAY_100,
+  GRAY_105,
+  GRAY_140,
+  GRAY_150,
+  GRAY_170,
+  GRAY_210,
+  GRAY_220,
+  GRAY_380,
+  GRAY_500,
+  GRAY_550,
+  GRAY_600,
+  GRAY_850,
+  PURPLE,
+  PURPLE_40,
+  PURPLE_A04,
+  PURPLE_A12,
+  RED,
+  RED_50,
+  WHITE,
+} from "@/constants/colors";
+
+import styles from "@/styles/auth";
+
+const lokatLogo = require("@/assets/images/lokat-logo.png");
+
+const COUNTRY_CODES = [
+  { code: "+1", flag: "🇺🇸", name: "United States" },
+  { code: "+1", flag: "🇨🇦", name: "Canada" },
+  { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
+  { code: "+91", flag: "🇮🇳", name: "India" },
+  { code: "+61", flag: "🇦🇺", name: "Australia" },
+  { code: "+49", flag: "🇩🇪", name: "Germany" },
+  { code: "+33", flag: "🇫🇷", name: "France" },
+  { code: "+81", flag: "🇯🇵", name: "Japan" },
+  { code: "+86", flag: "🇨🇳", name: "China" },
+  { code: "+82", flag: "🇰🇷", name: "South Korea" },
+  { code: "+55", flag: "🇧🇷", name: "Brazil" },
+  { code: "+52", flag: "🇲🇽", name: "Mexico" },
+  { code: "+39", flag: "🇮🇹", name: "Italy" },
+  { code: "+34", flag: "🇪🇸", name: "Spain" },
+  { code: "+31", flag: "🇳🇱", name: "Netherlands" },
+  { code: "+46", flag: "🇸🇪", name: "Sweden" },
+  { code: "+47", flag: "🇳🇴", name: "Norway" },
+  { code: "+45", flag: "🇩🇰", name: "Denmark" },
+  { code: "+41", flag: "🇨🇭", name: "Switzerland" },
+  { code: "+48", flag: "🇵🇱", name: "Poland" },
+  { code: "+7", flag: "🇷🇺", name: "Russia" },
+  { code: "+90", flag: "🇹🇷", name: "Turkey" },
+  { code: "+966", flag: "🇸🇦", name: "Saudi Arabia" },
+  { code: "+971", flag: "🇦🇪", name: "UAE" },
+  { code: "+234", flag: "🇳🇬", name: "Nigeria" },
+  { code: "+27", flag: "🇿🇦", name: "South Africa" },
+  { code: "+254", flag: "🇰🇪", name: "Kenya" },
+  { code: "+63", flag: "🇵🇭", name: "Philippines" },
+  { code: "+65", flag: "🇸🇬", name: "Singapore" },
+  { code: "+60", flag: "🇲🇾", name: "Malaysia" },
+  { code: "+66", flag: "🇹🇭", name: "Thailand" },
+  { code: "+62", flag: "🇮🇩", name: "Indonesia" },
+  { code: "+64", flag: "🇳🇿", name: "New Zealand" },
+  { code: "+353", flag: "🇮🇪", name: "Ireland" },
+  { code: "+351", flag: "🇵🇹", name: "Portugal" },
+  { code: "+43", flag: "🇦🇹", name: "Austria" },
+  { code: "+32", flag: "🇧🇪", name: "Belgium" },
+  { code: "+54", flag: "🇦🇷", name: "Argentina" },
+  { code: "+56", flag: "🇨🇱", name: "Chile" },
+  { code: "+57", flag: "🇨🇴", name: "Colombia" },
+];
+
+function GoogleLogo() {
+  return (
+    <View style={{ width: 20, height: 20, alignItems: "center", justifyContent: "center" }}>
+      <Text style={{ fontSize: 16, fontWeight: "700" }}>
+        <Text style={{ color: GOOGLE_BLUE }}>G</Text>
+      </Text>
+    </View>
+  );
+}
+
+export default function AuthScreen() {
+  const insets = useSafeAreaInsets();
+  const { login, register } = useApp();
+  const {
+    mode, setMode,
+    selectedCountry, setSelectedCountry,
+    phone, setPhone,
+    email, setEmail,
+    password, setPassword,
+    error, setError,
+    loading, setLoading,
+    showCountryPicker, setShowCountryPicker,
+    countrySearch, setCountrySearch,
+    showPassword, setShowPassword,
+  } = useAuthForm(COUNTRY_CODES[0]);
+  const {
+    showForgot, setShowForgot,
+    fpStep, setFpStep,
+    fpEmail, setFpEmail,
+    fpOTP, setFpOTP,
+    fpNewPassword, setFpNewPassword,
+    fpLoading, setFpLoading,
+    fpError, setFpError,
+    fpSuccess, setFpSuccess,
+    showFpPassword, setShowFpPassword,
+  } = useForgotPassword();
+  const phoneInputRef = useRef<TextInput>(null);
+  const webInsetTop = Platform.OS === "web" ? 67 : 0;
+
+  const openForgot = () => {
+    setFpStep("email");
+    setFpEmail(email);
+    setFpOTP("");
+    setFpNewPassword("");
+    setFpError("");
+    setFpSuccess(false);
+    setShowForgot(true);
+  };
+
+  const handleForgotSend = async () => {
+    setFpError("");
+    if (!fpEmail.trim()) { setFpError("Please enter your email."); return; }
+    setFpLoading(true);
+    try {
+      const res = await fetch(getApiUrl("/api/auth/forgot-password"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: fpEmail.trim().toLowerCase() }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setFpError(d.message || "Something went wrong.");
+      } else {
+        setFpStep("code");
+      }
+    } catch {
+      setFpError("Network error. Please try again.");
+    } finally {
+      setFpLoading(false);
+    }
+  };
+
+  const handleForgotReset = async () => {
+    setFpError("");
+    if (!fpOTP.trim()) { setFpError("Enter the 6-digit code."); return; }
+    if (!fpNewPassword.trim() || fpNewPassword.trim().length < 6) { setFpError("Password must be at least 6 characters."); return; }
+    setFpLoading(true);
+    try {
+      const res = await fetch(getApiUrl("/api/auth/reset-password"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: fpEmail.trim().toLowerCase(), otp: fpOTP.trim(), newPassword: fpNewPassword.trim() }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFpError(d.message || "Something went wrong.");
+      } else {
+        setFpSuccess(true);
+      }
+    } catch {
+      setFpError("Network error. Please try again.");
+    } finally {
+      setFpLoading(false);
+    }
+  };
+
+  const filteredCountries = countrySearch.trim()
+    ? COUNTRY_CODES.filter(
+        (c) =>
+          c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+          c.code.includes(countrySearch)
+      )
+    : COUNTRY_CODES;
+
+  const handleSubmit = async () => {
+    setError("");
+    if (mode === "register") {
+      if (!phone.trim()) {
+        setError("Please enter your phone number");
+        return;
+      }
+      if (!password.trim() || password.trim().length < 6) {
+        setError("Password must be at least 6 characters");
+        return;
+      }
+    } else {
+      if (!email.trim() || !password.trim()) {
+        setError("Please fill in all fields");
+        return;
+      }
+    }
+    setLoading(true);
+    try {
+      let result;
+      if (mode === "login") {
+        result = await login(email.trim(), password.trim());
+      } else {
+        const fullPhone = selectedCountry.code + phone.trim().replace(/^0+/, "");
+        result = await register(fullPhone, password.trim());
+      }
+      if (result.ok) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (mode === "register") {
+          router.replace("/onboarding/name");
+        } else {
+          router.replace("/(tabs)");
+        }
+      } else {
+        setError(result.error || "Something went wrong");
+      }
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSkip = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.replace("/(tabs)");
+  };
+
+  const handleGoogleSignIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setError("Google sign-in coming soon");
+  };
+
+  const switchMode = () => {
+    setMode(mode === "register" ? "login" : "register");
+    setError("");
+  };
+
+  const selectCountry = (country: (typeof COUNTRY_CODES)[0]) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelectedCountry(country);
+    setShowCountryPicker(false);
+    setCountrySearch("");
+    setTimeout(() => phoneInputRef.current?.focus(), 100);
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + 24 + webInsetTop, paddingBottom: insets.bottom + 24 },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.logoSection}>
+          <Image source={lokatLogo} style={styles.logoImage} />
+        </View>
+
+        <View style={styles.headerSection}>
+          <Text style={styles.headerTitle}>
+            {mode === "register" ? "Create Your Account" : "Welcome Back"}
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            {mode === "register"
+              ? "Sign up with your phone number to get started"
+              : "Log in with your email or phone number"}
+          </Text>
+        </View>
+
+        <View style={styles.formCard}>
+          {mode === "register" ? (
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Phone Number</Text>
+              <View style={styles.phoneRow}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.countryCodeBtn,
+                    pressed && { backgroundColor: GRAY_140 },
+                  ]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setShowCountryPicker(true);
+                  }}
+                >
+                  <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
+                  <Text style={styles.countryCode}>{selectedCountry.code}</Text>
+                  <Ionicons name="chevron-down" size={14} color={GRAY_500} />
+                </Pressable>
+                <TextInput
+                  ref={phoneInputRef}
+                  style={styles.phoneInput}
+                  placeholder="555 123 4567"
+                  placeholderTextColor={GRAY_380}
+                  value={phone}
+                  onChangeText={(text) => {
+                    const cleaned = text.replace(/[^0-9 ]/g, "");
+                    setPhone(cleaned);
+                  }}
+                  keyboardType="number-pad"
+                  autoComplete="tel"
+                />
+              </View>
+            </View>
+          ) : (
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Email or Phone Number</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="your@email.com or +1 234 567 8901"
+                placeholderTextColor={GRAY_380}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="default"
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="username"
+              />
+            </View>
+          )}
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                style={[styles.input, styles.passwordInput]}
+                placeholder={mode === "register" ? "Min 6 characters" : "Enter your password"}
+                placeholderTextColor={GRAY_380}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoComplete={mode === "register" ? "new-password" : "current-password"}
+              />
+              <Pressable
+                onPress={() => setShowPassword((v) => !v)}
+                style={styles.eyeBtn}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={GRAY_500}
+                />
+              </Pressable>
+            </View>
+          </View>
+
+          {mode === "login" && (
+            <Pressable onPress={openForgot} hitSlop={8} style={styles.forgotRow}>
+              <Text style={styles.forgotText}>Forgot password?</Text>
+            </Pressable>
+          )}
+
+          {error ? (
+            <View style={styles.errorRow}>
+              <Ionicons name="alert-circle" size={16} color={RED} />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.submitBtn,
+              pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
+              loading && { opacity: 0.7 },
+            ]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={WHITE} size="small" />
+            ) : (
+              <Text style={styles.submitBtnText}>
+                {mode === "register" ? "Sign Up" : "Log In"}
+              </Text>
+            )}
+          </Pressable>
+        </View>
+
+        <View style={styles.bottomSection}>
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.googleBtn,
+              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+            ]}
+            onPress={handleGoogleSignIn}
+          >
+            <GoogleLogo />
+            <Text style={styles.googleBtnText}>
+              {mode === "register" ? "Sign up with Google" : "Log in with Google"}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.guestBtn,
+              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+            ]}
+            onPress={handleSkip}
+          >
+            <Ionicons name="eye-outline" size={18} color={GRAY_600} />
+            <Text style={styles.guestBtnText}>Continue as Guest</Text>
+          </Pressable>
+
+          <Pressable onPress={switchMode} hitSlop={8} style={styles.switchRow}>
+            <Text style={styles.switchText}>
+              {mode === "register" ? (
+                <>Already have an account? <Text style={styles.switchLink}>Log in</Text></>
+              ) : (
+                <>{"Don't have an account?"} <Text style={styles.switchLink}>Sign up</Text></>
+              )}
+            </Text>
+          </Pressable>
+
+          <Text style={styles.termsText}>
+            By continuing, you agree to our{" "}
+            <Text style={styles.termsLink}>Terms of Service</Text>
+            {" "}and{" "}
+            <Text style={styles.termsLink}>Privacy Policy</Text>
+          </Text>
+        </View>
+      </ScrollView>
+
+      <Modal
+        visible={showCountryPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setShowCountryPicker(false);
+          setCountrySearch("");
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={styles.modalBackdrop}
+            onPress={() => {
+              setShowCountryPicker(false);
+              setCountrySearch("");
+            }}
+          />
+          <View style={[styles.modalContent, { paddingBottom: insets.bottom + 16 }]}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>Select Country</Text>
+
+            <View style={styles.searchWrapper}>
+              <Ionicons name="search" size={18} color={GRAY_500} style={{ marginLeft: 12 }} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search country..."
+                placeholderTextColor={GRAY_380}
+                value={countrySearch}
+                onChangeText={setCountrySearch}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <FlatList
+              data={filteredCountries}
+              keyExtractor={(item, index) => `${item.code}-${item.name}-${index}`}
+              style={styles.countryList}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item }) => (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.countryRow,
+                    pressed && { backgroundColor: PURPLE_40 },
+                    item.code === selectedCountry.code &&
+                      item.name === selectedCountry.name &&
+                      styles.countryRowSelected,
+                  ]}
+                  onPress={() => selectCountry(item)}
+                >
+                  <Text style={styles.countryRowFlag}>{item.flag}</Text>
+                  <Text style={styles.countryRowName}>{item.name}</Text>
+                  <Text style={styles.countryRowCode}>{item.code}</Text>
+                  {item.code === selectedCountry.code &&
+                    item.name === selectedCountry.name && (
+                      <Ionicons name="checkmark-circle" size={20} color={PURPLE} />
+                    )}
+                </Pressable>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showForgot} animationType="slide" transparent onRequestClose={() => setShowForgot(false)}>
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setShowForgot(false)} />
+          <View style={[styles.modalContent, { paddingBottom: insets.bottom + 24 }]}>
+            <View style={styles.modalHandle} />
+            {fpSuccess ? (
+              <>
+                <View style={{ alignItems: "center", paddingVertical: 24 }}>
+                  <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: PURPLE_A12, alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                    <Ionicons name="checkmark-circle" size={32} color={PURPLE} />
+                  </View>
+                  <Text style={[styles.modalTitle, { marginBottom: 8 }]}>Password reset!</Text>
+                  <Text style={{ color: GRAY_550, textAlign: "center", fontSize: 14, fontFamily: "Archivo_400Regular" }}>
+                    Your password has been updated. You can now log in.
+                  </Text>
+                </View>
+                <Pressable style={[styles.submitBtn, { marginTop: 8 }]} onPress={() => setShowForgot(false)}>
+                  <Text style={styles.submitBtnText}>Back to Login</Text>
+                </Pressable>
+              </>
+            ) : fpStep === "email" ? (
+              <>
+                <Text style={styles.modalTitle}>Forgot password</Text>
+                <Text style={{ color: GRAY_550, fontSize: 14, fontFamily: "Archivo_400Regular", marginBottom: 20 }}>
+                  {"Enter your email and we'll send you a reset code."}
+                </Text>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Email</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your email"
+                    placeholderTextColor={GRAY_380}
+                    value={fpEmail}
+                    onChangeText={setFpEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+                {fpError ? (
+                  <View style={[styles.errorRow, { marginBottom: 8 }]}>
+                    <Ionicons name="alert-circle" size={15} color={RED} />
+                    <Text style={styles.errorText}>{fpError}</Text>
+                  </View>
+                ) : null}
+                <Pressable style={[styles.submitBtn, fpLoading && { opacity: 0.7 }]} onPress={handleForgotSend} disabled={fpLoading}>
+                  {fpLoading ? <ActivityIndicator color={WHITE} size="small" /> : <Text style={styles.submitBtnText}>Send code</Text>}
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text style={styles.modalTitle}>Enter your code</Text>
+                <Text style={{ color: GRAY_550, fontSize: 14, fontFamily: "Archivo_400Regular", marginBottom: 20 }}>
+                  We sent a 6-digit code to {fpEmail}. Enter it below along with your new password.
+                </Text>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Reset code</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="6-digit code"
+                    placeholderTextColor={GRAY_380}
+                    value={fpOTP}
+                    onChangeText={setFpOTP}
+                    keyboardType="number-pad"
+                    maxLength={6}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>New password</Text>
+                  <View style={styles.passwordRow}>
+                    <TextInput
+                      style={[styles.input, styles.passwordInput]}
+                      placeholder="Min 6 characters"
+                      placeholderTextColor={GRAY_380}
+                      value={fpNewPassword}
+                      onChangeText={setFpNewPassword}
+                      secureTextEntry={!showFpPassword}
+                    />
+                    <Pressable
+                      onPress={() => setShowFpPassword((v) => !v)}
+                      style={styles.eyeBtn}
+                      hitSlop={8}
+                    >
+                      <Ionicons
+                        name={showFpPassword ? "eye-off-outline" : "eye-outline"}
+                        size={20}
+                        color={GRAY_500}
+                      />
+                    </Pressable>
+                  </View>
+                </View>
+                {fpError ? (
+                  <View style={[styles.errorRow, { marginBottom: 8 }]}>
+                    <Ionicons name="alert-circle" size={15} color={RED} />
+                    <Text style={styles.errorText}>{fpError}</Text>
+                  </View>
+                ) : null}
+                <Pressable style={[styles.submitBtn, fpLoading && { opacity: 0.7 }]} onPress={handleForgotReset} disabled={fpLoading}>
+                  {fpLoading ? <ActivityIndicator color={WHITE} size="small" /> : <Text style={styles.submitBtnText}>Reset password</Text>}
+                </Pressable>
+                <Pressable onPress={() => setFpStep("email")} hitSlop={8} style={{ alignItems: "center", marginTop: 12 }}>
+                  <Text style={styles.forgotText}>Resend code</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+    </KeyboardAvoidingView>
+  );
+}
