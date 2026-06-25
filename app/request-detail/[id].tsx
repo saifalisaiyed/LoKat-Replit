@@ -333,7 +333,7 @@ export default function RequestDetailScreen() {
               <View style={styles.acceptedInfo}>
                 <Text style={styles.acceptedTitle}>LoKater accepted your request</Text>
                 <Text style={styles.acceptedSub}>
-                  They're heading to the location now. Use the chat below to share extra details or updates.
+                  {"They're heading to the location now. Use the chat below to share extra details or updates."}
                 </Text>
               </View>
             </View>

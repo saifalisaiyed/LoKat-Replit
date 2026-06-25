@@ -826,7 +826,7 @@ export default function HomeScreen() {
               ) : searchQuery.trim().length > 0 ? (
                 <View style={styles.searchEmpty}>
                   <Ionicons name="location-outline" size={28} color={GRAY_170} />
-                  <Text style={styles.searchEmptyText}>No locations match "{searchQuery}"</Text>
+                  <Text style={styles.searchEmptyText}>{`No locations match "${searchQuery}"`}</Text>
                 </View>
               ) : null
             }

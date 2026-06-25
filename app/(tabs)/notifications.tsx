@@ -7,8 +7,7 @@ import {
   FlatList,
   Platform,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -111,7 +110,7 @@ export default function NotificationsScreen() {
       <Ionicons name="notifications-off-outline" size={36} color={GRAY_170} />
       <Text style={styles.emptyTitle}>No notifications yet</Text>
       <Text style={styles.emptySubtitle}>
-        You'll be notified when there's activity on your requests
+        {"You'll be notified when there's activity on your requests"}
       </Text>
     </View>
   );

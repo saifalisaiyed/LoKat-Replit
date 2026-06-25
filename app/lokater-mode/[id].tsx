@@ -602,7 +602,7 @@ window.addEventListener('message',function(event){try{var data=typeof event.data
               color={GRASS}
             />
             <Text style={styles.arrivedText}>
-              You're in range — find the perfect angle
+              {"You're in range — find the perfect angle"}
             </Text>
           </View>
         )}

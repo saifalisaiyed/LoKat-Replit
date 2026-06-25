@@ -1,4 +1,4 @@
-import { eq, desc, and, or, ne, sql, asc, inArray } from "drizzle-orm";
+import { eq, desc, and, or, ne, sql, asc } from "drizzle-orm";
 import { db } from "./db";
 import {
   users,
@@ -13,7 +13,7 @@ import {
   type Message,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
-import { sendPushToUser, sendPushToUsers } from "./pushNotifications";
+import { sendPushToUser } from "./pushNotifications";
 import * as crypto from "crypto";
 import bcrypt from "bcryptjs";
 

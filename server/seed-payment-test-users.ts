@@ -2,8 +2,7 @@ import { db } from "./db";
 import { users } from "../shared/schema";
 import { eq } from "drizzle-orm";
 import { getUncachableStripeClient } from "./stripeClient";
-import crypto from "crypto";
-import { randomUUID } from "crypto";
+import crypto, { randomUUID } from "crypto";
 
 function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");

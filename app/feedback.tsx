@@ -115,7 +115,7 @@ export default function FeedbackScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.introText}>
-          Help us improve LoKat. Whether it's a bug, a suggestion, or general thoughts — we want to hear from you.
+          {"Help us improve LoKat. Whether it's a bug, a suggestion, or general thoughts — we want to hear from you."}
         </Text>
 
         <View style={styles.section}>

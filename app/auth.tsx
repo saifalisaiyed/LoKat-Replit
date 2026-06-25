@@ -430,7 +430,7 @@ export default function AuthScreen() {
               {mode === "register" ? (
                 <>Already have an account? <Text style={styles.switchLink}>Log in</Text></>
               ) : (
-                <>Don't have an account? <Text style={styles.switchLink}>Sign up</Text></>
+                <>{"Don't have an account?"} <Text style={styles.switchLink}>Sign up</Text></>
               )}
             </Text>
           </Pressable>
@@ -532,7 +532,7 @@ export default function AuthScreen() {
               <>
                 <Text style={styles.modalTitle}>Forgot password</Text>
                 <Text style={{ color: GRAY_550, fontSize: 14, fontFamily: "Archivo_400Regular", marginBottom: 20 }}>
-                  Enter your email and we'll send you a reset code.
+                  {"Enter your email and we'll send you a reset code."}
                 </Text>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Email</Text>

@@ -1,6 +1,15 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "node:http";
 import multer from "multer";
+import * as fs from "fs";
+import * as path from "path";
+import session from "express-session";
+import pgSession from "connect-pg-simple";
+import { storage, verifyPassword, hashPassword } from "./storage";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { ObjectPermission } from "./objectAcl";
+import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
+import { getUncachableResendClient } from "./resend";
 
 // BlazeFace singleton — loaded once on first face-blur request
 let _blazeFaceModel: any = null;
@@ -15,15 +24,6 @@ async function getBlazeModel() {
   }
   return _blazeFaceModel;
 }
-import * as fs from "fs";
-import * as path from "path";
-import session from "express-session";
-import pgSession from "connect-pg-simple";
-import { storage, verifyPassword, hashPassword } from "./storage";
-import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { ObjectPermission } from "./objectAcl";
-import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
-import { getUncachableResendClient } from "./resend";
 
 declare module "express-session" {
   interface SessionData {
@@ -83,10 +83,6 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#x27;");
 }
 
-function maxLen(val: unknown, limit: number): string | null {
-  if (typeof val !== "string") return null;
-  return val.length <= limit ? val : null;
-}
 
 const VALID_CATEGORIES = new Set(["landmarks","nature","markets","beaches","cityscapes","food","hidden-gems","events"]);
 const VALID_ORIENTATIONS = new Set(["portrait","landscape"]);
@@ -197,7 +193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       await storage.updateUserPushToken(req.session.userId!, token);
       return res.json({ ok: true });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to register push token" });
     }
   });
@@ -235,7 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       return res.json({ ok: true });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Server error" });
     }
   });
@@ -266,7 +262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.resetUserPassword(user.id, hashed);
 
       return res.json({ ok: true });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Server error" });
     }
   });
@@ -323,7 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) return res.status(404).json({ message: "User not found" });
       const { password: _, ...safeUser } = user;
       return res.json({ user: safeUser });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Update failed" });
     }
   });
@@ -349,7 +345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const ok = await storage.changePassword(user.id, hashed);
       if (!ok) return res.status(500).json({ message: "Failed to change password" });
       return res.json({ message: "Password changed successfully" });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to change password" });
     }
   });
@@ -434,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const requests = await storage.getRequestsByUser(req.session.userId!);
       return res.json(requests);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to fetch your requests" });
     }
   });
@@ -444,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.getRequestById(paramId(req));
       if (!request) return res.status(404).json({ message: "Request not found" });
       return res.json(request);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to fetch request" });
     }
   });
@@ -530,7 +526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.acceptRequest(id, req.session.userId!);
       if (!request) return res.status(400).json({ message: "Cannot accept this request" });
       return res.json(request);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to accept request" });
     }
   });
@@ -547,7 +543,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.abandonRequest(id);
       if (!request) return res.status(400).json({ message: "Cannot abandon this request" });
       return res.json(request);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to abandon request" });
     }
   });
@@ -566,7 +562,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.submitPhoto(id, photoUri);
       if (!request) return res.status(400).json({ message: "Cannot submit photo" });
       return res.json(request);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to submit photo" });
     }
   });
@@ -583,7 +579,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.completeRequest(id);
       if (!request) return res.status(400).json({ message: "Cannot complete request" });
       return res.json(request);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to complete request" });
     }
   });
@@ -598,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updated = await storage.updateRequestNote(id, req.session.userId!, note.trim());
       if (!updated) return res.status(404).json({ message: "Request not found or not yours" });
       return res.json(updated);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to update note" });
     }
   });
@@ -610,7 +606,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const deleted = await storage.deleteRequest(id, req.session.userId!);
       if (!deleted) return res.status(404).json({ message: "Request not found or not yours" });
       return res.json({ ok: true });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to delete request" });
     }
   });
@@ -619,7 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const notifs = await storage.getNotifications(req.session.userId!);
       return res.json(notifs);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to fetch notifications" });
     }
   });
@@ -628,7 +624,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const count = await storage.getUnreadCount(req.session.userId!);
       return res.json({ count });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to get unread count" });
     }
   });
@@ -639,7 +635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!id) return;
       await storage.markNotificationRead(id, req.session.userId!);
       return res.json({ ok: true });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to mark notification read" });
     }
   });
@@ -648,7 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.markAllNotificationsRead(req.session.userId!);
       return res.json({ ok: true });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to mark all read" });
     }
   });
@@ -667,7 +663,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const msgs = await storage.getMessages(id);
       return res.json(msgs);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to fetch messages" });
     }
   });
@@ -713,7 +709,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
       }
       return res.status(201).json(msg);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to send message" });
     }
   });
@@ -783,7 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requestsFulfilled: user.requestsFulfilled,
         createdAt: user.createdAt,
       });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ message: "Failed to fetch profile" });
     }
   });
@@ -942,7 +938,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const imgH = meta.height ?? 1080;
 
       // Server-side face detection via BlazeFace (runs locally, no external API).
-      let faces: Array<{ x: number; y: number; width: number; height: number }> = [];
+      let faces: { x: number; y: number; width: number; height: number }[] = [];
       try {
         const tf = await import("@tensorflow/tfjs" as any);
         const model = await getBlazeModel();
@@ -1352,7 +1348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       return res.json({ hasPaymentMethod, payoutInfo: user.payoutInfo });
-    } catch (error: any) {
+    } catch {
       return res.status(500).json({ message: "Failed to check payment status" });
     }
   });
@@ -1369,7 +1365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       await storage.updatePayoutInfo(req.session.userId!, payoutInfo);
       return res.json({ success: true });
-    } catch (error: any) {
+    } catch {
       return res.status(500).json({ message: "Failed to save payout info" });
     }
   });

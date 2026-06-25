@@ -179,7 +179,7 @@ export default function PayoutSetupScreen() {
         ) : null}
 
         <Text style={styles.disclaimer}>
-          Your payout details are stored securely. We'll process withdrawals within 2-3 business days.
+          {"Your payout details are stored securely. We'll process withdrawals within 2-3 business days."}
         </Text>
 
         <Pressable

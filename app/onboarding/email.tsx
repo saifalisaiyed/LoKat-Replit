@@ -84,7 +84,7 @@ export default function OnboardingEmail() {
         </View>
 
         <Text style={styles.title}>Add your email</Text>
-        <Text style={styles.subtitle}>We'll use this for receipts and account recovery. You can also log in with it later.</Text>
+        <Text style={styles.subtitle}>{"We'll use this for receipts and account recovery. You can also log in with it later."}</Text>
 
         <View style={styles.inputWrapper}>
           <TextInput

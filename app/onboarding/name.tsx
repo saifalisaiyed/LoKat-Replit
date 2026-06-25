@@ -79,7 +79,7 @@ export default function OnboardingName() {
           <Ionicons name="person-outline" size={32} color={PURPLE} />
         </View>
 
-        <Text style={styles.title}>What's your name?</Text>
+        <Text style={styles.title}>{"What's your name?"}</Text>
         <Text style={styles.subtitle}>This is how other users will see you on LoKat</Text>
 
         <View style={styles.inputWrapper}>

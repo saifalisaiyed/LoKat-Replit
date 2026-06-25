@@ -140,7 +140,7 @@ export default function PaymentMethodsScreen() {
                 </View>
                 <Text style={styles.modalTitle}>Request Submitted!</Text>
                 <Text style={styles.modalBody}>
-                  Your withdrawal of ${profile.earnings.toFixed(2)} has been requested. You'll receive your payment within 2–3 business days.
+                  {`Your withdrawal of $${profile.earnings.toFixed(2)} has been requested. You'll receive your payment within 2–3 business days.`}
                 </Text>
                 <Pressable
                   style={styles.modalDoneBtn}
@@ -160,7 +160,7 @@ export default function PaymentMethodsScreen() {
                 </Text>
                 <Text style={styles.modalAmount}>${profile.earnings.toFixed(2)}</Text>
                 <Text style={styles.modalNote}>
-                  Processing takes 2–3 business days. You'll receive a confirmation email when completed.
+                  {"Processing takes 2–3 business days. You'll receive a confirmation email when completed."}
                 </Text>
                 <View style={styles.modalActions}>
                   <Pressable

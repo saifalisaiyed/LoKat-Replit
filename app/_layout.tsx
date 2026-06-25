@@ -2,16 +2,12 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState, useCallback } from "react";
-import { getApiUrl } from "@/lib/query-client";
 import { View, ImageBackground, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { queryClient } from "@/lib/query-client";
+import { getApiUrl, queryClient } from "@/lib/query-client";
 import { AppProvider } from "@/lib/store";
-
-const splashBg = require("@/assets/images/splash.png");
-const lokatFullLogo = require("@/assets/images/lokat-full-logo.png");
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -29,6 +25,9 @@ import {
   Archivo_700Bold,
 } from "@expo-google-fonts/archivo";
 import { DARK_MAP, WHITE_A70 } from "@/constants/colors";
+
+const splashBg = require("@/assets/images/splash.png");
+const lokatFullLogo = require("@/assets/images/lokat-full-logo.png");
 
 SplashScreen.preventAutoHideAsync();
 
