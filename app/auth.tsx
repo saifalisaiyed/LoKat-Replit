@@ -20,7 +20,7 @@ import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
-import { BLACK, BLACK_A03, BLACK_A40, GOOGLE_BLUE, GRAY_100, GRAY_105, GRAY_140, GRAY_150, GRAY_170, GRAY_210, GRAY_220, GRAY_380, GRAY_500, GRAY_550, PURPLE_40, PURPLE_A04, PURPLE_A12, RED, RED_50, WHITE } from "@/constants/colors.js";
+import { BLACK, BLACK_A03, BLACK_A40, GOOGLE_BLUE, GRAY_100, GRAY_105, GRAY_140, GRAY_150, GRAY_170, GRAY_210, GRAY_220, GRAY_380, GRAY_500, GRAY_550, PURPLE_40, PURPLE_A04, PURPLE_A12, RED, RED_50, WHITE } from "@/constants/colors";
 
 const lokatLogo = require("@/assets/images/lokat-logo.png");
 

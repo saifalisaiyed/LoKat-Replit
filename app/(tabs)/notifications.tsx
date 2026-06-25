@@ -15,7 +15,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import type { Notification } from "@/lib/types";
-import { BLACK_A03, BLACK_A05, BLUE, BLUE_A10, GRASS_A10, GRAY_105, ROSE, ROSE_A10, SKY_A03, SKY_A10, WHITE } from "@/constants/colors.js";
+import { BLACK_A03, BLACK_A05, BLUE, BLUE_A10, GRASS_A10, GRAY_105, ROSE, ROSE_A10, SKY_A03, SKY_A10, WHITE } from "@/constants/colors";
 
 function getNotifIcon(type: Notification["type"]): {
   name: string;

@@ -16,7 +16,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
-import { BLACK, GRAY_100, GRAY_105, GRAY_125, GRAY_150, GRAY_280, GRAY_380, GREEN_25, GREEN_500, RED, RED_50, WHITE } from "@/constants/colors.js";
+import { BLACK, GRAY_100, GRAY_105, GRAY_125, GRAY_150, GRAY_280, GRAY_380, GREEN_25, GREEN_500, RED, RED_50, WHITE } from "@/constants/colors";
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();

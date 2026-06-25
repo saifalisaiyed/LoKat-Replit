@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
-import { BLACK, BLACK_A10, BLACK_A50, BLACK_A70, BLUE_IOS, DARK_SURFACE, GRAY_115, WHITE, WHITE_A10, WHITE_A70 } from "@/constants/colors.js";
+import { BLACK, BLACK_A10, BLACK_A50, BLACK_A70, BLUE_IOS, DARK_SURFACE, GRAY_115, WHITE, WHITE_A10, WHITE_A70 } from "@/constants/colors";
 
 export type ErrorFallbackProps = {
   error: Error;

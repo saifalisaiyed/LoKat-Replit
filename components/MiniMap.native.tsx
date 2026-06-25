@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { GRAY_180, PURPLE } from "@/constants/colors.js";
+import { GRAY_180, PURPLE } from "@/constants/colors";
 
 interface MiniMapProps {
   latitude: number;

@@ -25,7 +25,7 @@ import Colors from "@/constants/colors";
 import { CATEGORIES, type Category } from "@/lib/types";
 import MapViewWrapper from "@/components/MapViewWrapper";
 import AuthPromptModal from "@/components/AuthPromptModal";
-import { BLACK_A03, BLACK_A04, BLACK_A40, BLUE, GOLD, GRASS_A06, GRASS_A07, GRASS_A10, GRASS_A12, GRASS_A25, GRAY_170, GREEN_500, ORANGE, PINK, PURPLE_A06, PURPLE_A07, PURPLE_A08, PURPLE_A12, PURPLE_A18, PURPLE_A20, PURPLE_LIGHT, RED, RED_100, SKY_100, SKY_A08, TEAL, WHITE, WHITE_A90 } from "@/constants/colors.js";
+import { BLACK_A03, BLACK_A04, BLACK_A40, BLUE, GOLD, GRASS_A06, GRASS_A07, GRASS_A10, GRASS_A12, GRASS_A25, GRAY_170, GREEN_500, ORANGE, PINK, PURPLE_A06, PURPLE_A07, PURPLE_A08, PURPLE_A12, PURPLE_A18, PURPLE_A20, PURPLE_LIGHT, RED, RED_100, SKY_100, SKY_A08, TEAL, WHITE, WHITE_A90 } from "@/constants/colors";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;

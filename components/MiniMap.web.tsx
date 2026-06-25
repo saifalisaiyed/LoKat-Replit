@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
-import { GRAY_180 } from "@/constants/colors.js";
+import { GRAY_180 } from "@/constants/colors";
 
 interface MiniMapProps {
   latitude: number;

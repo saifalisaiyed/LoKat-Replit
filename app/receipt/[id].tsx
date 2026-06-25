@@ -14,7 +14,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
-import { BLACK, EMERALD, EMERALD_50, GRAY_105, GRAY_125, INDIGO_50, WHITE } from "@/constants/colors.js";
+import { BLACK, EMERALD, EMERALD_50, GRAY_105, GRAY_125, INDIGO_50, WHITE } from "@/constants/colors";
 
 export default function ReceiptScreen() {
   const insets = useSafeAreaInsets();

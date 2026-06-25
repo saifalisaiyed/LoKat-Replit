@@ -15,7 +15,7 @@ import { router } from "expo-router";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
-import { DARK_MAP, GRAY_190, GRAY_400, GRAY_580, GREEN_500, GREEN_500_A12, PURPLE_A12, RED_LIGHT, RED_LIGHT_A12, WHITE, WHITE_A05, WHITE_A08 } from "@/constants/colors.js";
+import { DARK_MAP, GRAY_190, GRAY_400, GRAY_580, GREEN_500, GREEN_500_A12, PURPLE_A12, RED_LIGHT, RED_LIGHT_A12, WHITE, WHITE_A05, WHITE_A08 } from "@/constants/colors";
 
 export default function PaymentSetupScreen() {
   const insets = useSafeAreaInsets();

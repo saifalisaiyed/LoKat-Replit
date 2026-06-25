@@ -15,7 +15,7 @@ import { useApp } from "@/lib/store";
 import { apiRequest } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import type { PhotoRequest } from "@/lib/types";
-import { EMERALD, EMERALD_A08, GRAY_105, GRAY_125, GRAY_290, PURPLE_A08, WHITE } from "@/constants/colors.js";
+import { EMERALD, EMERALD_A08, GRAY_105, GRAY_125, GRAY_290, PURPLE_A08, WHITE } from "@/constants/colors";
 
 const CATEGORY_LABELS: Record<string, string> = {
   landmarks: "Landmarks",

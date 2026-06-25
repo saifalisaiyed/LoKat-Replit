@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Colors from "@/constants/colors";
-import { BLACK_A60, BLUE, DARK_MAP, WHITE } from "@/constants/colors.js";
+import { BLACK_A60, BLUE, DARK_MAP, WHITE } from "@/constants/colors";
 
 interface NavigationMapProps {
   userLocation: { latitude: number; longitude: number };

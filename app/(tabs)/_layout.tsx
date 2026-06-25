@@ -6,7 +6,7 @@ import { Platform, StyleSheet, useColorScheme, View } from "react-native";
 import React from "react";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
-import { BLACK, WHITE } from "@/constants/colors.js";
+import { BLACK, WHITE } from "@/constants/colors";
 
 function NativeTabLayout() {
   return (

@@ -20,7 +20,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import Colors from "@/constants/colors";
-import { BLACK, BLACK_A50, GRAY_100, GRAY_200, WHITE } from "@/constants/colors.js";
+import { BLACK, BLACK_A50, GRAY_100, GRAY_200, WHITE } from "@/constants/colors";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 

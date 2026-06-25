@@ -11,7 +11,7 @@ import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Colors from "@/constants/colors";
-import { GRAY_105, GRAY_125, PURPLE_A06, PURPLE_A07, PURPLE_A15, WHITE } from "@/constants/colors.js";
+import { GRAY_105, GRAY_125, PURPLE_A06, PURPLE_A07, PURPLE_A15, WHITE } from "@/constants/colors";
 
 const SECTIONS = [
   {

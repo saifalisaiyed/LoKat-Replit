@@ -1,7 +1,7 @@
 // template
 import { Link, Stack } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
-import { BLUE_MED } from "@/constants/colors.js";
+import { BLUE_MED } from "@/constants/colors";
 
 export default function NotFoundScreen() {
   return (

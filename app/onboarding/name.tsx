@@ -15,7 +15,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
-import { BLACK, GRAY_105, GRAY_150, GRAY_200, GRAY_380, PURPLE_A08, RED, RED_50, WHITE } from "@/constants/colors.js";
+import { BLACK, GRAY_105, GRAY_150, GRAY_200, GRAY_380, PURPLE_A08, RED, RED_50, WHITE } from "@/constants/colors";
 
 export default function OnboardingName() {
   const insets = useSafeAreaInsets();

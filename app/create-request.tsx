@@ -23,7 +23,7 @@ import { consumePickedLocation } from "@/lib/mapPickerStore";
 import MiniMap from "@/components/MiniMap";
 import Colors from "@/constants/colors";
 import { type Orientation, type Angle, type Timing, type Category } from "@/lib/types";
-import { BLACK, BLACK_A40, BLACK_A55, EMERALD_100, GRAY_105, GRAY_130, GRAY_150, GRAY_170, GRAY_380, GRAY_600, GRAY_700, GRAY_80, GREEN_100, GREEN_50, GREEN_600, GREEN_700, PURPLE, PURPLE_100, PURPLE_30, PURPLE_75, RED, RED_50, WHITE } from "@/constants/colors.js";
+import { BLACK, BLACK_A40, BLACK_A55, EMERALD_100, GRAY_105, GRAY_130, GRAY_150, GRAY_170, GRAY_380, GRAY_600, GRAY_700, GRAY_80, GREEN_100, GREEN_50, GREEN_600, GREEN_700, PURPLE, PURPLE_100, PURPLE_30, PURPLE_75, RED, RED_50, WHITE } from "@/constants/colors";
 
 function OptionChip({
   icon,

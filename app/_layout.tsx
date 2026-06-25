@@ -28,7 +28,7 @@ import {
   Archivo_600SemiBold,
   Archivo_700Bold,
 } from "@expo-google-fonts/archivo";
-import { DARK_MAP, WHITE_A70 } from "@/constants/colors.js";
+import { DARK_MAP, WHITE_A70 } from "@/constants/colors";
 
 SplashScreen.preventAutoHideAsync();
 

@@ -16,7 +16,7 @@ import { router } from "expo-router";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import Colors from "@/constants/colors";
-import { DARK_MAP, GRAY_400, GRAY_650, PURPLE_A12, PURPLE_A18, RED_LIGHT, RED_LIGHT_A12, WHITE, WHITE_A06, WHITE_A08, WHITE_A10 } from "@/constants/colors.js";
+import { DARK_MAP, GRAY_400, GRAY_650, PURPLE_A12, PURPLE_A18, RED_LIGHT, RED_LIGHT_A12, WHITE, WHITE_A06, WHITE_A08, WHITE_A10 } from "@/constants/colors";
 
 type PayoutType = "paypal" | "bank";
 

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { StyleSheet, Platform } from "react-native";
 import MapView, { Marker, Heatmap, PROVIDER_GOOGLE } from "react-native-maps";
 import Colors from "@/constants/colors";
-import { PURPLE_A00, PURPLE_LIGHT_A40, PURPLE_MED_A80, PURPLE_MID_A60, PURPLE_PALE_A100 } from "@/constants/colors.js";
+import { PURPLE_A00, PURPLE_LIGHT_A40, PURPLE_MED_A80, PURPLE_MID_A60, PURPLE_PALE_A100 } from "@/constants/colors";
 
 interface MapWrapperProps {
   selectedPin: { latitude: number; longitude: number } | null;

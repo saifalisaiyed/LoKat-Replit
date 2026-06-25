@@ -17,7 +17,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { apiRequest } from "@/lib/query-client";
-import { EMERALD, GRAY_105, GRAY_120, GRAY_125, GRAY_150, GRAY_370, ORANGE, ORANGE_A08, PURPLE_A08, WHITE } from "@/constants/colors.js";
+import { EMERALD, GRAY_105, GRAY_120, GRAY_125, GRAY_150, GRAY_370, ORANGE, ORANGE_A08, PURPLE_A08, WHITE } from "@/constants/colors";
 
 type FeedbackType = "feedback" | "bug";
 

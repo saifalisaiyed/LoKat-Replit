@@ -18,7 +18,7 @@ import { useApp } from "@/lib/store";
 import { apiRequest } from "@/lib/query-client";
 import Colors from "@/constants/colors";
 import type { PhotoRequest } from "@/lib/types";
-import { BLUE, GRAY_105, GRAY_125, GRAY_500, GRAY_80, GREEN_500, ORANGE, RED, WHITE } from "@/constants/colors.js";
+import { BLUE, GRAY_105, GRAY_125, GRAY_500, GRAY_80, GREEN_500, ORANGE, RED, WHITE } from "@/constants/colors";
 
 const STATUS_FILTERS = [
   { key: "all", label: "All" },

@@ -15,7 +15,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { CATEGORIES, type Category, type RequestStatus } from "@/lib/types";
-import { AMBER, AMBER_A10, BLACK_A04, BLUE, BLUE_A10, EMERALD, EMERALD_A10, GRAY_105, GRAY_175, ORANGE, ORANGE_A08, PURPLE_A08, PURPLE_A10, WHITE } from "@/constants/colors.js";
+import { AMBER, AMBER_A10, BLACK_A04, BLUE, BLUE_A10, EMERALD, EMERALD_A10, GRAY_105, GRAY_175, ORANGE, ORANGE_A08, PURPLE_A08, PURPLE_A10, WHITE } from "@/constants/colors";
 
 type Tab = "active" | "history";
 type ActiveFilter = "all" | "requested";

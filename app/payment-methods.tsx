@@ -15,7 +15,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApp } from "@/lib/store";
-import { BLACK, BLACK_A45, EMERALD, EMERALD_A10, GRAY_100, GRAY_105, GRAY_125, GRAY_250, ORANGE, PURPLE_A08, WHITE } from "@/constants/colors.js";
+import { BLACK, BLACK_A45, EMERALD, EMERALD_A10, GRAY_100, GRAY_105, GRAY_125, GRAY_250, ORANGE, PURPLE_A08, WHITE } from "@/constants/colors";
 
 export default function PaymentMethodsScreen() {
   const insets = useSafeAreaInsets();

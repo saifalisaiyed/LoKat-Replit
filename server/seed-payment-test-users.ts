@@ -83,6 +83,6 @@ async function seedPaymentTestUsers() {
 seedPaymentTestUsers()
   .then(() => process.exit(0))
   .catch((e) => {
-    console.error("Seed failed:", error.message);
+    console.error("Seed failed:", e.message);
     process.exit(1);
   });

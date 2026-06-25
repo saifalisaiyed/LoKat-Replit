@@ -16,7 +16,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import type { ChatMessage } from "@/lib/types";
-import { GRAY_105, GRAY_170, GRAY_450, WHITE, WHITE_A70 } from "@/constants/colors.js";
+import { GRAY_105, GRAY_170, GRAY_450, WHITE, WHITE_A70 } from "@/constants/colors";
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();

@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { getApiUrl } from "@/lib/query-client";
 import { setPickedLocation } from "@/lib/mapPickerStore";
-import { BLACK, BLACK_A55, BLACK_A60, DARK_MAP, GRAY_110, GRAY_170, GRAY_450, GRAY_600, GRAY_750, GRAY_90, GRAY_900, PURPLE, WHITE } from "@/constants/colors.js";
+import { BLACK, BLACK_A55, BLACK_A60, DARK_MAP, GRAY_110, GRAY_170, GRAY_450, GRAY_600, GRAY_750, GRAY_90, GRAY_900, PURPLE, WHITE } from "@/constants/colors";
 
 const PIN_SIZE = 48;
 

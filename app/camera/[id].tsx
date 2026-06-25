@@ -27,7 +27,7 @@ import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import { uploadFileToStorage } from "@/client/utils/objectStorageExpo";
 import { getApiUrl } from "@/lib/query-client";
-import { BLACK, BLACK_A40, BLACK_A50, BLACK_A55, BLACK_A60, BLACK_A65, DARK_MAP, GREEN_600_A88, PURPLE_A15, PURPLE_A30, WHITE, WHITE_A07, WHITE_A10, WHITE_A12, WHITE_A20, WHITE_A35, WHITE_A45, WHITE_A50, WHITE_A75, WHITE_A85 } from "@/constants/colors.js";
+import { BLACK, BLACK_A40, BLACK_A50, BLACK_A55, BLACK_A60, BLACK_A65, DARK_MAP, GREEN_600_A88, PURPLE_A15, PURPLE_A30, WHITE, WHITE_A07, WHITE_A10, WHITE_A12, WHITE_A20, WHITE_A35, WHITE_A45, WHITE_A50, WHITE_A75, WHITE_A85 } from "@/constants/colors";
 
 function toRad(deg: number) {
   return (deg * Math.PI) / 180;

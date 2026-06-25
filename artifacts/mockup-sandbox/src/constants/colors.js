@@ -1,3 +1,4 @@
-// Bridge: re-exports all color constants from the main app's constants/colors.js
-// so that @/constants/colors.js resolves correctly inside the mockup sandbox.
-export * from '../../../../constants/colors.js';
+// Bridge: re-exports all color constants so @/constants/colors resolves
+// correctly inside the mockup sandbox Vite project.
+export * from '../../../../constants/colors.ts';
+export { default } from '../../../../constants/colors.ts';

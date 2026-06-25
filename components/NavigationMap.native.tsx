@@ -2,7 +2,7 @@ import React, { useRef, useEffect, forwardRef, useImperativeHandle } from "react
 import { StyleSheet, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import Colors from "@/constants/colors";
-import { BLACK, GOOGLE_BLUE, WHITE, WHITE_A60 } from "@/constants/colors.js";
+import { BLACK, GOOGLE_BLUE, WHITE, WHITE_A60 } from "@/constants/colors";
 
 export interface NavigationMapHandle {
   recenter: () => void;

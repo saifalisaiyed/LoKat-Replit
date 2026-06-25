@@ -16,7 +16,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/lib/store";
 import Colors from "@/constants/colors";
 import AuthPromptModal from "@/components/AuthPromptModal";
-import { GRAY_100, GRAY_105, GRAY_125, GRAY_145, GRAY_150, GRAY_250, PURPLE_A06, PURPLE_A08, PURPLE_A19, RED, RED_100, WHITE } from "@/constants/colors.js";
+import { GRAY_100, GRAY_105, GRAY_125, GRAY_145, GRAY_150, GRAY_250, PURPLE_A06, PURPLE_A08, PURPLE_A19, RED, RED_100, WHITE } from "@/constants/colors";
 
 function formatMemberSince(iso?: string) {
   if (!iso) return null;

@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import MapView, { Marker, Polygon } from "react-native-maps";
-import { PURPLE, PURPLE_A25, PURPLE_A75 } from "@/constants/colors.js";
+import { PURPLE, PURPLE_A25, PURPLE_A75 } from "@/constants/colors";
 
 interface Props {
   initialLat: number;

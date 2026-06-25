@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
-import { BLUE, BLUE_A08, EMERALD, EMERALD_A08, GRAY_100, GRAY_105, GRAY_125, GRAY_175, GRAY_250, PURPLE_A08, RED, RED_25, RED_A08, WHITE } from "@/constants/colors.js";
+import { BLUE, BLUE_A08, EMERALD, EMERALD_A08, GRAY_100, GRAY_105, GRAY_125, GRAY_175, GRAY_250, PURPLE_A08, RED, RED_25, RED_A08, WHITE } from "@/constants/colors";
 
 export default function PrivacySecurityScreen() {
   const insets = useSafeAreaInsets();
