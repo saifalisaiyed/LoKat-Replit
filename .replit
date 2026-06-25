@@ -82,3 +82,7 @@ ensurePreviewReachable = "/status"
 
 [userenv.shared]
 GOOGLE_PLACES_API_KEY = "AIzaSyBiwNrDbCJITRA5ql2Kc8GvO06o1fu_8iQ"
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 120000
