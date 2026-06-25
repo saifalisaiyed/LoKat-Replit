@@ -3,12 +3,12 @@ import { Platform } from "react-native";
 import { router } from "expo-router";
 import { getApiUrl } from "./query-client";
 import Constants from "expo-constants";
+import * as Notifications from "expo-notifications";
 
 const isExpoGo = Constants.appOwnership === "expo";
 
 if (!isExpoGo && Platform.OS !== "web") {
   try {
-    const Notifications = require("expo-notifications");
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -25,7 +25,6 @@ if (!isExpoGo && Platform.OS !== "web") {
 async function registerForPushNotificationsAsync(): Promise<string | null> {
   if (Platform.OS === "web" || isExpoGo) return null;
   try {
-    const Notifications = require("expo-notifications");
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== "granted") {
@@ -70,8 +69,6 @@ export function usePushNotifications(isAuthenticated: boolean): void {
     });
 
     try {
-      const Notifications = require("expo-notifications");
-
       foregroundListenerRef.current = Notifications.addNotificationReceivedListener(() => {});
 
       responseListenerRef.current = Notifications.addNotificationResponseReceivedListener(
@@ -98,7 +95,6 @@ export function usePushNotifications(isAuthenticated: boolean): void {
 
     return () => {
       try {
-        const Notifications = require("expo-notifications");
         if (foregroundListenerRef.current) {
           Notifications.removeNotificationSubscription(foregroundListenerRef.current);
         }

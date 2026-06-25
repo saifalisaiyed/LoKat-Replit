@@ -4,6 +4,7 @@ import { useHomeSearch } from "@/hooks/useHomeSearch";
 import { View, Pressable, Text, ScrollView, FlatList, Platform, Dimensions, TextInput, Modal, ActivityIndicator, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "@/lib/store";
@@ -262,7 +263,6 @@ export default function HomeScreen() {
 
   const requestLocation = async () => {
     try {
-      const Location = require("expo-location");
       const { status } = await Location.requestForegroundPermissionsAsync();
       setPermissionStatus(status);
       if (status === "granted") {
@@ -401,7 +401,6 @@ export default function HomeScreen() {
           animateMapToCoords(myCoordsRef.current.latitude, myCoordsRef.current.longitude);
           return;
         }
-        const Location = require("expo-location");
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === "granted") {
           const last = await Location.getLastKnownPositionAsync();

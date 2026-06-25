@@ -8,10 +8,14 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Linking,
 } from "react-native";
 import { CameraView, useCameraPermissions, CameraType } from "expo-camera";
 import { Image } from "expo-image";
 import { File } from "expo-file-system";
+import * as FileSystem from "expo-file-system";
+import * as Location from "expo-location";
+import { Magnetometer, Accelerometer } from "expo-sensors";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -157,7 +161,6 @@ export default function CameraScreen() {
     // 33ms ticks → 30fps, low-pass filter kills jitter, arrowRotationSV
     // updated directly on the Reanimated UI thread — zero React re-renders.
     try {
-      const { Magnetometer, Accelerometer } = require("expo-sensors");
       // 33ms ≈ 30fps; accelerometer slightly faster so data is fresh when mag fires
       Accelerometer.setUpdateInterval(25);
       Magnetometer.setUpdateInterval(33);
@@ -206,7 +209,6 @@ export default function CameraScreen() {
     // Live location → distance badge
     (async () => {
       try {
-        const Location = require("expo-location");
         locationWatchRef.current = await Location.watchPositionAsync(
           { accuracy: Location.Accuracy.Balanced, distanceInterval: 3 },
           (loc: any) => {
@@ -299,7 +301,6 @@ export default function CameraScreen() {
               style={styles.permBtn}
               onPress={() => {
                 try {
-                  const { Linking } = require("react-native");
                   Linking.openSettings();
                 } catch (_settingsError) {}
               }}
@@ -355,7 +356,6 @@ export default function CameraScreen() {
     try {
       if (Platform.OS !== "web") {
         try {
-          const Location = require("expo-location");
           const loc = await Location.getCurrentPositionAsync({
             accuracy: Location.Accuracy.High,
           });
@@ -409,7 +409,6 @@ export default function CameraScreen() {
       // If processedUri is a data URI (blurred result), write to a temp file
       // before upload — expo-file-system File requires a real file path
       if (uriToUpload.startsWith("data:") && Platform.OS !== "web") {
-        const FileSystem = require("expo-file-system");
         const base64Data = uriToUpload.split(",")[1];
         const tmpPath = `${FileSystem.cacheDirectory}submit_${Date.now()}.jpg`;
         await FileSystem.writeAsStringAsync(tmpPath, base64Data, {

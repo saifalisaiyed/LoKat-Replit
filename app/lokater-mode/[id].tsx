@@ -5,6 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams, useNavigation, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
+import * as Location from "expo-location";
+import { Magnetometer } from "expo-sensors";
 import { useApp } from "@/lib/store";
 import { getApiUrl } from "@/lib/query-client";
 import NavigationMap from "@/components/NavigationMap";
@@ -208,7 +210,6 @@ export default function LoKaterModeScreen() {
 
   useEffect(() => {
     if (Platform.OS === "web") return;
-    const { Magnetometer } = require("expo-sensors");
     Magnetometer.setUpdateInterval(100);
     const sub = Magnetometer.addListener((data: { x: number; y: number; z: number }) => {
       const radian = Math.atan2(-data.x, data.y);
@@ -255,7 +256,6 @@ export default function LoKaterModeScreen() {
           setIsTracking(true);
         }
       } else {
-        const Location = require("expo-location");
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           setLocationError(true);

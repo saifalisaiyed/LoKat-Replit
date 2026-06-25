@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "@/lib/store";
+import { getApiUrl } from "@/lib/query-client";
 import type { ChatMessage } from "@/lib/types";
 import {
   GRAY_105,
@@ -37,7 +38,6 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (!id) return;
-    const { getApiUrl } = require("@/lib/query-client");
     const url = new URL(`/api/requests/${id}`, getApiUrl());
     fetch(url.toString(), { credentials: "include" })
       .then((res) => res.ok ? res.json() : null)
