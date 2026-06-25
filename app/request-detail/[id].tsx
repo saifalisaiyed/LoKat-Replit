@@ -47,7 +47,7 @@ import {
   WHITE_A90,
 } from "@/constants/colors";
 
-import styles from "./[id].styles";
+import styles from "@/styles/request-detail/[id]";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.32;

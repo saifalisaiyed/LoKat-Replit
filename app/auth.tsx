@@ -34,7 +34,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./auth.styles";
+import styles from "@/styles/auth";
 
 const lokatLogo = require("@/assets/images/lokat-logo.png");
 

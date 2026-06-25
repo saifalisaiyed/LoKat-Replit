@@ -41,7 +41,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./create-request.styles";
+import styles from "@/styles/create-request";
 
 function OptionChip({
   icon,

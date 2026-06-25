@@ -26,7 +26,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./notifications.styles";
+import styles from "@/styles/(tabs)/notifications";
 
 function getNotifIcon(type: Notification["type"]): {
   name: string;

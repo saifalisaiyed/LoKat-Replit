@@ -19,7 +19,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./[id].styles";
+import styles from "@/styles/receipt/[id]";
 
 export default function ReceiptScreen() {
   const insets = useSafeAreaInsets();

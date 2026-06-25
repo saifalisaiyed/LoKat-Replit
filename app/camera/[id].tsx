@@ -60,7 +60,7 @@ import {
   WHITE_A85,
 } from "@/constants/colors";
 
-import styles from "./[id].styles";
+import styles from "@/styles/camera/[id]";
 
 function toRad(deg: number) {
   return (deg * Math.PI) / 180;

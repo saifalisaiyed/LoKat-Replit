@@ -24,7 +24,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./edit-profile.styles";
+import styles from "@/styles/edit-profile";
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();

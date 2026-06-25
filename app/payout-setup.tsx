@@ -21,7 +21,7 @@ import {
   WHITE_A10,
 } from "@/constants/colors";
 
-import styles from "./payout-setup.styles";
+import styles from "@/styles/payout-setup";
 
 export default function PayoutSetupScreen() {
   const insets = useSafeAreaInsets();

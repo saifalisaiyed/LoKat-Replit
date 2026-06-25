@@ -28,7 +28,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./orders.styles";
+import styles from "@/styles/(tabs)/orders";
 
 
 function getStatusConfig(status: RequestStatus) {

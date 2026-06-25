@@ -24,7 +24,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./privacy-security.styles";
+import styles from "@/styles/privacy-security";
 
 export default function PrivacySecurityScreen() {
   const insets = useSafeAreaInsets();

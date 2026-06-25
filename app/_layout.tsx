@@ -26,7 +26,7 @@ import {
 } from "@expo-google-fonts/archivo";
 import { DARK_MAP, WHITE_A70 } from "@/constants/colors";
 
-import splashStyles from "./splashStyles";
+import splashStyles from "@/styles/splashStyles";
 
 const splashBg = require("@/assets/images/splash.png");
 const lokatFullLogo = require("@/assets/images/lokat-full-logo.png");

@@ -19,7 +19,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./email.styles";
+import styles from "@/styles/onboarding/email";
 
 export default function OnboardingEmail() {
   const insets = useSafeAreaInsets();

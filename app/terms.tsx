@@ -13,7 +13,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./terms.styles";
+import styles from "@/styles/terms";
 
 const SECTIONS = [
   {

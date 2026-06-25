@@ -24,7 +24,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./change-password.styles";
+import styles from "@/styles/change-password";
 
 export default function ChangePasswordScreen() {
   const insets = useSafeAreaInsets();

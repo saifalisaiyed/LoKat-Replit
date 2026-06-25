@@ -43,7 +43,7 @@ import {
   WHITE_A95,
 } from "@/constants/colors";
 
-import styles from "./index.styles";
+import styles from "@/styles/(tabs)/index";
 
 const LOCATION_FILTERS = [
   { key: "anywhere", label: "Anywhere", icon: "globe-outline" },

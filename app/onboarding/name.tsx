@@ -20,7 +20,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./name.styles";
+import styles from "@/styles/onboarding/name";
 
 export default function OnboardingName() {
   const insets = useSafeAreaInsets();

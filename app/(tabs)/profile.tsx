@@ -24,7 +24,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./profile.styles";
+import styles from "@/styles/(tabs)/profile";
 
 function formatMemberSince(iso?: string) {
   if (!iso) return null;

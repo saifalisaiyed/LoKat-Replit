@@ -23,7 +23,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./admin.styles";
+import styles from "@/styles/admin";
 
 const STATUS_FILTERS = [
   { key: "all", label: "All" },

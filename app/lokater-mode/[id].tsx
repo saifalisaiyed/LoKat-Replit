@@ -45,7 +45,7 @@ import {
   WHITE_A95,
 } from "@/constants/colors";
 
-import styles from "./[id].styles";
+import styles from "@/styles/lokater-mode/[id]";
 
 const { width: _SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get("window");
 

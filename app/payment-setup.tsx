@@ -23,7 +23,7 @@ import {
   WHITE_A08,
 } from "@/constants/colors";
 
-import styles from "./payment-setup.styles";
+import styles from "@/styles/payment-setup";
 
 export default function PaymentSetupScreen() {
   const insets = useSafeAreaInsets();

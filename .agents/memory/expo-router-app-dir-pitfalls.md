@@ -8,8 +8,9 @@ description: Files in app/ that crash Metro/Expo Router route resolution and the
 Everything in `app/` is treated as a route by Expo Router. Two patterns cause hard crashes:
 
 1. **Platform-tagged non-route files** — e.g. `map-picker.native.styles.ts` + `map-picker.web.styles.ts` with NO plain `map-picker.styles.ts` sibling. Expo Router's `getRoutes` throws `"The file ... does not have a fallback sibling file without a platform extension."` at route-tree build time, crashing `ContextNavigator` for the whole app.
-   - Plain `*.styles.ts` (no `.native`/`.web`) are tolerated: they generate an unused route that's never navigated to, so no warning/crash.
-   - **Fix:** if native/web style files are identical, merge into one plain `*.styles.ts` and import that from both `*.native.tsx` and `*.web.tsx`. Better: keep non-route files out of `app/` entirely.
+   - Plain `*.styles.ts` in app/ ROOT or a Stack group are tolerated: they generate an unused route that's never navigated to, so no warning/crash.
+   - **BUT** any non-route file inside `app/(tabs)/` (or any folder rendered by a Tabs/NativeTabs navigator) becomes a VISIBLE phantom tab — an empty, icon-less box in the tab bar. This includes `*.styles.ts` AND any helper `.ts` (e.g. a renamed `tabStyles.ts`). Symptom: "bunch of empty boxes in the bottom nav."
+   - **Correct fix (do this for the whole project):** keep ALL non-route files out of `app/` entirely. Move them to a top-level `styles/` dir mirroring the structure and import via the `@/` alias (`@/styles/(tabs)/index`, etc.). The `@/*` → `./*` alias resolves folder names with parentheses fine. Do NOT just rename-in-place (e.g. `_layout.styles.ts`→`tabStyles.ts`); if it stays in app/ it's still a route/phantom tab.
 
 2. **Co-located helper files importing `@/constants/colors.js`** — the `@/` alias does not resolve from inside `node_modules`; never let a node_modules file import it.
 

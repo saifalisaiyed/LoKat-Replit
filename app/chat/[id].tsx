@@ -18,7 +18,7 @@ import {
   WHITE_A70,
 } from "@/constants/colors";
 
-import styles from "./[id].styles";
+import styles from "@/styles/chat/[id]";
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();

@@ -15,7 +15,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./privacy-policy.styles";
+import styles from "@/styles/privacy-policy";
 
 const SECTIONS = [
   {

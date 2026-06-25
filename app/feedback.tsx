@@ -22,7 +22,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./feedback.styles";
+import styles from "@/styles/feedback";
 
 const TYPES: { key: FeedbackType; label: string; icon: string; color: string; bg: string }[] = [
   { key: "feedback", label: "General Feedback", icon: "message-square", color: PURPLE, bg: PURPLE_A08 },

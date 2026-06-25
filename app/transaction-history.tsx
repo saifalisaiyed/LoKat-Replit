@@ -19,7 +19,7 @@ import {
   WHITE,
 } from "@/constants/colors";
 
-import styles from "./transaction-history.styles";
+import styles from "@/styles/transaction-history";
 
 const CATEGORY_LABELS: Record<string, string> = {
   landmarks: "Landmarks",
