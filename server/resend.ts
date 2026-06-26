@@ -35,10 +35,17 @@ async function getCredentials() {
   };
 }
 
+// Cached Resend client — refreshed every hour
+let _resendCache: { client: Resend; fromEmail: string; expiresAt: number } | null = null;
+
 export async function getUncachableResendClient() {
+  const now = Date.now();
+  if (_resendCache && now < _resendCache.expiresAt) return _resendCache;
   const { apiKey, fromEmail } = await getCredentials();
-  return {
+  _resendCache = {
     client: new Resend(apiKey),
     fromEmail: fromEmail || "LoKat App <onboarding@resend.dev>",
+    expiresAt: now + 60 * 60 * 1000,
   };
+  return _resendCache;
 }

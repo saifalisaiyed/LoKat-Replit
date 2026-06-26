@@ -78,6 +78,20 @@ export const notifications = pgTable("notifications", {
 });
 
 
+export const adminAuditLog = pgTable("admin_audit_log", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  adminId: varchar("admin_id")
+    .notNull()
+    .references(() => users.id),
+  action: text("action").notNull(),
+  targetType: text("target_type").notNull(),
+  targetId: text("target_id"),
+  detail: text("detail"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const messages = pgTable("messages", {
   id: varchar("id")
     .primaryKey()
@@ -116,3 +130,4 @@ export type PhotoRequest = typeof photoRequests.$inferSelect;
 export type InsertPhotoRequest = z.infer<typeof insertPhotoRequestSchema>;
 export type Notification = typeof notifications.$inferSelect;
 export type Message = typeof messages.$inferSelect;
+export type AdminAuditLog = typeof adminAuditLog.$inferSelect;

@@ -35,10 +35,19 @@ function setupRateLimiting(app: express.Application) {
     message: { message: "Too many attempts, please try again in 15 minutes." },
   });
 
+  const paymentLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many payment attempts, please try again later." },
+  });
+
   app.use("/api/", generalLimiter);
   app.use("/api/auth/login", authLimiter);
   app.use("/api/auth/register", authLimiter);
   app.use("/api/auth/forgot-password", authLimiter);
+  app.use("/api/payments/", paymentLimiter);
 }
 
 function setupCors(app: express.Application) {

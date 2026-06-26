@@ -3,15 +3,30 @@ import { createServer, type Server } from "node:http";
 import multer from "multer";
 import * as fs from "fs";
 import * as path from "path";
+import * as crypto from "crypto";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
-import { storage, verifyPassword, hashPassword } from "./storage";
+import { storage, verifyPassword, hashPassword, logAdminAction } from "./storage";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { getUncachableResendClient } from "./resend";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
+
+// Per-email OTP rate limiting: max 3 attempts per 15 minutes
+const otpAttempts = new Map<string, { count: number; resetAt: number }>();
+function checkOtpRateLimit(email: string): boolean {
+  const now = Date.now();
+  const record = otpAttempts.get(email);
+  if (!record || now > record.resetAt) {
+    otpAttempts.set(email, { count: 1, resetAt: now + 15 * 60 * 1000 });
+    return true;
+  }
+  if (record.count >= 3) return false;
+  record.count++;
+  return true;
+}
 
 // BlazeFace singleton — loaded once on first face-blur request
 let _blazeFaceModel: any = null;
@@ -39,6 +54,7 @@ function getSessionStore() {
     conString: process.env.DATABASE_URL,
     createTableIfMissing: true,
     tableName: "user_sessions",
+    pruneSessionInterval: 60 * 60, // prune expired sessions every hour
   });
 }
 
@@ -168,6 +184,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user || !verifyPassword(password, user.password)) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
+      // Silently upgrade legacy SHA-256 hash to bcrypt on successful login
+      if (/^[0-9a-f]{64}$/.test(user.password)) {
+        await storage.changePassword(user.id, hashPassword(password)).catch(() => {});
+      }
       req.session.userId = user.id;
       const { password: _, ...safeUser } = user;
       return res.json({ user: safeUser });
@@ -205,12 +225,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email } = req.body;
       if (!email) return res.status(400).json({ message: "Email is required" });
 
-      const user = await storage.getUserByEmail(email.trim().toLowerCase());
+      const normalizedEmail = email.trim().toLowerCase();
+      if (!checkOtpRateLimit(normalizedEmail)) {
+        // Return ok to avoid confirming whether the email exists
+        return res.json({ ok: true });
+      }
+
+      const user = await storage.getUserByEmail(normalizedEmail);
       if (!user) {
         return res.json({ ok: true });
       }
 
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otp = (crypto.randomInt(100000, 1000000)).toString();
       const expiry = new Date(Date.now() + 15 * 60 * 1000);
       await storage.setResetToken(user.id, otp, expiry);
 
@@ -259,8 +285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Code has expired. Please request a new one." });
       }
 
-      const crypto = await import("crypto");
-      const hashed = crypto.createHash("sha256").update(newPassword.trim()).digest("hex");
+      const hashed = hashPassword(newPassword.trim());
       await storage.resetUserPassword(user.id, hashed);
 
       return res.json({ ok: true });
@@ -770,7 +795,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return res.json({ polyline: [] });
   });
 
-  app.get("/api/profile/:id", async (req: Request, res: Response) => {
+  app.get("/api/profile/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const user = await storage.getUser(paramId(req));
       if (!user) return res.status(404).json({ message: "User not found" });
@@ -1089,6 +1114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/requests", requireAdmin, async (req: Request, res: Response) => {
     try {
       const count = await storage.deleteAllRequests();
+      await logAdminAction(req.session.userId!, "delete_all_requests", "photo_requests", undefined, `Deleted ${count} requests`);
       return res.json({ deleted: count });
     } catch (error) {
       console.error("Admin delete requests error:", error);
@@ -1195,7 +1221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
         });
       } catch (stripeErr: any) {
-        console.error("Stripe charge failed:", stripeErr.message);
+        console.error("Stripe charge failed:", stripeErr.type ?? "unknown_error", stripeErr.code ?? "");
         const code = stripeErr.code || "PAYMENT_FAILED";
         return res.status(402).json({
           message: "Payment could not be processed. The seeker may need to update their card.",

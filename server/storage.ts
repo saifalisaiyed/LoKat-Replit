@@ -5,6 +5,7 @@ import {
   photoRequests,
   notifications,
   messages,
+  adminAuditLog,
   type User,
   type InsertUser,
   type PhotoRequest,
@@ -473,3 +474,17 @@ export class DatabaseStorage implements IStorage {
 }
 
 export const storage = new DatabaseStorage();
+
+export async function logAdminAction(
+  adminId: string,
+  action: string,
+  targetType: string,
+  targetId?: string,
+  detail?: string,
+): Promise<void> {
+  try {
+    await db.insert(adminAuditLog).values({ adminId, action, targetType, targetId, detail });
+  } catch (err) {
+    console.error("Failed to write admin audit log:", err);
+  }
+}

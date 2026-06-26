@@ -40,14 +40,27 @@ async function getCredentials() {
   };
 }
 
+// Cached Stripe client — refreshed every hour
+let _stripeCache: { client: Stripe; publishableKey: string; expiresAt: number } | null = null;
+
+async function getCachedCredentials() {
+  const now = Date.now();
+  if (_stripeCache && now < _stripeCache.expiresAt) return _stripeCache;
+  const { secretKey, publishableKey } = await getCredentials();
+  _stripeCache = {
+    client: new Stripe(secretKey, { apiVersion: "2025-08-27.basil" as any }),
+    publishableKey,
+    expiresAt: now + 60 * 60 * 1000,
+  };
+  return _stripeCache;
+}
+
 export async function getUncachableStripeClient(): Promise<Stripe> {
-  const { secretKey } = await getCredentials();
-  return new Stripe(secretKey, { apiVersion: "2025-08-27.basil" as any });
+  return (await getCachedCredentials()).client;
 }
 
 export async function getStripePublishableKey(): Promise<string> {
-  const { publishableKey } = await getCredentials();
-  return publishableKey;
+  return (await getCachedCredentials()).publishableKey;
 }
 
 let stripeSync: any = null;
