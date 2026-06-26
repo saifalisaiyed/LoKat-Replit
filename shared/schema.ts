@@ -7,6 +7,7 @@ import {
   integer,
   boolean,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -31,7 +32,10 @@ export const users = pgTable("users", {
   resetToken: text("reset_token"),
   resetTokenExpiry: timestamp("reset_token_expiry"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  uniqueIndex("users_email_unique").on(table.email).where(sql`email != ''`),
+  uniqueIndex("users_phone_unique").on(table.phone).where(sql`phone != ''`),
+]);
 
 export const photoRequests = pgTable("photo_requests", {
   id: varchar("id")
