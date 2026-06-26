@@ -1,4 +1,5 @@
 import express from "express";
+import helmet from "helmet";
 import type { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
@@ -7,6 +8,7 @@ import * as path from "path";
 import { WebhookHandlers } from "./webhookHandlers";
 
 const app = express();
+app.use(helmet());
 const log = console.log;
 
 declare module "http" {
