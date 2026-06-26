@@ -10,6 +10,8 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { getUncachableResendClient } from "./resend";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 // BlazeFace singleton — loaded once on first face-blur request
 let _blazeFaceModel: any = null;
@@ -1388,6 +1390,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 <body><div><div class="icon">↩️</div><div class="title">Cancelled</div>
 <div class="sub">You can close this window and return to LoKat.</div></div></body></html>`);
   });
+
+  // Scheduled job: delete expired sessions once per day
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+  const cleanupExpiredSessions = async () => {
+    try {
+      const result = await db.execute(
+        sql`DELETE FROM user_sessions WHERE expire < NOW()`,
+      );
+      console.log(`[session-cleanup] removed ${result.rowCount ?? 0} expired sessions`);
+    } catch (err) {
+      console.error("[session-cleanup] failed:", err);
+    }
+  };
+  const sessionCleanupTimer = setInterval(cleanupExpiredSessions, ONE_DAY_MS);
+  sessionCleanupTimer.unref();
 
   const httpServer = createServer(app);
   return httpServer;
